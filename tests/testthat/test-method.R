@@ -28,6 +28,10 @@ my_method <- new("Method",
                                f = draw[1]))
                  })
 
+remove_time_from_out <- function(out) {
+  for (i in seq(length(out@out))) out@out[[i]] <- out@out$time <- 0
+}
+
 test_that("run_methods handles multiple indices as expected", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
@@ -37,6 +41,7 @@ test_that("run_methods handles multiple indices as expected", {
   out <- load_outputs(dir, "tm", 2, "my")
   run_method(my_method, dir, "tm", index=2:3)
   out2 <- load_outputs(dir, "tm", 2, "my")
-  expect_identical(out, out2)
+  expect_identical(remove_time_from_out(out),
+                   remove_time_from_out(out2))
   unlink(dir, recursive = TRUE)
 })
