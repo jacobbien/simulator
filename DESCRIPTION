@@ -1,0 +1,29 @@
+Package: simulator
+Title: An Engine for Running Simulations
+Version: 0.0.0.9000
+Authors@R: person("Jacob", "Bien", email = "jbien@cornell.edu", role = c("aut", "cre"))
+Description: A framework for performing simulations such as those common in
+    methodological statistics papers.
+Depends:
+    R (>= 3.2.0)
+License: GPL-3
+LazyData: true
+Suggests:
+    knitr,
+    testthat
+VignetteBuilder: knitr
+Collate:
+    'component-class.R'
+    'utils.R'
+    'create.R'
+    'model-class.R'
+    'draws-class.R'
+    'draws.R'
+    'output-class.R'
+    'method-class.R'
+    'methods.R'
+    'models.R'
+    'parallel-draws.R'
+    'parallel-methods.R'
+    'parallel.R'
+    'zzz.R'
