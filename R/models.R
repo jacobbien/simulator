@@ -40,7 +40,7 @@ NULL
 #'     return(new("Model", name = "fm", label = "My First Model",
 #'                params = params, simulate = simulate))
 #'  }
-#'  generate_model(make_my_model, "files/inputs")
+#'  generate_model(make_my_model, dir = ".")
 #'  }
 generate_model <- function(make_model, dir = ".", seed=123, ...) {
   # Thinking of this as an internal function.  See MakeFixed.
@@ -56,7 +56,7 @@ generate_model <- function(make_model, dir = ".", seed=123, ...) {
   if (class(model) != "Model")
     stop("make_model must return an object of class Model.")
   # create directories files and files/model_name if don't exist)
-  files_dir <- file.path(dir, "files")
+  files_dir <- file.path(dir, getOption("simulator.files"))
   if (!file.exists(files_dir)) dir.create(files_dir)
   model_dir <- file.path(files_dir, model@name)
   if (!file.exists(model_dir)) dir.create(model_dir)
