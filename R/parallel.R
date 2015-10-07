@@ -1,4 +1,4 @@
-#' @export
+#' Load necessary libraries on a cluster
 load_libraries_on_cluster <- function(cl, libs) {
   libs <- unique(libs)
   stopifnot(is.character(libs))
@@ -44,7 +44,6 @@ check_parallel_list <- function(parallel) {
 #'        slaves.
 #' @param save_locally if TRUE, then files will be saved on slaves.  If FALSE,
 #'        they will be saved on master.
-#' @export
 do_in_parallel <- function(function_to_do, function_params,
                            save_to_file, save_params, socket_names,
                            libraries, save_locally = TRUE, out_dir = NULL) {
@@ -70,7 +69,10 @@ do_in_parallel <- function(function_to_do, function_params,
   } else {
     wrapper <- inner_wrapper
   }
-  cl <- parallel::makePSOCKcluster(names = socket_names, outfile = NULL)
+  if (getOption("simulator.slave_stdout_stderr_to_master"))
+    cl <- parallel::makePSOCKcluster(names = socket_names, outfile = "")
+  else
+    cl <- parallel::makePSOCKcluster(names = socket_names)
   if (!("simulator" %in% libraries)) libraries <- c("simulator", libraries)
 
   tryCatch({
