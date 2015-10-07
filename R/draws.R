@@ -47,31 +47,43 @@ simulate_from_model <- function(dir = ".", model_name, nsim,
     o <- order(index)
     index <- index[o]; nsim <- nsim[o]
   }
-  files <- rep(NA, length(index))
+  md <- get_model_dir_and_file(dir, model_name)
   # generate L'Ecuyer seeds based on model's seed
-  seeds <- get_seeds_for_draws(dir, model_name, index)
+  m <- load_model(dir, model_name, more_info = TRUE)
+  model_seed <- m$rng$rng_seed # seed used to generate m$model
+  seeds <- get_seeds_for_draws(model_seed, index)
+  files <- rep(NA, length(index))
   if (is.null(parallel) || length(index) == 1) {
     # simulate sequentially
     for (i in seq(length(index))) {
-      files[i] <- simulate_from_model_single(dir, model_name, nsim = nsim[i],
-                                             index = index[i],
-                                             seed = seeds[[i]])
+       d <- simulate_from_model_single(m$model, nsim = nsim[i],
+                                       index = index[i], seed = seeds[[i]])
+       files[i] <- save_draws_to_file(md$dir, index[i], nsim[i], d$draws,
+                                      d$rng, d$time[1])
     }
   } else {
     check_parallel_list(parallel)
-    files <- simulate_parallel(dir, model_name, nsim, index,
-                               seeds = seeds,
+    if (is.null(parallel$save_locally)) parallel$save_locally <- FALSE
+    files <- simulate_parallel(dir, model_name, nsim, index, seeds = seeds,
                                socket_names = parallel$socket_names,
-                               libraries = parallel$libraries)
+                               libraries = parallel$libraries,
+                               save_locally = parallel$save_locally)
   }
   invisible(files)
 }
 
-get_seeds_for_draws <- function(dir, model_name, index) {
+save_draws_to_file <- function(model_dir, index, nsim, draws, rng, time) {
+  file <- sprintf("%s/r%s.Rdata", model_dir, index)
+  save(draws, rng, file = file)
+  catsim(sprintf("..Simulated %s draws in %s sec and saved in %s", nsim,
+                 round(time, 2), file), fill = TRUE)
+  file
+}
+
+get_seeds_for_draws <- function(model_seed, index) {
   RNGkind("L'Ecuyer-CMRG")
-  m <- load_model(dir, model_name, more_info = TRUE)
   # index gives which stream relative to stream used to generate model:
-  seeds <- list(m$rng$rng_seed)
+  seeds <- list(model_seed)
   for (i in seq(2, 1 + max(index)))
     seeds[[i]] <- parallel::nextRNGStream(seeds[[i - 1]])
   seeds <- seeds[-1]
@@ -84,37 +96,28 @@ get_seeds_for_draws <- function(dir, model_name, index) {
 #' This is an internal function.  Users should call the wrapper function
 #' \code{\link{simulate_from_model}}.
 #'
-#' @param dir the directory passed to \code{\link{generate_model}}).
-#' @param model_name the Model object's \code{name} attribute
+#' @param model a Model object
 #' @param nsim number of simulations to be conducted.
 #' @param index a positive integer index.
 #' @param seed this is the 7 digit seed used by L'Ecuyer RNG
-simulate_from_model_single <- function(dir, model_name, nsim, index, seed) {
+simulate_from_model_single <- function(model, nsim, index, seed) {
   stopifnot(length(nsim) == 1, length(index) == 1)
-  # load generated model:
-  md <- get_model_dir_and_file(dir, model_name)
-  model <- load_model(dir, model_name, more_info = FALSE)
   RNGkind("L'Ecuyer-CMRG")
   .Random.seed <<- seed
   time <- system.time({sims1 <- model@simulate(model@params, nsim)})
   rng <- list(rng_seed = seed, rng_end_seed = .Random.seed)
   sims <- list()
-  attr(sims, "time") <- time
   for (i in seq(nsim))
     sims[[sprintf("r%s.%s", index, i)]] <- sims1[[i]]
   rm(sims1)
-  # create object of class Draws and save to file:
-  file <- sprintf("%s/r%s.Rdata", md$dir, index)
+  # create object of class Draws
   draws <- new("Draws", name = model@name,
                label = sprintf("(Block %s:) %s draws from %s", index, nsim,
                                model@label),
                draws = sims,
                index = as.integer(index))
   validObject(draws)
-  save(draws, rng, file = file)
-  catsim(sprintf("..Simulated %s draws in %s sec and saved in %s", nsim,
-              round(time[1], 2), file), fill = TRUE)
-  invisible(file)
+  return(list(draws = draws, rng = rng, time = time))
 }
 
 

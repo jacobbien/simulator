@@ -1,3 +1,5 @@
+options(simulator.verbose = FALSE)
+
 context("Parallel")
 
 make_testmodel <- function() {
@@ -17,11 +19,12 @@ test_that("seeds is deterministic", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   generate_model(make_testmodel, dir = dir)
-  seeds <- get_seeds_for_draws(dir, "tm", 1:4)
-  seeds2 <- get_seeds_for_draws(dir, "tm", 1:4)
+  model_seed <- load_model(dir, "tm", more_info = TRUE)$rng$rng_seed
+  seeds <- get_seeds_for_draws(model_seed, 1:4)
+  seeds2 <- get_seeds_for_draws(model_seed, 1:4)
   expect_identical(seeds, seeds2)
 
-  seeds3 <- get_seeds_for_draws(dir, "tm", c(2,4))
+  seeds3 <- get_seeds_for_draws(model_seed, c(2,4))
   expect_identical(seeds[c(2,4)], seeds3[1:2])
   unlink(dir, recursive = TRUE)
 })
@@ -34,6 +37,7 @@ test_that("get same draws if chunks done together or separately", {
     # done together:
     simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:4)
     draws <- load_draws(dir, "tm", 1:4)
+    file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:4)))
     # done separately, and out of order:
     simulate_from_model(dir, model_name = "tm", nsim = 2, index = 3:4)
     simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:2)
@@ -46,17 +50,20 @@ test_that("get same draws if chunks done together or separately", {
 test_that("simulate_from_model output same parallel v. sequential", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  sink(file.path(dir,"out.txt"))
-  tryCatch({
-    generate_model(make_testmodel, dir = dir)
-    # in sequence:
-    simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5)
-    seqdraws <- load_draws(dir, "tm", 1:5)
-    #simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5,
-    #                    parallel = list(socket_names = 2))
-    simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5)
-    pardraws <- load_draws(dir, "tm", 1:5)
-  }, finally={sink()})
+  generate_model(make_testmodel, dir = dir)
+  # in sequence:
+  simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5)
+  seqdraws <- load_draws(dir, "tm", 1:5)
+  file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:5)))
+  simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5,
+                      parallel = list(socket_names = 2, save_locally = FALSE))
+  pardraws <- load_draws(dir, "tm", 1:5)
   expect_identical(seqdraws, pardraws)
+
+  file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:5)))
+  simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5,
+                      parallel = list(socket_names = 2, save_locally = TRUE))
+  pardraws2 <- load_draws(dir, "tm", 1:5)
+  expect_identical(pardraws, pardraws2)
   unlink(dir, recursive = TRUE)
 })
