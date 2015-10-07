@@ -30,56 +30,31 @@
 simulate_parallel <- function(dir, model_name, nsim, index, seeds,
                               socket_names, libraries, save_locally = TRUE) {
   stopifnot(length(index) == length(nsim))
-  # This function will be called on each cpu:
-  inner_simulate_wrapper <- function(i) {
+  # this is function to be run on each slave:
+  function_to_do <- function(dir, model_name, nsim, index, seed) {
     model <- load_model(dir, model_name)
-    simulate_from_model_single(model, nsim[i], index[i], seeds[[i]])
+    simulate_from_model_single(model, nsim, index, seed)
   }
-  if (save_locally) {
-    simulate_wrapper <- function(i) {
-      # create model's directory on slave if it doesn't yet exist:
-      model_dir <- file.path(remove_slash(dir), getOption("simulator.files"),
-                             model_name)
-      if (!dir.exists(model_dir))
-        dir.create(model_dir, recursive = TRUE)
-      d <- inner_simulate_wrapper(i)
-      # save this draws on slave
-      file <- save_draws_to_file(model_dir, index[i], nsim[i],
-                                 d$draws, d$rng, d$time[1])
-      return(file)
-    }
-  } else {
-    simulate_wrapper <- inner_simulate_wrapper
+  # make list where params1[[i]] are the arguments to pass to
+  # function_to_do for i-th index
+  params1 <- lapply(seq(length(index)),
+                    function(i) list(dir = dir, model_name = model_name,
+                                     nsim = nsim[i], index = index[i],
+                                     seed = seeds[[i]]))
+  # this is function to use when saving info in d to file (whether it be on
+  # slave or master):
+  save_to_file <- function(draws, rng, time, out_dir, index, nsim) {
+    save_draws_to_file(out_dir, index, nsim, draws, rng, time[1])
   }
-  cl <- parallel::makePSOCKcluster(names = socket_names, outfile = NULL)
-  if (!("simulator" %in% libraries)) libraries <- c("simulator", libraries)
-
-  tryCatch({
-    load_libraries_on_cluster(cl, libraries)
-    varlist <- c("seeds", "dir", "model_name", "nsim", "index")
-    parallel::clusterExport(cl, varlist = varlist, envir = environment())
-    out <- parallel::parLapplyLB(cl, seq(length(index)), simulate_wrapper)
-  }, finally = {
-    # regardless of whether an error occurs, do close cluster.
-    message("Shutting down cluster.")
-    parallel::stopCluster(cl)})
-
-  if (save_locally) {
-    # out is a list of file names on slave where output was saved
-    files <- unlist(out)
-  } else {
-    # out is a list of outputs of simulate_from_model_single
-    # we now save these to file (on master)
-    md <- get_model_dir_and_file(dir, model_name)
-    files <- rep(NA, length(out))
-    for (i in seq_along(out)) {
-      files[i] <- save_draws_to_file(md$dir, index[i], nsim[i],out[[i]]$draws,
-                                     out[[i]]$rng, out[[i]]$time[1])
-    }
-    invisible(files)
-  }
-  catsim("..Created", as.character(files), "in parallel.", fill = TRUE)
-  if (save_locally) catsim("(saved on slaves)", fill = TRUE)
-  invisible(files)
+  # parameters to be passed to save_to_file other than d
+  md <- get_model_dir_and_file(dir, model_name)
+  params2 <- lapply(seq(length(index)),
+                    function(i) list(out_dir = md$dir,
+                                     index = index[i],
+                                     nsim = nsim[i]))
+  do_in_parallel(function_to_do, params1,
+                 save_to_file, params2,
+                 socket_names = socket_names,
+                 libraries = libraries,
+                 save_locally = save_locally)
 }
-
