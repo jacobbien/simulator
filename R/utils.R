@@ -26,4 +26,3 @@ get_model_dir_and_file <- function(dir, model_name) {
 catsim <- function(...) {
   if (getOption("simulator.verbose")) cat(...)
 }
-

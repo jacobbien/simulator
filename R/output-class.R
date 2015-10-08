@@ -1,18 +1,20 @@
+is_valid_name <- function(name, name_of_name) {
+  errors <- character()
+  if (length(name) != 1)
+    errors <- c(errors, sprintf("%s must be of length 1.", name_of_name))
+  else if (grepl("[^[:alnum:]]", name))
+    errors <- c(errors, sprintf("%s must be alphanumeric.", name_of_name))
+  errors
+}
 
 check_output <- function(object) {
-    errors <- character()
-    if (length(object@model_name) != 1)
-      errors <- c(errors, "model_name must be of length 1.")
-    else if (grepl("[^[:alnum:]]", object@model_name))
-      errors <- c(errors, "model_name must be alphanumeric.")
+    errors <- is_valid_name(object@model_name, "model_name")
+    errors <- c(errors, is_valid_name(object@method_name, "method_name"))
+
     if (length(object@index) < 1)
       errors <- c(errors, "index must be of length >= 1.")
     else if (any(object@index != round(object@index)))
       errors <- c(errors, "index must be an integer-valued numeric.")
-    if (length(object@method_name) != 1)
-      errors <- c(errors, "method_name must be of length 1.")
-    else if (grepl("[^[:alnum:]]", object@method_name))
-      errors <- c(errors, "method_name must be alphanumeric.")
     if (length(object@method_label) != 1)
       errors <- c(errors, "method_label must be of length 1.")
     if (length(object@out) < 1) {
