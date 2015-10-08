@@ -26,7 +26,6 @@
 #'        slaves.
 #' @param save_locally if TRUE, then files will be saved on slaves.  If FALSE,
 #'        they will be saved on master.
-#' @export
 simulate_parallel <- function(dir, model_name, nsim, index, seeds,
                               socket_names, libraries, save_locally = TRUE) {
   stopifnot(length(index) == length(nsim))

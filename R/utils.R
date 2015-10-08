@@ -22,6 +22,8 @@ get_model_dir_and_file <- function(dir, model_name) {
 #'
 #' For internal use.  This calls \code{\link{cat}} only when
 #' \code{getOption("simulator.verbose")}.
+#' @param ... arguments to be passed to \code{\link{cat}}
 catsim <- function(...) {
   if (getOption("simulator.verbose")) cat(...)
 }
+

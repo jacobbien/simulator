@@ -30,11 +30,12 @@ check_parallel_list <- function(parallel) {
 #'
 #' @param function_to_do this is the function that will be done in parallel
 #' @param function_params a list where \code{function_params[[i]]} is
-#'        a named list of parameters to be passed to \code{function_to_do}
+#'        a named list of parameters to be passed to \code{function_to_do} for
+#'        job \code{i}
 #' @param save_to_file
 #' @param save_params a list where \code{save_params[[i]]}
-#'        is a named list of parameters to be passed to \code{save_to_file}.
-#'        Each \code{save_params[[i]]} must include \code{out_dir},
+#'        is a named list of parameters to be passed to \code{save_to_file} for
+#'        job \code{i}. Each \code{save_params[[i]]} must include \code{out_dir},
 #'        which is location where file is to be saved.
 #' @param socket_names (quoting from \code{\link{parallel::makePSOCKcluster}}
 #'        "either a character vector of host names on which to run the worker
@@ -46,16 +47,15 @@ check_parallel_list <- function(parallel) {
 #'        they will be saved on master.
 do_in_parallel <- function(function_to_do, function_params,
                            save_to_file, save_params, socket_names,
-                           libraries, save_locally = TRUE, out_dir = NULL) {
+                           libraries, save_locally = TRUE) {
   njobs <- length(function_params)
-  for (i in seq(njobs))
-    stopifnot("out_dir" %in% names(save_params[[i]]))
+  for (i in seq(njobs)) stopifnot("out_dir" %in% names(save_params[[i]]))
   inner_wrapper <- function(i) {
     do.call("function_to_do", function_params[[i]])
   }
   if (save_locally) {
     wrapper <- function(i) {
-      # create model's directory on slave if it doesn't yet exist:
+      # create directory on slave if it doesn't yet exist:
       if (!dir.exists(save_params[[i]]$out_dir))
         dir.create(save_params[[i]]$out_dir, recursive = TRUE)
       d <- inner_wrapper(i)

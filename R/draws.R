@@ -9,12 +9,15 @@ NULL
 #' function would generate \code{nsim} response vectors \code{y}.
 #'
 #' This function creates objects of class \code{\link{Draws}} and saves each to
-#' file (at dir/model_name/r*.Rdata, where * is an index).  If parallel is not
-#' NULL, then it must be a list containing \code{socket_names}, which can either
-#' be a positive integer specifying the number of copies to run on localhost or
-#' else a character vector of machine names (e.g., "mycluster-0-0").  The list
-#' \code{parallel} can can also contain \code{libraries}, a character vector of
-#' R packages that will be needed on the slaves.
+#' file (at dir/model_name/r<index>.Rdata.
+#' If parallel is not NULL, then it must be a list containing
+#' \code{socket_names}, which can either be a positive integer specifying the
+#' number of copies to run on localhost or else a character vector of machine
+#' names (e.g., "mycluster-0-0").  The list \code{parallel} can also contain
+#' \code{libraries}, a character vector of R packages that will be needed on the
+#' slaves and \code{save_locally}, a logical that indicates whether the files
+#' generated should be saved on the slaves (i.e., locally) or on the master.
+
 #'
 #' @export
 #' @param dir the directory passed to \code{\link{generate_model}})
@@ -27,14 +30,15 @@ NULL
 #'        meaning that the results will be identical whether we run these in
 #'        parallel or sequentially.
 #' @param parallel either \code{NULL} or a list containing \code{socket_names}
-#'        and (optionally) \code{libraries}  (see Details for more information)
+#'        and (optionally) \code{libraries} and \code{save_locally}
+#'        (see Details for more information)
 #' @seealso \code{\link{load_draws}} \code{\link{generate_model}} \code{\link{run_method}}
 #' @examples
 #' \dontrun{
 #'  generate_model(make_my_model, dir = ".")
-#'  simulate_from_model(dir = ".", "fm", nsim = 50, index = 1)
-#'  simulate_from_model(dir = ".", "fm", nsim = 50, index = 2:3,
-#'                      parallel = list(cpus = 4))
+#'  simulate_from_model(dir = ".", "fm", nsim = 50, index = 1:2)
+#'  simulate_from_model(dir = ".", "fm", nsim = 50, index = 3:5,
+#'                      parallel = list(cpus = 3))
 #'  }
 simulate_from_model <- function(dir = ".", model_name, nsim,
                                 index = 1, parallel = NULL) {
