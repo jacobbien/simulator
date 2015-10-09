@@ -1,10 +1,33 @@
-is_valid_name <- function(name, name_of_name) {
+is_valid_name <- function(name, name_of_name, require_unique = TRUE) {
   errors <- character()
-  if (length(name) != 1)
-    errors <- c(errors, sprintf("%s must be of length 1.", name_of_name))
-  else if (grepl("[^[:alnum:]]", name))
-    errors <- c(errors, sprintf("%s must be alphanumeric.", name_of_name))
+  if (require_unique) {
+    if (length(name) != 1)
+      errors <- c(errors, sprintf("%s must be of length 1.", name_of_name))
+  }
+  if (length(name) > 0)
+    if (any(grepl("[^[:alnum:]]", name)))
+      errors <- c(errors, sprintf("%s must be alphanumeric.", name_of_name))
   errors
+}
+
+is_valid_rij_list <- function(out, index) {
+  if (length(out) < 1) {
+    errors <- c(errors, "out must be nonempty.")
+  } else {
+    str <- "incorrectly named elements of out. See documentation."
+    # should be of format ri.j where i is in index and j starts at 1.
+    pattern <- "^r([[:digit:]]+)[.]([[:digit:]]+)$"
+    i <- as.numeric(gsub(pattern, "\\1", names(out)))
+    j <- as.numeric(gsub(pattern, "\\2", names(out)))
+    if (any(is.na(i))) errors <- c(errors, str)
+    if (any(sort(unique(i)) != sort(index)))
+      errors <- c(errors, "index does not match elements in out list.")
+  }
+  if (!all(unlist(lapply(out, is.list))))
+    errors <- c(errors, "out$ri.j should be a list.")
+  nams <- lapply(out, function(r) sort(names(r)))
+  if (!all(unlist(lapply(nams, function(nam) identical(nam, nams[[1]])))))
+    errors <- c(errors, "all out$ri.j must have same elements.")
 }
 
 check_output <- function(object) {
@@ -17,38 +40,23 @@ check_output <- function(object) {
       errors <- c(errors, "index must be an integer-valued numeric.")
     if (length(object@method_label) != 1)
       errors <- c(errors, "method_label must be of length 1.")
-    if (length(object@out) < 1) {
-      errors <- c(errors, "out must be nonempty.")
-    } else {
-      str <- "incorrectly named elements of out. See documentation."
-      # should be of format ri.j where i is in index and j starts at 1.
-      pattern <- "^r([[:digit:]]+)[.]([[:digit:]]+)$"
-      i <- as.numeric(gsub(pattern, "\\1", names(object@out)))
-      j <- as.numeric(gsub(pattern, "\\2", names(object@out)))
-      if (any(is.na(i))) errors <- c(errors, str)
-      if (any(sort(unique(i)) != sort(object@index)))
-        errors <- c(errors, "index does not match elements in out list.")
-    }
-    if (!all(unlist(lapply(object@out, is.list))))
-      errors <- c(errors, "out$ri.j should be a list.")
-    nams <- lapply(object@out, function(r) sort(names(r)))
-    if (!all(unlist(lapply(nams, function(nam) identical(nam, nams[[1]])))))
-      errors <- c(errors, "all out$ri.j must have same elements.")
+    errors <- c(errors, is_valid_rij_list(object@out, object@index))
     if (length(errors) == 0) TRUE else errors
 }
 
 
 #' An S4 class representing the output of a method run by simulator.
 #'
-#' An object of class \code{Output} consists of a model_name, a method_name, a
-#' method_label, and a list of contents.
+#' An object of class \code{Output} consists of information to identify the
+#' model, draws, and method objects this output was derived from.  It also has
+#' a list called \code{out}, which is where the output of the method is stored.
 #'
 #' @slot model_name the name of the \code{\link{Model}} object this output is
-#'       derived from.  Must be alphanumeric.
+#'       derived from.
 #' @slot index the index of the \code{\link{Draws}} object this output is
-#'       derived from.  Must be an integer-valued numeric.
+#'       derived from.
 #' @slot method_name the name of the \code{\link{Method}} object this output is
-#'       derived from.  Must be alphanumeric.
+#'       derived from.
 #' @slot method_label the label of the \code{\link{Method}} object this output
 #'       is derived from.
 #' @slot out a named list with each element labeled as \code{ri.j} where

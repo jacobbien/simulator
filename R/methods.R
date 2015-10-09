@@ -29,10 +29,10 @@
 #' @param model_name the \code{\link{Model}} object's \code{name} attribute
 #' @param index the index of a computed \code{\link{Draws}} object.  Can
 #'        alternately be a vector of such indices.
-#' @param out_loc (optional) a character vector that gives location (relative
-#'        to model's path) that method outputs are stored.  This can be useful
-#'        for staying organized when multiple simulations are based on the same
-#'        Model and Draws objects.
+#' @param out_loc (optional) a length-1 character vector that gives location
+#'        (relative to model's path) that method outputs are stored.This can be
+#'        useful for staying organized when multiple simulations are based on
+#'        the same Model and Draws objects.
 #' @param parallel either \code{NULL} or a list containing \code{socket_names}
 #'        and (optionally) \code{libraries} and \code{save_locally}
 #'        (see Details for more information)
@@ -96,8 +96,8 @@ run_method <- function(my_methods, dir = ".", model_name, index,
 #' Run one or more methods on simulated data.
 #'
 #' This is an internal function.  Users should call the wrapper function.
-#' \code{\link{run_method}}. Here "single" refers to a single index
-#' and a single method.
+#' \code{\link{run_method}}. Here "single" refers to a single index-method
+#' pair.
 #'
 #' @param method a \code{\link{Method}} object
 #' @param model a \code{\link{Model}} object
@@ -122,7 +122,7 @@ run_method_single <- function(method, model, draws) {
   list(output = output, info = info)
 }
 
-save_output_to_file <- function(out_dir, output, info, avg_time) {
+save_output_to_file <- function(out_dir, output, info) {
   stopifnot(length(output@index) == 1)
   file <- sprintf("%s/r%s_%s.Rdata", out_dir, output@index, output@method_name)
   save(output, info, file = file)
@@ -148,7 +148,7 @@ save_output_to_file <- function(out_dir, output, info, avg_time) {
 #' @param method_name the \code{\link{Method}} object's \code{name}
 #' @param out_names a character vector of which elements of output should be
 #'        loaded. If NULL, then all elements are loaded.
-#' @param out_loc Only needed if it was used in call to
+#' @param out_loc only needed if it was used in call to
 #'        \code{\link{run_method}}.
 #' @seealso \code{\link{run_method}} \code{\link{load_model}} \code{\link{load_draws}}
 #' @examples
@@ -157,8 +157,7 @@ save_output_to_file <- function(out_dir, output, info, avg_time) {
 load_outputs <- function(dir, model_name, index, method_name,
                          out_names = NULL, out_loc = "out") {
   md <- get_model_dir_and_file(dir, model_name)
-  if (any(table(index) > 1)) stop("index cannot have repeats.")
-  index <- sort(index)
+  index <- sort(unique(index))
   out_dir <- file.path(md$dir, remove_slash(out_loc))
   output_files <- sprintf("%s/r%s_%s.Rdata", out_dir, index, method_name)
   if (length(index) == 1) {

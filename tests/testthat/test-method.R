@@ -1,6 +1,6 @@
 options(simulator.verbose = FALSE)
 
-context("run_methods")
+context("run_method")
 
 make_testmodel <- function() {
   return(new("Model", name = "tm",
@@ -32,7 +32,7 @@ remove_time_from_out <- function(out) {
   for (i in seq(length(out@out))) out@out[[i]] <- out@out$time <- 0
 }
 
-test_that("run_methods handles multiple indices as expected", {
+test_that("run_method handles multiple indices as expected", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   generate_model(make_testmodel, dir = dir)
@@ -43,5 +43,25 @@ test_that("run_methods handles multiple indices as expected", {
   out2 <- load_outputs(dir, "tm", 2, "my")
   expect_identical(remove_time_from_out(out),
                    remove_time_from_out(out2))
+  unlink(dir, recursive = TRUE)
+})
+
+test_that("run_method handles multiple methods as expected", {
+  dir <- file.path(tempdir(), "example")
+  if (!dir.exists(dir)) dir.create(dir)
+  generate_model(make_testmodel, dir = dir)
+  simulate_from_model(dir, "tm", 2, 1:2)
+  run_method(my_method, dir, "tm", index=1:2)
+  run_method(my_method_no_list, dir, "tm", index=1:2)
+  out <- load_outputs(dir, "tm", 2, "my")
+  outt <- load_outputs(dir, "tm", 2, "mynl")
+
+  run_method(list(my_method, my_method_no_list), dir, "tm", index=1:2)
+  out2 <- load_outputs(dir, "tm", 2, "my")
+  outt2 <- load_outputs(dir, "tm", 2, "mynl")
+  expect_identical(remove_time_from_out(out),
+                   remove_time_from_out(out2))
+  expect_identical(remove_time_from_out(outt),
+                   remove_time_from_out(outt2))
   unlink(dir, recursive = TRUE)
 })
