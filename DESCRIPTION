@@ -10,7 +10,8 @@ License: GPL-3
 LazyData: true
 Suggests:
     knitr,
-    testthat
+    testthat,
+    ggplot2
 VignetteBuilder: knitr
 Collate:
     'component-class.R'
@@ -29,4 +30,5 @@ Collate:
     'parallel-draws.R'
     'parallel-methods.R'
     'parallel.R'
+    'plot.R'
     'zzz.R'
