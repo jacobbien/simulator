@@ -108,8 +108,9 @@ simulate_from_model_single <- function(model, nsim, index, seed) {
   stopifnot(length(nsim) == 1, length(index) == 1)
   RNGkind("L'Ecuyer-CMRG")
   .Random.seed <<- seed
+  args <- setdiff(names(formals(model@simulate)), "nsim")
   time <- system.time({
-    sims1 <- do.call(model@simulate, c(model@params, nsim = nsim))
+    sims1 <- do.call(model@simulate, c(model@params[args], nsim = nsim))
   })
   rng <- list(rng_seed = seed, rng_end_seed = .Random.seed)
   sims <- list()
