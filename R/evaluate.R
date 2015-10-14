@@ -79,7 +79,7 @@ evaluate_single <- function(metrics, model, output) {
   for (rid in names(output@out)) {
     evals[[1]][[rid]] <- list()
     for (m in seq_along(metrics)) {
-      evals[[1]][[rid]][[metric_names[m]]] <- metrics[[m]]@metric(model@params,
+      evals[[1]][[rid]][[metric_names[m]]] <- metrics[[m]]@metric(model,
                                                              output@out[[rid]])
     }
   }

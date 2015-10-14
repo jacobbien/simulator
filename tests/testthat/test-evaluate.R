@@ -6,10 +6,10 @@ make_testmodel <- function() {
   return(new("Model", name = "tm",
              label = sprintf("Test model"),
              params = list(n = 2, x = runif(2)),
-             simulate = function(params, nsim) {
+             simulate = function(x, n, nsim) {
                y <- list()
                for (i in seq(nsim))
-                 y[[i]] <- params$x + rnorm(params$n)
+                 y[[i]] <- x + rnorm(n)
                return(y)
              }))
 }
@@ -32,21 +32,21 @@ squared_error <- new("Metric",
                      name = "se",
                      label = "Squared Error",
                      metric = function(model, out) {
-                       sum((out$est - model@params$x)^2)
+                       sum((out$est - model$x)^2)
                      })
 
 l1_error <- new("Metric",
                 name = "l1",
                 label = "L1 Error",
                 metric = function(model, out) {
-                  sum(abs(out$est - model@params$x))
+                  sum(abs(out$est - model$x))
                 })
 
 linf_error <- new("Metric",
                 name = "li",
                 label = "L Infinity Error",
                 metric = function(model, out) {
-                  max(abs(out$est - model@params$x))
+                  max(abs(out$est - model$x))
                 })
 
 test_that("evaluate handles arguments as desired", {

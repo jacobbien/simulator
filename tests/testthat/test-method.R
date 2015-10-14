@@ -6,10 +6,10 @@ make_testmodel <- function() {
   return(new("Model", name = "tm",
              label = sprintf("Test model"),
              params = list(n = 2, x = runif(2)),
-             simulate = function(params, nsim) {
+             simulate = function(x, n, nsim) {
                y <- list()
                for (i in seq(nsim))
-                 y[[i]] <- params$x + rnorm(params$n)
+                 y[[i]] <- x + rnorm(n)
                return(y)
              }))
 }

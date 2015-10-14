@@ -31,10 +31,10 @@ NULL
 #'     # this function returns an object of class Model
 #'     n <- 20
 #'     params <- list(n = n, mu = rnorm(n))
-#'     simulate <- function(params, nsim) {
+#'     simulate <- function(mu, n, nsim) {
 #'       # define function here that returns a list of length nsim
 #'       y <- list()
-#'       for (i in seq(nsim))  y[[i]] <- params$mu + rnorm(params$n)
+#'       for (i in seq(nsim))  y[[i]] <- mu + rnorm(n)
 #'       return(y)
 #'     }
 #'     return(new("Model", name = "fm", label = "My First Model",
