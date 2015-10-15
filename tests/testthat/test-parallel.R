@@ -14,11 +14,13 @@ make_testmodel <- function() {
                }))
 }
 
+my_mean <- function(x) mean(x) # this must be exported to slaves
+
 my_method <- new("Method",
                  name = "my",
                  label = "My method",
                  method = function(model, draw) {
-                   return(list(est = mean(draw),
+                   return(list(est = my_mean(draw),
                                f = draw[1]))
                  })
 

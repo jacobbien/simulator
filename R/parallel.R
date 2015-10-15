@@ -80,6 +80,7 @@ do_in_parallel <- function(function_to_do, function_params,
     # export the parameters that will be needed by function_to_do on slaves
     parallel::clusterExport(cl, varlist = c("function_params", "save_params"),
                             envir = environment())
+    parallel::clusterExport(cl, varlist = ls(envir = globalenv()))
     out <- parallel::parLapplyLB(cl, seq(njobs), wrapper)
   }, finally = {
     # regardless of whether an error occurs, do close cluster.
