@@ -26,7 +26,7 @@ check_model <- function(object) {
 #' that allows one to draw random samples from this model.
 #'
 #' To get parameters stored in a \code{Model} object, a shortcut for
-#' \code{my_model@params$my_parameter} is \code{my_model$my_parameter}.
+#' \code{my_model@@params$my_parameter} is \code{my_model$my_parameter}.
 #'
 #' This class inherits from the \code{\link{Component}} class.
 #'
