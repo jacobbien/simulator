@@ -3,7 +3,7 @@ options(simulator.verbose = FALSE)
 context("run_method")
 
 make_testmodel <- function() {
-  return(new("Model", name = "tm",
+  return(new("Model", name = "tm/n2",
              label = sprintf("Test model"),
              params = list(n = 2, x = runif(2)),
              simulate = function(x, n, nsim) {
@@ -36,11 +36,11 @@ test_that("run_method handles multiple indices as expected", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   generate_model(make_testmodel, dir = dir)
-  simulate_from_model(dir, "tm", 2, 1:3)
-  run_method(my_method, dir, "tm", index=1:2)
-  out <- load_outputs(dir, "tm", 2, "my")
-  run_method(my_method, dir, "tm", index=2:3)
-  out2 <- load_outputs(dir, "tm", 2, "my")
+  simulate_from_model(dir, "tm/n2", 2, 1:3)
+  run_method(my_method, dir, "tm/n2", index=1:2)
+  out <- load_outputs(dir, "tm/n2", 2, "my")
+  run_method(my_method, dir, "tm/n2", index=2:3)
+  out2 <- load_outputs(dir, "tm/n2", 2, "my")
   expect_identical(remove_time_from_out(out),
                    remove_time_from_out(out2))
   unlink(dir, recursive = TRUE)
@@ -50,15 +50,15 @@ test_that("run_method handles multiple methods as expected", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   generate_model(make_testmodel, dir = dir)
-  simulate_from_model(dir, "tm", 2, 1:2)
-  run_method(my_method, dir, "tm", index=1:2)
-  run_method(my_method_no_list, dir, "tm", index=1:2)
-  out <- load_outputs(dir, "tm", 2, "my")
-  outt <- load_outputs(dir, "tm", 2, "mynl")
+  simulate_from_model(dir, "tm/n2", 2, 1:2)
+  run_method(my_method, dir, "tm/n2", index=1:2)
+  run_method(my_method_no_list, dir, "tm/n2", index=1:2)
+  out <- load_outputs(dir, "tm/n2", 2, "my")
+  outt <- load_outputs(dir, "tm/n2", 2, "mynl")
 
-  run_method(list(my_method, my_method_no_list), dir, "tm", index=1:2)
-  out2 <- load_outputs(dir, "tm", 2, "my")
-  outt2 <- load_outputs(dir, "tm", 2, "mynl")
+  run_method(list(my_method, my_method_no_list), dir, "tm/n2", index=1:2)
+  out2 <- load_outputs(dir, "tm/n2", 2, "my")
+  outt2 <- load_outputs(dir, "tm/n2", 2, "mynl")
   expect_identical(remove_time_from_out(out),
                    remove_time_from_out(out2))
   expect_identical(remove_time_from_out(outt),

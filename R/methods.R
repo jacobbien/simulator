@@ -57,7 +57,7 @@ run_method <- function(my_methods, dir = ".", model_name, index,
   model <- load_model(dir, model_name, more_info = FALSE)
   # prepare output directory
   out_dir <- file.path(md$dir, remove_slash(out_loc))
-  if (!file.exists(out_dir)) dir.create(out_dir)
+  if (!file.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
   # now run methods on each index
   index <- sort(index)
   nmethods <- length(my_methods)

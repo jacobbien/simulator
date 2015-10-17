@@ -21,7 +21,8 @@ is_valid_rij_list <- function(out, index) {
 check_output <- function(object) {
     errors <- is_valid_component_name(object@model_name, "model_name")
     errors <- c(errors,
-                is_valid_component_name(object@method_name, "method_name"))
+                is_valid_component_name(object@method_name, "method_name",
+                                        allow_slash = FALSE))
 
     if (length(object@index) < 1)
       errors <- c(errors, "index must be of length >= 1.")

@@ -57,9 +57,8 @@ generate_model <- function(make_model, dir = ".", seed=123, ...) {
     stop("make_model must return an object of class Model.")
   # create directories files and files/model_name if don't exist)
   files_dir <- file.path(dir, getOption("simulator.files"))
-  if (!file.exists(files_dir)) dir.create(files_dir)
   model_dir <- file.path(files_dir, model@name)
-  if (!file.exists(model_dir)) dir.create(model_dir)
+  if (!file.exists(model_dir)) dir.create(model_dir, recursive = TRUE)
   # save model to file
   file <- sprintf("%s/model.Rdata", model_dir)
   rng <- list(rng_end_seed = .Random.seed,

@@ -16,4 +16,6 @@ test_that("is_valid_component_name works", {
   expect_true(length(is_valid_component_name("a2-/1b", "")) == 1)
   expect_true(length(is_valid_component_name("a2/1b_", "")) == 1)
   expect_true(length(is_valid_component_name("a2/1b/c/d/e/a", "")) == 0)
+  expect_true(length(is_valid_component_name("a/a", "",
+                                             allow_slash = FALSE)) == 1)
 })

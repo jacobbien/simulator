@@ -3,6 +3,7 @@ NULL
 
 check_method <- function(object) {
   errors <- check_component(object)
+  errors <- is_valid_component_name(object@name, "name", allow_slash = FALSE)
   if (length(errors) == 1)
     if(errors == TRUE) errors <- character()
     args <- names(formals(object@method))
