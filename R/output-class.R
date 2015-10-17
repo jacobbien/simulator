@@ -1,15 +1,3 @@
-is_valid_name <- function(name, name_of_name, require_unique = TRUE) {
-  errors <- character()
-  if (require_unique) {
-    if (length(name) != 1)
-      errors <- c(errors, sprintf("%s must be of length 1.", name_of_name))
-  }
-  if (length(name) > 0)
-    if (any(grepl("[^[:alnum:]]", name)))
-      errors <- c(errors, sprintf("%s must be alphanumeric.", name_of_name))
-  errors
-}
-
 is_valid_rij_list <- function(out, index) {
   if (length(out) < 1) {
     errors <- c(errors, "out must be nonempty.")
@@ -31,8 +19,9 @@ is_valid_rij_list <- function(out, index) {
 }
 
 check_output <- function(object) {
-    errors <- is_valid_name(object@model_name, "model_name")
-    errors <- c(errors, is_valid_name(object@method_name, "method_name"))
+    errors <- is_valid_component_name(object@model_name, "model_name")
+    errors <- c(errors,
+                is_valid_component_name(object@method_name, "method_name"))
 
     if (length(object@index) < 1)
       errors <- c(errors, "index must be of length >= 1.")

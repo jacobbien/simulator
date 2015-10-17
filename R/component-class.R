@@ -1,17 +1,34 @@
 check_component <- function(object) {
   errors <- character()
-  if (length(object@name) == 0)
-    errors <- c(errors,
-                "Missing name for object. Make this something short.")
-  if (length(object@name) > 1)
-    errors <- c(errors,
-                "Object must have a single name. Make this something short.")
+  errors <- is_valid_component_name(object@name,
+                                    sprintf("%s's name", class(object)))
   if (length(object@label) == 0)
     errors <- c(errors,
                 "Missing \"label\" for object. Make this human-readable.")
-  if (length(object@name) == 1) if (grepl("[^[:alnum:]]", object@name))
-    errors <- c(errors, "Object name must be alphanumeric.")
   if (length(errors) == 0) TRUE else errors
+}
+
+is_valid_component_name <- function(name, name_of_name,
+                                    require_unique = TRUE) {
+  errors <- character()
+  if (require_unique) {
+    if (length(name) != 1)
+      errors <- c(errors,
+                  sprintf("%s must be of length 1. Make this something short.",
+                          name_of_name))
+  }
+  if (length(name) > 0) {
+    sub_pattern <- "[[:alnum:]]+(_[[:alnum:]]+)*(-[[:alnum:]]+)*"
+    # ... of form a or a_b or a-b (or a-b_c, etc) where a, b, c are alphanumeric
+    pattern <- sprintf("^%s(/%s)*$", sub_pattern, sub_pattern)
+    # ... of form sub_pattern or sub_pattern/sub_pattern etc
+    if (!all(grepl(pattern, name)))
+      errors <- c(errors,
+                  paste0(name_of_name,
+                         " must be of form a or a/b etc where a and b are ",
+                         "alphanumeric strings that can have - or _ within."))
+  }
+    errors
 }
 
 #' An S4 class representing a component of the simulator.

@@ -1,9 +1,11 @@
 check_evals <- function(object) {
-  errors <- is_valid_name(object@model_name, "model_name")
-  errors <- c(errors, is_valid_name(object@method_name, "method_name",
-                                    require_unique = FALSE))
-  errors <- c(errors, is_valid_name(object@metric_name, "metric_name",
-                                    require_unique = FALSE))
+  errors <- is_valid_component_name(object@model_name, "model_name")
+  errors <- c(errors, is_valid_component_name(object@method_name,
+                                              "method_name",
+                                              require_unique = FALSE))
+  errors <- c(errors, is_valid_component_name(object@metric_name,
+                                              "metric_name",
+                                              require_unique = FALSE))
   if (length(object@index) < 1)
     errors <- c(errors, "index must be of length >= 1.")
   else if (any(object@index != round(object@index)))
