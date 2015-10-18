@@ -30,7 +30,8 @@ check_model <- function(object) {
 #'
 #' This class inherits from the \code{\link{Component}} class.
 #'
-#' @slot name a short name identifier.  Must be alphanumeric.
+#' @slot name a short name identifier.  Must be alphanumeric (though -, _, and
+#'       / are allowed as long as they are not at the start or end of name.
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
 #' @slot params a list that contains the Model object's parameters
