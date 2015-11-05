@@ -98,7 +98,7 @@ plot_evals <- function(evals, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
   if (missing(ylab))
     ylab <- evals@metric_label[evals@metric_name == metric_name_y]
   if (missing(xlim)) xlim <- range(evals_df[, metric_name_x])
-  if (missing(ylim)) ylim <- range(evals_df[, metric_name_y])
+  if (missing(ylim)) ylim <- range(0, evals_df[, metric_name_y])
   if (use_ggplot2) return(ggplot_evals(evals_df, metric_name_x, metric_name_y,
                                        method_labels = evals@method_label,
                                        main = main, xlab = xlab, ylab = ylab,
@@ -137,5 +137,7 @@ ggplot_evals <- function(evals_df, metric_name_x, metric_name_y, method_labels, 
   ggplot2::ggplot(evals_df, ggplot2::aes_string(metric_name_x, metric_name_y)) +
     ggplot2::geom_line(aes(color = Method, group = Method:Draw)) +
     ggplot2::labs(x = xlab, y = ylab, title = main) +
-    ggplot2::scale_colour_discrete(labels = method_labels)
+    ggplot2::scale_colour_discrete(labels = method_labels) +
+    ylim(ylim) +
+    xlim(xlim)
 }
