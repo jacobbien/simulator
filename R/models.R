@@ -15,7 +15,8 @@ NULL
 #' model will be created for each combination of elements in these lists.  For
 #' example, if \code{vary_along = c("n", "p")}, then we can pass
 #' \code{n=as.list(c(50, 100, 150))} and \code{p=as.list(c(10, 100))} and 6
-#' models will be created, one for each pair of \code{n} and \code{p}.
+#' models will be created, one for each pair of \code{n} and \code{p}.  Function
+#' returns a reference or list of references to the model(s) generated.
 #'
 #' \code{make_model} is called generating an object of class
 #' \code{\link{Model}}, called \code{model}, which is saved to
@@ -72,14 +73,17 @@ generate_model <- function(make_model, dir = ".", seed = 123, vary_along = NULL,
   ii <- expand.grid(indices)
   # loop over all combinations of parameters named in vary_along
   params_to_pass <- passed_params
+  mref <- list()
   for (i in seq(nrow(ii))) {
     for (j in seq(ncol(ii))) { # jth vary_along parameter
       var <- vary_along[j]
       params_to_pass[[var]] <- passed_params[[var]][[ii[i, j]]]
     }
     extension <- paste(vary_along, ii[i, ], sep = "", collapse = "/")
-    generate_model_single(make_model, dir, seed, params_to_pass, extension)
+    mref[[i]] <- generate_model_single(make_model, dir, seed, params_to_pass,
+                                       extension)
   }
+  invisible(mref)
 }
 
 generate_model_single <- function(make_model, dir, seed, params_to_pass,
@@ -117,8 +121,11 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
               rng_seed = rng_seed)
   info <- list(make_model = make_model, date_generated = date())
   save(model, rng, info, file = file)
-  catsim("..Created model and saved in", file, fill = TRUE)
-  invisible(file)
+  catsim(paste0("..Created model and saved in ", model@name, "/model.Rdata"),
+         fill = TRUE)
+  model_ref <- new("ModelRef", name = model@name, dir = dir,
+                   simulator.files = getOption("simulator.files"))
+  invisible(model_ref)
 }
 
 #' Load a model from file.
@@ -135,6 +142,8 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
 #' @param model_name the Model object's \code{name} attribute
 #' @param more_info if TRUE, then returns additional information such as
 #'        state of RNG after calling \code{\link{generate_model}}
+#' @param simulator.files if NULL, then \code{getOption("simulator.files")}
+#'        will be used.
 #' @seealso \code{\link{generate_model}} \code{\link{load_draws}}
 #' @examples
 #' \dontrun{
@@ -142,8 +151,10 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
 #' generate_model(make_my_model, dir = ".")
 #' load_model(dir = ".", model_name = "fm")
 #' }
-load_model <- function(dir, model_name, more_info = FALSE) {
-  md <- get_model_dir_and_file(dir, model_name)
+load_model <- function(dir, model_name, more_info = FALSE,
+                       simulator.files = NULL) {
+  md <- get_model_dir_and_file(dir, model_name,
+                               simulator.files = simulator.files)
   tryCatch(load(md$file),
            warning=function(w)
              stop(sprintf("Could not find model file at %s.", md$file)))

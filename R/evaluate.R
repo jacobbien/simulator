@@ -9,7 +9,6 @@
 #' evaluating metrics is usually (in statistical methodological papers) fast,
 #' parallel functionality has not been developed for the evaluation component.
 #'
-#' @export
 #' @param metrics a list of \code{\link{Metric}} objects or a single
 #'        \code{\link{Metric}} object
 #' @param dir the directory where \code{\link{Model}} object was saved (by
@@ -26,7 +25,7 @@
 #' @examples
 #' \dontrun{
 #'  }
-evaluate <- function(metrics, dir = ".", model_name, index, method_names,
+evaluate_internal <- function(metrics, dir = ".", model_name, index, method_names,
                        out_loc = "out") {
   # make sure metrics is a list of Metric objects
   if (class(metrics) == "list") {
@@ -41,19 +40,67 @@ evaluate <- function(metrics, dir = ".", model_name, index, method_names,
   index <- sort(index)
   num_metrics <- length(metrics)
   num_methods <- length(method_names)
-  out_files <- list()
+  erefs <- list()
   ii <- 1
-  for (i in seq(index)) {
+  for (i in seq_along(index)) {
     for (m in seq(num_methods)) {
       output <- load_outputs(dir, model_name, index[i], method_names[m],
                              out_loc = out_loc)
       evals <- evaluate_single(metrics, model, output)
-      out_files[[ii]] <- save_evals_to_file(out_dir, evals)
+      erefs[[ii]] <- save_evals_to_file(out_dir, dir, out_loc, evals)
       ii <- ii + 1
     }
   }
-  invisible(out_files)
+  invisible(erefs)
 }
+
+#' Evaluate outputs of methods according to provided metrics.
+#'
+#' Given a \code{\link{Metric}} object or list of \code{\link{Metric}} objects,
+#' this function evaluates an \code{\link{Output}} object according to these
+#' metrics.  The computed values of the metrics are saved to file.
+#'
+#' This function creates objects of class \code{\link{Evals}} and saves each to
+#' file (at dir/model_name/<out_loc>/r<index>_<method_name>_evals.Rdata. Since
+#' evaluating metrics is usually (in statistical methodological papers) fast,
+#' parallel functionality has not been developed for the evaluation component.
+#'
+#' @export
+#' @param output_ref object of class \code{\link{OutputRef}} as produced by
+#'        \code{\link{run_method}}.
+#' @param metrics a list of \code{\link{Metric}} objects or a single
+#'        \code{\link{Metric}} object
+#' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
+#' \code{\link{run_method}}
+#' @examples
+#' \dontrun{
+#'  }
+evaluate <- function(output_ref, metrics) {
+  # make sure metrics is a list of Metric objects
+  if (class(metrics) == "list") {
+    stopifnot(all(unlist(lapply(metrics, function(m) class(m) == "Metric"))))
+  } else {
+    stopifnot(class(metrics) == "Metric")
+    metrics <- list(metrics)
+  }
+  if (class(output_ref) == "OutputRef") output_ref <- list(output_ref)
+  sf <- lapply(output_ref, function(oref) oref@simulator.files)
+  if (any(sf != getOption("simulator.files")))
+    stop(sprintf("OutputRef's %s must match getOption(\"%s\")",
+                 "simulator.files", "simulator.files"))
+  eref <- list()
+  for (o in seq_along(output_ref)) {
+    eref <- c(eref,
+              evaluate_internal(metrics,
+                                dir = output_ref[[o]]@dir,
+                                model_name = output_ref[[o]]@model_name,
+                                index = output_ref[[o]]@index,
+                                method_names = output_ref[[o]]@method_name,
+                                out_loc = output_ref[[o]]@out_loc))
+  }
+  invisible(eref)
+}
+
 
 #' Run one or more metrics on outputs.
 #'
@@ -110,14 +157,19 @@ evaluate_single <- function(metrics, model, output) {
 #' @param metric_names (optional) a character vector of which elements of
 #'        evals should be loaded. If NULL, then all elements are loaded.
 #' @param out_loc only needed if it was used in call to
+#' @param simulator.files if NULL, then \code{getOption("simulator.files")}
+#'        will be used.
 #'        \code{\link{run_method}}.
-#' @seealso \code{\link{load_model}} \code{\link{load_draws}} \code{\link{as.data.frame.Evals}}
+#' @seealso \code{\link{load_model}} \code{\link{load_draws}}
+#'          \code{\link{as.data.frame.Evals}}
 #' @examples
 #' \dontrun{
 #' }
 load_evals <- function(dir, model_name, index, method_names,
-                         metric_names = NULL, out_loc = "out") {
-  md <- get_model_dir_and_file(dir, model_name)
+                         metric_names = NULL, out_loc = "out",
+                       simulator.files = NULL) {
+  md <- get_model_dir_and_file(dir, model_name,
+                               simulator.files = simulator.files)
   index <- sort(unique(index))
   num_methods <- length(method_names)
   method_names <- sort(method_names)
@@ -158,14 +210,16 @@ load_evals <- function(dir, model_name, index, method_names,
   return(evals)
 }
 
-
-save_evals_to_file <- function(out_dir, evals) {
+save_evals_to_file <- function(out_dir, dir, out_loc, evals) {
   file <- sprintf("%s/r%s_%s_evals.Rdata", out_dir, evals@index,
                   evals@method_name)
   save(evals, file = file)
   catsim("..Evaluated", evals@method_label, "in terms of",
          paste(evals@metric_label, collapse = ", "), fill = TRUE)
-  file
+  new("EvalsRef", dir = dir, model_name = evals@model_name,
+      index = evals@index, method_name = evals@method_name,
+      out_loc = out_loc,
+      simulator.files = getOption("simulator.files"))
 }
 
 #' Reduce an Evals object to a subset of methods and/or metrics
@@ -196,4 +250,17 @@ subset_evals <- function(evals, method_names = NULL, metric_names = NULL) {
       }
   }
   evals
+}
+
+
+#' @export
+#' @rdname load_evals
+#' @param ref an object of class \code{\link{EvalsRef}}
+load_evals_from_ref <- function(ref, metric_names = NULL) {
+  return(load_evals(dir = ref@dir, model_name = ref@model_name,
+                      index = ref@index,
+                      method_names = ref@method_name,
+                    metric_names = metric_names,
+                      out_loc = ref@out_loc,
+                      simulator.files = ref@simulator.files))
 }

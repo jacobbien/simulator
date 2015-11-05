@@ -12,11 +12,11 @@
 #'        carried out in chunks.  Each chunk gets a separate RNG stream,
 #'        meaning that the results will be identical whether we run these in
 #'        parallel or sequentially.
-#' @param seeds a list of \code{length(index)} L'Ecuyer-CMRG seed vectors.
-#'        Each should be from a separate stream.  In particular, starting from
-#'        the seed used to generate the model object, seeds[i] should be the
-#'        result of calling \code{\link{parallel::nextRNGStream}} index[i]
-#'        times.
+#' @param out_loc a length-1 character vector that gives location
+#'        (relative to model's path) that method outputs are stored.This can be
+#'        useful for staying organized when multiple simulations are based on
+#'        the same Model and Draws objects.
+#' @param out_dir full directory to where method outputs are stored.
 #' @param socket_names (quoting from \code{\link{parallel::makePSOCKcluster}}
 #'        "either a character vector of host names on which to run the worker
 #'        copies of R, or a positive integer (in which case that number of
@@ -26,7 +26,7 @@
 #' @param save_locally if TRUE, then files will be saved on slaves.  If FALSE,
 #'        they will be saved on master.
 run_method_parallel <- function(my_methods, model, dir, model_name, index,
-                                out_dir, socket_names, libraries,
+                                out_dir, out_loc, socket_names, libraries,
                                 save_locally = TRUE) {
   function_to_do <- function(dir, model_name, index, method) {
     model <- load_model(dir, model_name)
@@ -54,11 +54,13 @@ run_method_parallel <- function(my_methods, model, dir, model_name, index,
                                      method = my_methods[[ii[i, 1]]]))
   # this is function to use when saving info in out_list to file
   # (whether it be on slave or master):
-  save_to_file <- function(output, info, out_dir) {
-    save_output_to_file(out_dir, output, info)
+  save_to_file <- function(output, info, out_dir, dir, out_loc) {
+    save_output_to_file(out_dir, dir, out_loc, output, info)
   }
   # parameters to be passed to save_to_file other than out_list
-  params2 <- lapply(seq(njobs), function(i) list(out_dir = out_dir))
+  params2 <- lapply(seq(njobs), function(i) list(out_dir = out_dir,
+                                                 dir = dir,
+                                                 out_loc = out_loc))
   do_in_parallel(function_to_do, params1,
                  save_to_file, params2,
                  socket_names = socket_names,

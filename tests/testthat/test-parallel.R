@@ -54,15 +54,15 @@ test_that("get same draws if chunks done together or separately", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   tryCatch({
-    generate_model(make_testmodel, dir = dir)
+    mref <- generate_model(make_testmodel, dir = dir)
     # done together:
-    simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:4)
-    draws <- load_draws(dir, "tm", 1:4)
+    dref <- simulate_from_model(mref, nsim = 2, index = 1:4)
+    draws <- lapply(dref, load)
     file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:4)))
     # done separately, and out of order:
-    simulate_from_model(dir, model_name = "tm", nsim = 2, index = 3:4)
-    simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:2)
-    draws2 <- load_draws(dir, "tm", 1:4)
+    dref2a <- simulate_from_model(mref, nsim = 2, index = 3:4)
+    dref2b <- simulate_from_model(mref, nsim = 2, index = 1:2)
+    draws2 <- c(lapply(dref2b, load), lapply(dref2a, load))
   }, finally={sink()})
   expect_identical(draws, draws2)
   unlink(dir, recursive = TRUE)
@@ -71,20 +71,21 @@ test_that("get same draws if chunks done together or separately", {
 test_that("simulate_from_model output same parallel v. sequential", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  generate_model(make_testmodel, dir = dir)
+  mref <- generate_model(make_testmodel, dir = dir)
   # in sequence:
-  simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5)
-  seqdraws <- load_draws(dir, "tm", 1:5)
+  dref <- simulate_from_model(mref, nsim = 2, index = 1:5)
+  seqdraws <- load(dref)
   file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:5)))
-  simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5,
+  dref <- simulate_from_model(mref, nsim = 2, index = 1:5,
                       parallel = list(socket_names = 2, save_locally = FALSE))
-  pardraws <- load_draws(dir, "tm", 1:5)
+  pardraws <- load(dref)
   expect_identical(seqdraws, pardraws)
 
   file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:5)))
-  simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5,
-                      parallel = list(socket_names = 2, save_locally = TRUE))
-  pardraws2 <- load_draws(dir, "tm", 1:5)
+  dref2 <- simulate_from_model(mref, nsim = 2, index = 1:5,
+                              parallel = list(socket_names = 2,
+                                              save_locally = TRUE))
+  pardraws2 <- load(dref2)
   expect_identical(pardraws, pardraws2)
   unlink(dir, recursive = TRUE)
 })
@@ -92,20 +93,19 @@ test_that("simulate_from_model output same parallel v. sequential", {
 test_that("run_method output same parallel v. sequential", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  generate_model(make_testmodel, dir = dir)
-  simulate_from_model(dir, model_name = "tm", nsim = 2, index = 1:5)
+  mref <- generate_model(make_testmodel, dir = dir)
+  dref <- simulate_from_model(mref, nsim = 2, index = 1:5)
   # in sequence:
-  run_method(my_method, dir, model_name = "tm", index = 3:5)
-  seqout <- load_outputs(dir, "tm", 4, method_name = "my")
-  file.remove(file.path(dir, sprintf("files/tm/out/r%s_my.Rdata", 3:5)))
-  run_method(my_method, dir, model_name = "tm", index = 3:5,
+  oref <- run_method(dref[3:5], my_method)
+  seqout <- load(oref[[2]])
+  file.remove(file.path(dir, sprintf("files/tm/n2/out/r%s_my.Rdata", 3:5)))
+  run_method(dref[3:5], my_method,
              parallel = list(socket_names = 2, save_locally = FALSE))
   parout <- load_outputs(dir, "tm", 4, method_name = "my")
   expect_identical(remove_time_from_out(seqout),
                    remove_time_from_out(parout))
   file.remove(file.path(dir, sprintf("files/tm/out/r%s_my.Rdata", 3:5)))
-  run_method(list(my_method, other_method), dir, model_name = "tm",
-             index = 3:5,
+  run_method(dref[3:5], list(my_method, other_method),
              parallel = list(socket_names = 3, save_locally = TRUE))
   parout2 <- load_outputs(dir, "tm", 4, method_name = "my")
   expect_identical(remove_time_from_out(parout),

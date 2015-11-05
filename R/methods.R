@@ -22,13 +22,10 @@
 #' and indices are run in.
 #'
 #' @export
+#' @param draws_ref an object of class \code{\link{DrawsRef}} (or a list of
+#'        such objects) as returned by \code{link{simulate_from_model}}.
 #' @param my_methods a list of \code{\link{Method}} objects or a single
 #'        \code{\link{Method}} object
-#' @param dir the directory where \code{\link{Model}} object was saved (by
-#'        \code{\link{generate_model}})
-#' @param model_name the \code{\link{Model}} object's \code{name} attribute
-#' @param index the index of a computed \code{\link{Draws}} object.  Can
-#'        alternately be a vector of such indices.
 #' @param out_loc (optional) a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
@@ -39,13 +36,22 @@
 #' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
 #' @examples
 #' \dontrun{
-#'  run_method(list(my_method, their_method), model_name = "fm", index = 1:2)
-#'  run_method(list(my_method, their_method), model_name = "fm", index = 1:2,
-#'             parallel = list(socket_names = 3))
 #'  }
-run_method <- function(my_methods, dir = ".", model_name, index,
-                       out_loc = "out", parallel = NULL) {
-  # make sure my_methods is a list of Method objects
+run_method <- function(draws_ref, my_methods, out_loc = "out", parallel = NULL) {
+  if (class(draws_ref) == "DrawsRef") draws_ref <- list(draws_ref)
+  if (class(draws_ref) == "list" & length(draws_ref) > 1) {
+    str <- "For now, cannot handle a list of draws_ref from multiple %s."
+    if (length(unique(lapply(draws_ref, function(dref) dref@model_name))) > 1)
+      stop(sprintf(str, "models"))
+    if (length(unique(lapply(draws_ref, function(dref) dref@dir))) > 1)
+      stop(sprintf(str, "dir"))
+    sf <- lapply(draws_ref, function(dref) dref@simulator.files)
+    if (length(unique(sf)) > 1)
+      stop(sprintf(str, "simulator.files"))
+  }
+  if (draws_ref[[1]]@simulator.files != getOption("simulator.files"))
+    stop(sprintf("draws_ref@%s must match getOption(\"%s\")",
+                 "simulator.files", "simulator.files"))
   if (class(my_methods) == "list") {
     stopifnot(all(unlist(lapply(my_methods, function(m) class(m) == "Method"))))
   } else {
@@ -53,6 +59,9 @@ run_method <- function(my_methods, dir = ".", model_name, index,
     my_methods <- list(my_methods)
   }
   # load model
+  dir <- draws_ref[[1]]@dir
+  model_name <- draws_ref[[1]]@model_name
+  index <- unlist(lapply(draws_ref, function(dref) dref@index))
   md <- get_model_dir_and_file(dir, model_name)
   model <- load_model(dir, model_name, more_info = FALSE)
   # prepare output directory
@@ -61,7 +70,7 @@ run_method <- function(my_methods, dir = ".", model_name, index,
   # now run methods on each index
   index <- sort(index)
   nmethods <- length(my_methods)
-  out_files <- list()
+  orefs <- list()
   if (is.null(parallel) || nmethods * length(index) == 1) {
     # run sequentially
     ii <- 1
@@ -75,8 +84,8 @@ run_method <- function(my_methods, dir = ".", model_name, index,
         # this makes it so the order in which methods and indices are run will
         # not change things (note: only relevant for methods that require RNG)
         out_list <- run_method_single(my_methods[[m]], model, draws_list$draws)
-        out_files[[ii]] <- save_output_to_file(out_dir, out_list$output,
-                                               out_list$info)
+        orefs[[ii]] <- save_output_to_file(out_dir, dir, out_loc,
+                                               out_list$output, out_list$info)
         ii <- ii + 1
       }
     }
@@ -84,13 +93,13 @@ run_method <- function(my_methods, dir = ".", model_name, index,
     # run in parallel
     check_parallel_list(parallel)
     if (is.null(parallel$save_locally)) parallel$save_locally <- FALSE
-    out_files <- run_method_parallel(my_methods,  model, dir, model_name,
-                                     index, out_dir,
+    orefs <- run_method_parallel(my_methods,  model, dir, model_name,
+                                     index, out_dir, out_loc,
                                      socket_names = parallel$socket_names,
                                      libraries = parallel$libraries,
                                      save_locally = parallel$save_locally)
   }
-  invisible(out_files)
+  invisible(orefs)
 }
 
 #' Run one or more methods on simulated data.
@@ -122,7 +131,7 @@ run_method_single <- function(method, model, draws) {
   list(output = output, info = info)
 }
 
-save_output_to_file <- function(out_dir, output, info) {
+save_output_to_file <- function(out_dir, dir, out_loc, output, info) {
   stopifnot(length(output@index) == 1)
   file <- sprintf("%s/r%s_%s.Rdata", out_dir, output@index, output@method_name)
   save(output, info, file = file)
@@ -130,9 +139,11 @@ save_output_to_file <- function(out_dir, output, info) {
   catsim(sprintf("..Performed %s in %s seconds (on average over %s sims)",
                  output@method_label, round(avg_time, 2), length(output@out)),
                  fill = TRUE)
-  file
+  new("OutputRef", dir = dir, model_name = output@model_name,
+      index = output@index, method_name = output@method_name,
+      out_loc = out_loc,
+      simulator.files = getOption("simulator.files"))
 }
-
 
 #' Load one or more output objects from file.
 #'
@@ -150,13 +161,16 @@ save_output_to_file <- function(out_dir, output, info) {
 #'        loaded. If NULL, then all elements are loaded.
 #' @param out_loc only needed if it was used in call to
 #'        \code{\link{run_method}}.
+#' @param simulator.files if NULL, then \code{getOption("simulator.files")}
+#'        will be used.
 #' @seealso \code{\link{run_method}} \code{\link{load_model}} \code{\link{load_draws}}
 #' @examples
 #' \dontrun{
 #' }
-load_outputs <- function(dir, model_name, index, method_name,
-                         out_names = NULL, out_loc = "out") {
-  md <- get_model_dir_and_file(dir, model_name)
+load_outputs <- function(dir, model_name, index, method_name, out_names = NULL,
+                         out_loc = "out", simulator.files = NULL) {
+  if (is.null(simulator.files)) simulator.files <- getOption("simulator.files")
+  md <- get_model_dir_and_file(dir, model_name, simulator.files = simulator.files)
   index <- sort(unique(index))
   out_dir <- file.path(md$dir, remove_slash(out_loc))
   output_files <- sprintf("%s/r%s_%s.Rdata", out_dir, index, method_name)
@@ -186,6 +200,18 @@ load_outputs <- function(dir, model_name, index, method_name,
   return(draws)
 }
 
+
+#' @export
+#' @rdname load_outputs
+#' @param ref an object of class \code{\link{OutputRef}}
+load_outputs_from_ref <- function(ref, out_names = NULL) {
+  return(load_outputs(dir = ref@dir, model_name = ref@model_name,
+                      index = ref@index,
+                      method_name = ref@method_name,
+                      out_names = out_names,
+                      out_loc = ref@out_loc,
+                      simulator.files = ref@simulator.files))
+}
 
 
 subset_output <- function(output, out_names) {

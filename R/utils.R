@@ -5,9 +5,10 @@ remove_slash <- function(s) {
   ifelse(substr(s, n, n) == "/", substr(s, 1, n - 1), s)
 }
 
-get_model_dir_and_file <- function(dir, model_name) {
+get_model_dir_and_file <- function(dir, model_name, simulator.files = NULL) {
   dir <- remove_slash(dir)
-  model_dir <- file.path(dir, getOption("simulator.files"), model_name)
+  if (is.null(simulator.files)) simulator.files <- getOption("simulator.files")
+  model_dir <- file.path(dir, simulator.files, model_name)
   model_file <- file.path(model_dir, "model.Rdata")
   if (!file.exists(model_dir))
     stop("Could not find models directory ", model_dir, call. = FALSE)

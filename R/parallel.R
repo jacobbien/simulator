@@ -88,15 +88,15 @@ do_in_parallel <- function(function_to_do, function_params,
     parallel::stopCluster(cl)})
   if (save_locally) {
     # out is a list of file names on slave where output was saved
-    files <- unlist(out)
+    refs <- out
   } else {
     # out is a list of outputs of function_to_do
     # we now save these to file (on master)
-    files <- rep(NA, length(out))
+    refs <- list()
     for (i in seq(njobs))
-      files[i] <- do.call("save_to_file", c(out[[i]], save_params[[i]]))
+      refs[[i]] <- do.call("save_to_file", c(out[[i]], save_params[[i]]))
   }
-  catsim("..Created", as.character(files), "in parallel.", fill = TRUE)
+  catsim("..Created", as.character(refs), "in parallel.", fill = TRUE)
   if (save_locally) catsim("(saved on slaves)", fill = TRUE)
-  invisible(files)
+  invisible(refs)
 }

@@ -69,3 +69,14 @@ test_that("generate_model works when vary_params in non-NULL", {
   expect_identical(model1@params, model2@params)
   unlink(dir, recursive = TRUE)
 })
+
+test_that("loading ModelRef works", {
+  dir <- file.path(tempdir(), "example")
+  if (!dir.exists(dir)) dir.create(dir)
+  mref <- generate_model(make_regmodel2, dir = dir, n = 5, p = 2, sigma = 2)
+  model1 <- load(mref)
+  model2 <- load_model(dir, "reg2")
+  expect_equal(model1, model2) # not identical since function enivronments differ
+  unlink(dir, recursive = TRUE)
+})
+

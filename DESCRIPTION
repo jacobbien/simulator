@@ -23,6 +23,8 @@ Collate:
     'evals-class.R'
     'evaluate.R'
     'output-class.R'
+    'reference-classes.R'
+    'load.R'
     'method-class.R'
     'methods.R'
     'metric-class.R'

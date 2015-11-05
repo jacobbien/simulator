@@ -3,13 +3,17 @@ NULL
 
 #' Simulate from a model.
 #'
-#' Given a \code{\link{Model}} object, this function calls the model's
-#' \code{simulate} function on its \code{params}.  It repeats this \code{nsim}
-#' times.  For example, when simulating regression with a fixed design, this
-#' function would generate \code{nsim} response vectors \code{y}.
+#' Given a reference to a \code{\link{Model}} object, this function calls the
+#' model's \code{simulate} function on its \code{params}.  It repeats this
+#' \code{nsim} times.  For example, when simulating regression with a fixed
+#' design, this function would generate \code{nsim} response vectors \code{y}.
 #'
 #' This function creates objects of class \code{\link{Draws}} and saves each to
-#' file (at dir/model_name/r<index>.Rdata.
+#' file (at dir/files/model_name/r<index>.Rdata). Note: while "files" is the
+#' default, the name of this directory is from getOption("simulator.files"),
+#' which is the value of getOption("simulator.files") when the model was
+#' created.
+#'
 #' If parallel is not NULL, then it must be a list containing
 #' \code{socket_names}, which can either be a positive integer specifying the
 #' number of copies to run on localhost or else a character vector of machine
@@ -20,8 +24,8 @@ NULL
 
 #'
 #' @export
-#' @param dir the directory passed to \code{\link{generate_model}})
-#' @param model_name the \code{\link{Model}} object's \code{name}
+#' @param model_ref an object of class \code{\link{ModelRef}} as returned by
+#'        \code{link{generate_model}}
 #' @param nsim number of simulations to be conducted.  If a scalar, then
 #'        value repeated for each index.  Otherwise can be a vector of length
 #'        \code{length(index)}
@@ -35,12 +39,12 @@ NULL
 #' @seealso \code{\link{load_draws}} \code{\link{generate_model}} \code{\link{run_method}}
 #' @examples
 #' \dontrun{
-#'  generate_model(make_my_model, dir = ".")
-#'  simulate_from_model(dir = ".", "fm", nsim = 50, index = 1:2)
-#'  simulate_from_model(dir = ".", "fm", nsim = 50, index = 3:5,
-#'                      parallel = list(cpus = 3))
+#'  mref <- generate_model(make_my_model, dir = ".")
+#'  dref1 <- simulate_from_model(mref, nsim = 50, index = 1:2)
+#'  dref2 <- simulate_from_model(mref, nsim = 50, index = 3:5,
+#'  parallel = list(socket_names = 3))
 #'  }
-simulate_from_model <- function(dir = ".", model_name, nsim,
+simulate_from_model <- function(model_ref, nsim,
                                 index = 1, parallel = NULL) {
   stopifnot(index == round(index), index > 0)
   stopifnot(nsim == round(nsim), nsim > 0)
@@ -51,37 +55,47 @@ simulate_from_model <- function(dir = ".", model_name, nsim,
     o <- order(index)
     index <- index[o]; nsim <- nsim[o]
   }
-  md <- get_model_dir_and_file(dir, model_name)
+  dir <- model_ref@dir
+  model_name <- model_ref@name
+  if (model_ref@simulator.files != getOption("simulator.files"))
+    stop("model_ref@simulator.files must match getOption(\"simulator.files\")")
+  md <- get_model_dir_and_file(dir, model_name,
+                               simulator.files = model_ref@simulator.files)
   # generate L'Ecuyer seeds based on model's seed
-  m <- load_model(dir, model_name, more_info = TRUE)
+  m <- load_model(dir, model_name, more_info = TRUE,
+                  simulator.files = model_ref@simulator.files)
   model_seed <- m$rng$rng_seed # seed used to generate m$model
   seeds <- get_seeds_for_draws(model_seed, index)
-  files <- rep(NA, length(index))
+  dref <- list() # a list of DrawsRef objects
   if (is.null(parallel) || length(index) == 1) {
     # simulate sequentially
     for (i in seq(length(index))) {
        d <- simulate_from_model_single(m$model, nsim = nsim[i],
                                        index = index[i], seed = seeds[[i]])
-       files[i] <- save_draws_to_file(md$dir, index[i], nsim[i], d$draws,
-                                      d$rng, d$time[1])
+       dref[[i]] <- save_draws_to_file(md$dir, model_ref, index[i], nsim[i],
+                                       d$draws, d$rng, d$time[1])
+
     }
   } else {
     check_parallel_list(parallel)
     if (is.null(parallel$save_locally)) parallel$save_locally <- FALSE
-    files <- simulate_parallel(dir, model_name, nsim, index, seeds = seeds,
+    dref <- simulate_parallel(model_ref, nsim, index, seeds = seeds,
                                socket_names = parallel$socket_names,
                                libraries = parallel$libraries,
                                save_locally = parallel$save_locally)
   }
-  invisible(files)
+  invisible(dref)
 }
 
-save_draws_to_file <- function(model_dir, index, nsim, draws, rng, time) {
-  file <- sprintf("%s/r%s.Rdata", model_dir, index)
+save_draws_to_file <- function(out_dir, model_ref, index, nsim, draws, rng,
+                               time) {
+  file <- sprintf("%s/r%s.Rdata", out_dir, index)
   save(draws, rng, file = file)
   catsim(sprintf("..Simulated %s draws in %s sec and saved in %s", nsim,
-                 round(time, 2), file), fill = TRUE)
-  file
+                 round(time, 2), sprintf("%s/r%s.Rdata", model_ref@name,
+                                         index)), fill = TRUE)
+  new("DrawsRef", dir = model_ref@dir, model_name = model_ref@name,
+      index = index, simulator.files = getOption("simulator.files"))
 }
 
 get_seeds_for_draws <- function(model_seed, index) {
@@ -141,17 +155,20 @@ simulate_from_model_single <- function(model, nsim, index, seed) {
 #' @param index a vector of positive integers.
 #' @param more_info if TRUE, then returns additional information such as
 #'        state of RNG after calling \code{\link{generate_model}}
+#' @param simulator.files if NULL, then \code{getOption("simulator.files")}
+#'        will be used.
 #' @seealso \code{\link{simulate_from_model}} \code{\link{load_model}}
 #' @examples
 #' \dontrun{
 #' # see example ?generate_model for make_my_model definition
-#'  generate_model(make_my_model, dir = ".")
-#'  simulate_from_model(model_name = "fm", nsim = 50, index = 1)
-#'  simulate_from_model(model_name = "fm", nsim = 50, index = 2)
-#'  load_draws(model_name = "fm", 1:2) # makes Draws object with 100 entries
+#'  mref <- generate_model(make_my_model, dir = ".")
+#'  dref <- simulate_from_model(mref, nsim = 50, index = 1:2)
+#'  load(dref) # loads Draws object with 100 entries
 #' }
-load_draws <- function(dir, model_name, index, more_info = FALSE) {
-  md <- get_model_dir_and_file(dir, model_name)
+load_draws <- function(dir, model_name, index, more_info = FALSE,
+                       simulator.files = NULL) {
+  md <- get_model_dir_and_file(dir, model_name,
+                               simulator.files = simulator.files)
   index <- sort(unique(index))
   draws_files <- sprintf("%s/r%s.Rdata", md$dir, index)
   if (length(index) == 1) {
