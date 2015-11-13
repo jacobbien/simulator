@@ -33,4 +33,5 @@ Collate:
     'parallel-methods.R'
     'parallel.R'
     'plot.R'
+    'simulation-class.R'
     'zzz.R'
