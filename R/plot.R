@@ -135,9 +135,9 @@ ggplot_evals <- function(evals_df, metric_name_x, metric_name_y, method_labels, 
     stop("To use this function, ggplot2 must be installed.", call. = FALSE)
   }
   ggplot2::ggplot(evals_df, ggplot2::aes_string(metric_name_x, metric_name_y)) +
-    ggplot2::geom_line(aes(color = Method, group = Method:Draw)) +
+    ggplot2::geom_line(ggplot2::aes(color = Method, group = Method:Draw)) +
     ggplot2::labs(x = xlab, y = ylab, title = main) +
     ggplot2::scale_colour_discrete(labels = method_labels) +
-    ylim(ylim) +
-    xlim(xlim)
+    ggplot2::ylim(ylim) +
+    ggplot2::xlim(xlim)
 }
