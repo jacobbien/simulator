@@ -104,7 +104,7 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
   added_already <- intersect(names(params_to_pass), names(model@params))
   for (param in added_already) {
     if (!identical(model@params[[param]], params_to_pass[[param]]))
-      stop("make_model sets ", param, " to a value different from value",
+      warning("make_model sets ", param, " to a value different from value",
            " passed to it by generate_model.")
   }
   to_add <- setdiff(names(params_to_pass), names(model@params))

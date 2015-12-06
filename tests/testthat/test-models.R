@@ -40,7 +40,7 @@ test_that("generate_model works with ... when vary_params = NULL", {
                "missing")
   expect_error(not(generate_model(make_regmodel, dir = dir, n = 5, p = 2,
                                   sigma = 2)))
-  expect_error(generate_model(make_regmodel, dir = dir, n = 5, p = 2,
+  expect_warning(generate_model(make_regmodel, dir = dir, n = 5, p = 2,
                               sigma = 2), "sets n to a value different from")
   expect_error(not(generate_model(make_regmodel, dir = dir, n = 1, p = 2, sigma = 2)))
   unlink(dir, recursive = TRUE)

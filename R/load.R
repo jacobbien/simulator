@@ -19,6 +19,11 @@ setMethod("load", signature(file = "OutputRef"), function(file) {
   load_outputs_from_ref(file)
 })
 
+setMethod("load", signature(file = "EvalsRef"), function(file) {
+  load_evals_from_ref(file)
+})
+
+
 setMethod("load", signature(file = "list"), function(file) {
   if (all(unlist(lapply(file, class)) == "DrawsRef")) {
     for (i in seq_along(file)) {
@@ -82,15 +87,23 @@ setMethod("load", signature(file = "list"), function(file) {
       if (file[[i]]@dir != dir) stop(sprintf(str, "dir"))
       if (file[[i]]@simulator.files != simulator.files)
         stop(sprintf(str, "simulator.files"))
-      if (file[[i]]@method_name != method_name)
-        stop(sprintf(str, "method_name"))
       if (file[[i]]@out_loc != out_loc) stop(sprintf(str, "out_loc"))
     }
     # all OutputRef have the same dir, model_name, simulator.files,
-    # method_name, and out_loc
+    # and out_loc
     index <- unlist(lapply(file, function(ref) ref@index))
+    method_names <- unlist(lapply(file, function(ref) ref@method_name))
+    # make sure each method has the same indices computed
+    mnames <- unique(method_names)
+    for (m in seq_along(mnames)) {
+      ii <- which(method_names == mnames[m])
+      if (m == 1) indices_for_method <- index[ii]
+      else if (any(index[ii] != indices_for_method))
+        stop("To be loaded together, each method must be computed on same ",
+              "set of indices")
+    }
     return(load_evals(dir = dir, model_name = model_name, index = index,
-                      method_name = file[[i]]@method_name,
+                      method_name = mnames,
                       metric_names = NULL,
                       out_loc = file[[i]]@out_loc,
                       simulator.files = file[[i]]@simulator.files))

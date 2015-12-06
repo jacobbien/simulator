@@ -57,7 +57,6 @@ test_that("evaluate handles arguments as desired", {
   oref <- run_method(dref, list(my_method, his_method))
   eref <- evaluate(oref, list(squared_error, l1_error, linf_error))
   expect_identical(load(eref[c(1,3,5)]), load_evals(dir, "tm", 1:3, "my"))
-  expect_error(load(eref[1:2]), "same method_name")
   evals2a <- load_evals(dir, "tm", 2, c("my", "his"), metric_names = "l1")
   evals12a <- load_evals(dir, "tm", 1:2, c("my", "his"), metric_names = "l1")
   evaluate(oref, l1_error)
