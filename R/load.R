@@ -25,6 +25,7 @@ setMethod("load", signature(file = "EvalsRef"), function(file) {
 
 
 setMethod("load", signature(file = "list"), function(file) {
+  if (length(file) == 1) return(load(file[[1]]))
   if (all(unlist(lapply(file, class)) == "DrawsRef")) {
     for (i in seq_along(file)) {
       if (i == 1) {
