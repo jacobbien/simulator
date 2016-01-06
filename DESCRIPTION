@@ -34,4 +34,5 @@ Collate:
     'parallel.R'
     'plot.R'
     'simulation-class.R'
+    'tables.R'
     'zzz.R'

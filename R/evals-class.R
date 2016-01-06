@@ -95,7 +95,7 @@ setMethod("show", "Evals", function(object) {
 #' This is equivalent to calling \code{as(x, "data.frame")}
 #' @param x object of class \code{\link{Evals}}
 #' @export
-as.data.frame.Evals = function(x) as(x, "data.frame")
+as.data.frame.Evals <- function(x) as(x, "data.frame")
 
 setAs(from = "Evals", to = "data.frame",
       def = function(from) {
