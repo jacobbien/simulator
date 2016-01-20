@@ -25,6 +25,14 @@ setMethod("load", signature(file = "EvalsRef"), function(file) {
 
 
 setMethod("load", signature(file = "list"), function(file) {
+  if (all(unlist(lapply(file, class)) == "list")) {
+    # recursively call load till not a list of lists
+    list_of_loaded_objects <- lapply(file, load)
+    if (all(lapply(list_of_loaded_objects, class) == "Evals"))
+      class(list_of_loaded_objects) <- c("listofEvals", "list")
+    # ...so that as.data.frame.listofEvals is invoked when passed one of these
+    return(list_of_loaded_objects)
+  }
   if (length(file) == 1) return(load(file[[1]]))
   if (all(unlist(lapply(file, class)) == "DrawsRef")) {
     for (i in seq_along(file)) {

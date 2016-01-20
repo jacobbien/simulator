@@ -39,8 +39,15 @@
 #'  }
 run_method <- function(draws_ref, my_methods, out_loc = "out", parallel = NULL) {
   if (class(draws_ref) == "DrawsRef") draws_ref <- list(draws_ref)
+  if (class(draws_ref) == "list") {
+    if (all(lapply(draws_ref, class) == "list")) {
+      # if this is a list of lists, simply apply this function to each list
+      return(lapply(draws_ref, run_method, my_methods = my_methods,
+                    out_loc = out_loc, parallel = parallel))
+    }
+  }
   if (class(draws_ref) == "list" & length(draws_ref) > 1) {
-    str <- "For now, cannot handle a list of draws_ref from multiple %s."
+    str <- "Use a list of nested lists for draws_ref from multiple %s."
     if (length(unique(lapply(draws_ref, function(dref) dref@model_name))) > 1)
       stop(sprintf(str, "models"))
     if (length(unique(lapply(draws_ref, function(dref) dref@dir))) > 1)

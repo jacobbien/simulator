@@ -67,7 +67,7 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 #'
 #' @export
 #' @param output_ref object of class \code{\link{OutputRef}} as produced by
-#'        \code{\link{run_method}}.
+#'        \code{\link{run_method}} (or list of such objects).
 #' @param metrics a list of \code{\link{Metric}} objects or a single
 #'        \code{\link{Metric}} object
 #' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
@@ -78,12 +78,19 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 evaluate <- function(output_ref, metrics) {
   # make sure metrics is a list of Metric objects
   if (class(metrics) == "list") {
-    stopifnot(all(unlist(lapply(metrics, function(m) class(m) == "Metric"))))
+    stopifnot(all(lapply(metrics, class) == "Metric"))
   } else {
     stopifnot(class(metrics) == "Metric")
     metrics <- list(metrics)
   }
-  if (class(output_ref) == "OutputRef") output_ref <- list(output_ref)
+  if (class(output_ref) == "list") {
+    if (all(lapply(output_ref, class) == "list")) {
+      # if output_ref is a list of lists, recursively apply to each sub-list
+      return(lapply(output_ref, evaluate, metrics = metrics))
+    }
+  } else if (class(output_ref) == "OutputRef") {
+    output_ref <- list(output_ref)
+  } else stop("Invalid class for output_ref.")
   sf <- lapply(output_ref, function(oref) oref@simulator.files)
   if (any(sf != getOption("simulator.files")))
     stop(sprintf("OutputRef's %s must match getOption(\"%s\")",

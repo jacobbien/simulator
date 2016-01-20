@@ -25,7 +25,7 @@ NULL
 #'
 #' @export
 #' @param model_ref an object of class \code{\link{ModelRef}} as returned by
-#'        \code{link{generate_model}}
+#'        \code{link{generate_model}}. Or a list of such objects.
 #' @param nsim number of simulations to be conducted.  If a scalar, then
 #'        value repeated for each index.  Otherwise can be a vector of length
 #'        \code{length(index)}
@@ -46,6 +46,11 @@ NULL
 #'  }
 simulate_from_model <- function(model_ref, nsim,
                                 index = 1, parallel = NULL) {
+  if (class(model_ref) == "list") {
+    return(lapply(model_ref, simulate_from_model, nsim = nsim, index = index,
+           parallel = parallel))
+  }
+  stopifnot(class(model_ref) == "ModelRef")
   stopifnot(index == round(index), index > 0)
   stopifnot(nsim == round(nsim), nsim > 0)
   if (length(nsim) == 1) {

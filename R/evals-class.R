@@ -123,3 +123,12 @@ setAs(from = "Evals", to = "data.frame",
         df
         })
 
+#' Convert a list of Evals to a data.frame
+#'
+#' When \code{\link{load}} generates a list of Evals, it assigns this
+#' to be of (S3) class listofEvals, inherited from list, so that this function
+#' will be invoked instead of as.data.frame.list, which is defined in base.
+#'
+#' @param x a listofEvals object
+#' @export
+as.data.frame.listofEvals <- function(x) do.call("rbind", lapply(x, as.data.frame))
