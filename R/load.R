@@ -34,6 +34,9 @@ setMethod("load", signature(file = "list"), function(file) {
     return(list_of_loaded_objects)
   }
   if (length(file) == 1) return(load(file[[1]]))
+  if (all(unlist(lapply(file, class)) == "ModelRef")) {
+    return(lapply(file, load))
+  }
   if (all(unlist(lapply(file, class)) == "DrawsRef")) {
     for (i in seq_along(file)) {
       if (i == 1) {

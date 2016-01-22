@@ -234,11 +234,18 @@ save_evals_to_file <- function(out_dir, dir, out_loc, evals) {
 #' If \code{method_names} is \code{NULL}, then subsetting is not done over
 #' methods.  Likewise for \code{metric_names}.
 #'
-#' @param evals an object of class \code{\link{Evals}}.
+#' @param evals an object of class \code{\link{Evals}} or
+#'        \code{\link{listofEvals}}.
 #' @param method_names a character vector of method names
 #' @param metric_names a character vector of metric names
 #' @export
 subset_evals <- function(evals, method_names = NULL, metric_names = NULL) {
+  if ("listofEvals" %in% class(evals)) {
+    ll <- lapply(evals, subset_evals, method_names = method_names,
+                 metric_names = metric_names)
+    class(ll) <- class(evals)
+    return(ll)
+  }
   if (!is.null(method_names)) {
     stopifnot(method_names %in% evals@method_name)
     ii <- match(method_names, evals@method_name)
