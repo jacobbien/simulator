@@ -63,7 +63,7 @@ test_that("generate_model works when vary_params in non-NULL", {
   generate_model(make_regmodel2, dir = dir, vary_along = c("n", "p"),
                               n = as.list(c(2,4)), p = as.list(c(2, 3, 10)),
                               sigma = 1)
-  model1 <- load_model(dir = dir, "reg2/n1/p3")
+  model1 <- load_model(dir = dir, "reg2/n_7fb7dc4afcf762daf6636854257587a1c8e7b144/p_710ded514e2bf24f2703c031577d5b5e10c1963a")
   generate_model(make_regmodel2, dir = dir, n = 2, p = 10, sigma = 1)
   model2 <- load_model(dir = dir, "reg2")
   expect_identical(model1@params, model2@params)

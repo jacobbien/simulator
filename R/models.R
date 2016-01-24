@@ -15,8 +15,14 @@ NULL
 #' model will be created for each combination of elements in these lists.  For
 #' example, if \code{vary_along = c("n", "p")}, then we can pass
 #' \code{n=as.list(c(50, 100, 150))} and \code{p=as.list(c(10, 100))} and 6
-#' models will be created, one for each pair of \code{n} and \code{p}.  Function
-#' returns a reference or list of references to the model(s) generated.
+#' models will be created, one for each pair of \code{n} and \code{p}.  For each
+#' pair (n,p), a distinct extension is added to the end of the model name. This
+#' extension is generated using a hash function so that different values of the
+#' vary_along parameters will lead to different model name extensions. This
+#' ensures that if one later decides to add more values of the vary_along
+#' parameters, this will not lead to pre-existing files being overwritten
+#' (unless the same values of the vary_along combination are used again.
+#' Function returns a reference or list of references to the model(s) generated.
 #'
 #' \code{make_model} is called generating an object of class
 #' \code{\link{Model}}, called \code{model}, which is saved to
@@ -69,17 +75,26 @@ generate_model <- function(make_model, dir = ".", seed = 123, vary_along = NULL,
   if (!all(unlist(lapply(passed_params[vary_along], is.list))))
       stop("each parameter named in vary_along must be passed (through ...)",
            " as a list.")
+  if (!requireNamespace("digest", quietly = TRUE))
+    stop("The package digest must be installed for vary_along to be used.",
+         call. = FALSE)
   indices <- lapply(passed_params[vary_along], function(a) seq(length(a)))
   ii <- expand.grid(indices)
   # loop over all combinations of parameters named in vary_along
   params_to_pass <- passed_params
   mref <- list()
+  ext <- rep(NA, ncol(ii))
   for (i in seq(nrow(ii))) {
     for (j in seq(ncol(ii))) { # jth vary_along parameter
       var <- vary_along[j]
       params_to_pass[[var]] <- passed_params[[var]][[ii[i, j]]]
+      # apply hash this object to get a unique file name
+      # this means that if we later decide to add some more combinations,
+      # we will not write on top of the pre-existing ones (unless the same
+      # value combinations of the vary_along parameters are used).
+      ext[j] <- paste0(var, "_", digest::sha1(params_to_pass[[var]]))
     }
-    extension <- paste(vary_along, ii[i, ], sep = "", collapse = "/")
+    extension <- paste(ext, collapse = "/")
     mref[[i]] <- generate_model_single(make_model, dir, seed, params_to_pass,
                                        extension)
   }
@@ -123,8 +138,8 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
   save(model, rng, info, file = file)
   catsim(paste0("..Created model and saved in ", model@name, "/model.Rdata"),
          fill = TRUE)
-  model_ref <- new("ModelRef", name = model@name, dir = dir,
-                   simulator.files = getOption("simulator.files"))
+  model_ref <- new("ModelRef", name = model@name, label = model@label,
+                   dir = dir, simulator.files = getOption("simulator.files"))
   invisible(model_ref)
 }
 

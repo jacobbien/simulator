@@ -9,9 +9,10 @@ Depends:
 License: GPL-3
 LazyData: true
 Suggests:
+    digest,
+    ggplot2,
     knitr,
-    testthat,
-    ggplot2
+    testthat
 VignetteBuilder: knitr
 Collate:
     'component-class.R'

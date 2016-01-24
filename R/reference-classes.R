@@ -3,6 +3,9 @@
 check_modelref <- function(object) {
   errors <- is_valid_component_name(object@name, "name", require_unique = TRUE,
                                     allow_slash = TRUE)
+  if (length(object@label) == 0)
+    errors <- c(errors,
+                "Missing \"label\" for object. Make this human-readable.")
   if (length(errors) == 0) TRUE else errors
 }
 
@@ -50,10 +53,13 @@ check_evalsref <- function(object) {
 #' @param dir directory where the directory "files" is that contains the
 #'        referenced \code{\link{Model}} object
 #' @slot name a short name identifier.
+#' @slot label a longer, human readable label that can have other characters
+#'       such as spaces, hyphens, etc.
 #' @slot simulator.files Default is \code{getOption("simulator.files")}.
 #'
 #' @export
 setClass("ModelRef", representation(dir = "character", name = "character",
+                                    label = "character",
                                     simulator.files = "character"),
          validity = check_modelref)
 
@@ -61,6 +67,7 @@ setMethod("show", "ModelRef", function(object) {
   validObject(object)
   cat("Model Reference", fill = TRUE)
   cat(" name:", object@name, fill = TRUE)
+  cat(" label:", object@label, fill = TRUE)
   cat(" dir:", object@dir, fill = TRUE)
   if (object@simulator.files != getOption("simulator.files"))
     cat(" simulator.files:", object@simulator.files, fill = TRUE)
