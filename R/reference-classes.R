@@ -50,7 +50,7 @@ check_evalsref <- function(object) {
 #' This identifies the necessary information to locate a saved object
 #' of class \code{\link{Model}}.
 #'
-#' @param dir directory where the directory "files" is that contains the
+#' @slot dir directory where the directory "files" is that contains the
 #'        referenced \code{\link{Model}} object
 #' @slot name a short name identifier.
 #' @slot label a longer, human readable label that can have other characters
@@ -78,10 +78,10 @@ setMethod("show", "ModelRef", function(object) {
 #' This identifies the necessary information to locate a saved object
 #' of class \code{\link{Draws}}.
 #'
-#' @param dir directory where the directory \code{getOption("simulator.files")}
+#' @slot dir directory where the directory \code{getOption("simulator.files")}
 #'        is that contains the referenced \code{\link{Model}} object
 #' @slot model_name name of the referenced \code{\link{Model}} object
-#' @param index the index of the referenced \code{\link{Draws}} object.  Can
+#' @slot index the index of the referenced \code{\link{Draws}} object.  Can
 #'        alternately be a vector of such indices.
 #' @slot simulator.files Default is \code{getOption("simulator.files")}
 #'
@@ -106,14 +106,14 @@ setMethod("show", "DrawsRef", function(object) {
 #' This identifies the necessary information to locate a saved object
 #' of class \code{\link{Output}}.
 #'
-#' @param dir directory where the directory \code{getOption("simulator.files")}
+#' @slot dir directory where the directory \code{getOption("simulator.files")}
 #'        is that contains the referenced \code{\link{Model}} object
 #' @slot model_name name of the referenced \code{\link{Model}} object
-#' @param index the index of the referenced \code{\link{Draws}} object.  Can
+#' @slot index the index of the referenced \code{\link{Draws}} object.  Can
 #'        alternately be a vector of such indices.
-#' @param method_name the name of the \code{\link{Method}} object this output is
+#' @slot method_name the name of the \code{\link{Method}} object this output is
 #'       derived from.
-#' @param out_loc a length-1 character vector that gives location
+#' @slot out_loc a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
 #'        the same Model and Draws objects.
@@ -145,13 +145,13 @@ setMethod("show", "OutputRef", function(object) {
 #' needed to identify an Evals object since Evals objects combine all metrics
 #' together into a single file and object.
 #'
-#' @param dir directory where the directory \code{getOption("simulator.files")}
+#' @slot dir directory where the directory \code{getOption("simulator.files")}
 #'        is that contains the referenced \code{\link{Model}} object
 #' @slot model_name name of the referenced \code{\link{Model}} object
-#' @param index the index of the referenced \code{\link{Draws}} object.
-#' @param method_name the name of the \code{\link{Method}} object this output is
+#' @slot index the index of the referenced \code{\link{Draws}} object.
+#' @slot method_name the name of the \code{\link{Method}} object this output is
 #'       derived from.
-#' @param out_loc a length-1 character vector that gives location
+#' @slot out_loc a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
 #'        the same Model and Draws objects.
