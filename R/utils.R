@@ -27,3 +27,22 @@ get_model_dir_and_file <- function(dir, model_name, simulator.files = NULL) {
 catsim <- function(...) {
   if (getOption("simulator.verbose")) cat(...)
 }
+
+
+#' Get relative path
+#'
+#' Given a base path and a specific path, returns a string str such that
+#' file.path(base_path, str) is the same location as path.
+#'
+#' @param base_path the base path
+#' @param path a specific path
+get_relative_path <- function(base_path, path) {
+  b <- strsplit(normalizePath(base_path, mustWork = FALSE), split = "/")[[1]]
+  p <- strsplit(normalizePath(path, mustWork = FALSE), split = "/")[[1]]
+  len <- min(length(b), length(p))
+  ncommon <- max(which(b[1:len] == p[1:len]))
+  str <- rep("..", length(b) - ncommon)
+  if (length(p) > ncommon)
+    str <- c(str, p[(ncommon + 1):length(p)])
+  return(paste0(str, collapse = "/"))
+}

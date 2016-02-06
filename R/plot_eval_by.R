@@ -46,7 +46,7 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE, main,
   if (use_ggplot2 & !requireNamespace("ggplot2", quietly = TRUE))
     stop("To use this function, ggplot2 must be installed.", call. = FALSE)
   # load models and get the values of varying
-  m <- load(sim@model_refs)
+  m <- model(sim)
   vals <- lapply(m, function(mm) mm@params[[varying]])
   if (any(lapply(vals, is.null) == TRUE))
     stop("One or more models does not have ", varying,
@@ -58,7 +58,7 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE, main,
     stop("For now, cannot have multiple models having same value of 'varying'")
   model_names <- lapply(sim@model_refs, function(m) m@name)
   # load evals
-  e <- subset_evals(load(sim@evals_refs), metric_names = metric_name)
+  e <- subset_evals(evals(sim), metric_names = metric_name)
   stopifnot(unlist(lapply(e, function(ee) metric_name %in% ee@metric_name)))
   method_names <- lapply(e, function(ee) ee@method_name)
   if (length(unique(method_names)) != 1)

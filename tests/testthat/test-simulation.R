@@ -26,6 +26,18 @@ make_testmodel2 <- function() {
              }))
 }
 
+make_testmodels <- function(n, p) {
+  return(new("Model", name = "tms",
+             label = sprintf("Test models n=%s, p=%s", n, p),
+             params = list(n = n, p = p),
+             simulate = function(n, nsim) {
+               y <- list()
+               for (i in seq(nsim))
+                 y[[i]] <- rnorm(n)
+               return(y)
+             }))
+}
+
 his_method <- new("Method",
                          name = "his",
                          label = "His method",
@@ -51,6 +63,7 @@ l1_error <- new("Metric",
                 name = "l1",
                 label = "L1 Error",
                 metric = function(model, out) {
+                  if (is.null(model$x)) return(0)
                   sum(abs(out$est - model$x))
                 })
 
@@ -58,6 +71,7 @@ linf_error <- new("Metric",
                 name = "li",
                 label = "L Infinity Error",
                 metric = function(model, out) {
+                  if (is.null(model$x)) return(0)
                   max(abs(out$est - model$x))
                 })
 
@@ -98,5 +112,91 @@ test_that("show and add to a simulation object", {
   sim3 <- add(sim3, dref)
   sim3 <- add(sim3, oref)
   expect_identical(sim2, sim3)
+  unlink(dir, recursive = TRUE)
+})
+
+test_that("get relative path", {
+  expect_identical(get_relative_path("../..", "."), "tests/testthat")
+  expect_identical(get_relative_path("../..", ".."), "tests")
+  expect_identical(get_relative_path("..", "../.."), "..")
+})
+
+test_that("get model from sim", {
+  dir <- file.path(tempdir(), "example")
+  if (!dir.exists(dir)) dir.create(dir)
+  mref <- generate_model(make_testmodels, dir = dir, vary_along = c("n", "p"),
+                         n = as.list(1:3), p = as.list(letters[1:4]))
+  sim <- new_simulation("testmodels", "Some test models", refs = mref)
+  expect_error(model(sim, subset = "a"), "unrecognized")
+  expect_error(model(sim, subset = -1), "must be")
+  expect_error(model(sim, subset = 1.2), "must be")
+  expect_error(model(sim, subset = 1.2), "must be")
+  expect_error(model(sim, subset = 100), "must be")
+  m1 <- model(sim, 2:3, reference = TRUE); m2 <- mref[2:3]
+  expect_identical(lapply(m1, function(m) m@name),
+                   lapply(m2, function(m) m@name))
+  # using expect_equal instead of expect_identical because
+  # function environments of [...]@simulate differ
+  expect_equal(model(sim, c(mref[[5]]@name, mref[[2]]@name)),
+                   model(sim, c(5, 2)))
+  expect_equal(model(sim, list(n = 2, p = "a")), model(sim, 2))
+  expect_equal(model(sim, list(n = 3)), model(sim, c(3, 6, 9, 12)))
+  expect_equal(model(sim, list(n = -1)), list())
+  expect_equal(model(sim, list(n = "a")), list())
+  unlink(dir, recursive = TRUE)
+  })
+
+
+test_that("get draws from sim", {
+  dir <- file.path(tempdir(), "example")
+  if (!dir.exists(dir)) dir.create(dir)
+  mref <- generate_model(make_testmodels, dir = dir, vary_along = c("n", "p"),
+                         n = as.list(1:2), p = as.list(letters[1:2]))
+  dref <- simulate_from_model(mref[1:2], nsim = 2, index = 1:3)
+  sim <- new_simulation("testmodels", "Some test models", refs = mref)
+  expect_identical(draws(sim), list())
+  sim <- add(sim, dref)
+  expect_identical(draws(sim, subset = 3), list())
+  expect_identical(draws(sim, subset = 2, index = 4), list())
+  expect_identical(draws(sim, subset = 2, index = 3), load(dref[[2]][[3]]))
+  expect_identical(draws(sim, subset = 2, index = 2:3), load(dref[[2]][2:3]))
+  expect_identical(draws(sim, subset = 1:2, index = 1:3), load(dref[1:2]))
+  unlink(dir, recursive = TRUE)
+})
+
+
+test_that("get outputs and evals from sim", {
+  dir <- file.path(tempdir(), "example")
+  if (!dir.exists(dir)) dir.create(dir)
+  mref <- generate_model(make_testmodels, dir = dir, vary_along = c("n", "p"),
+                         n = as.list(1:2), p = as.list(letters[1:2]))
+  dref <- simulate_from_model(mref[2:3], nsim = 1, index = 1:3)
+  oref <- run_method(dref, list(my_method, his_method))
+  sim <- new_simulation("testmodels", "Some test models", refs = c(mref, dref))
+  expect_identical(output(sim), list())
+  sim <- add(sim, oref)
+  expect_identical(output(sim, subset = 1), list())
+  expect_identical(output(sim, subset = 2, index = 4), list())
+  expect_identical(output(sim, subset = 2, index = 3, method = "not_a_method"),
+                   list())
+  expect_identical(output(sim, subset = 2, index = 3, method = "his"),
+                   load(oref[[1]][[6]]))
+  dref2 <- simulate_from_model(mref[c(1, 4)], nsim = 1, index = 2)
+  oref2 <- run_method(dref2, list(my_method, his_method))
+  sim <- add(sim, c(dref2, oref2))
+  oo <- list(oref[[2]][c(3, 5)], list(oref2[[1]][[1]]))
+  expect_identical(output(sim, subset = list(n=1), index = 2:3, method = "my"),
+                   load(oo))
+  oo <- list()
+  oo[[1]] <- list(oref[[2]][c(3, 5)], oref[[2]][c(4, 6)])
+  oo[[2]] <- list(list(oref2[[1]][[1]]), list(oref2[[1]][[2]]))
+  expect_identical(output(sim, subset = list(n = 1), index = 2:3),
+                   load(oo))
+  oref <- output(sim, reference = TRUE)
+  eref <- evaluate(oref, list(l1_error, linf_error))
+  sim <- add(sim, eref)
+  expect_identical(lapply(eref, unlist), evals(sim, reference = TRUE))
+  expect_identical(unlist(eref[[2]]), evals(sim, subset = list(n = 1, p = "b"),
+                                    reference = TRUE))
   unlink(dir, recursive = TRUE)
 })

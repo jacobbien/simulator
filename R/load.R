@@ -25,6 +25,7 @@ setMethod("load", signature(file = "EvalsRef"), function(file) {
 
 
 setMethod("load", signature(file = "list"), function(file) {
+  if (length(file) == 0) return(list())
   if (all(unlist(lapply(file, class)) == "list")) {
     # recursively call load till not a list of lists
     list_of_loaded_objects <- lapply(file, load)
