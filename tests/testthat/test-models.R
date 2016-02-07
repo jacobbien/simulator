@@ -35,36 +35,36 @@ make_regmodel2 <- function(n, p, sigma) {
 test_that("generate_model works with ... when vary_params = NULL", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  expect_error(generate_model(make_regmodel, dir = dir), "missing")
-  expect_error(generate_model(make_regmodel, dir = dir, n = 5, p = 2),
-               "missing")
-  expect_error(not(generate_model(make_regmodel, dir = dir, n = 5, p = 2,
+  expect_error(generate_model(dir, make_regmodel), "missing")
+  expect_error(generate_model(dir, make_regmodel, n = 5, p = 2), "missing")
+  expect_error(not(generate_model(dir, make_regmodel, n = 5, p = 2,
                                   sigma = 2)))
-  expect_warning(generate_model(make_regmodel, dir = dir, n = 5, p = 2,
-                              sigma = 2), "sets n to a value different from")
-  expect_error(not(generate_model(make_regmodel, dir = dir, n = 1, p = 2, sigma = 2)))
+  expect_warning(generate_model(dir, make_regmodel, n = 5, p = 2, sigma = 2),
+                 "sets n to a value different from")
+  expect_error(not(generate_model(dir, make_regmodel, n = 1, p = 2,
+                                  sigma = 2)))
   unlink(dir, recursive = TRUE)
 })
 
 test_that("generate_model works when vary_params in non-NULL", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  expect_error(generate_model(make_regmodel, dir = dir, vary_along = "n"),
+  expect_error(generate_model(dir, make_regmodel, vary_along = "n"),
                "vary_along")
-  expect_error(generate_model(make_regmodel, dir = dir, vary_along = "n",
-                              n = 2, p = 4), "list")
-  expect_error(generate_model(make_regmodel, dir = dir, vary_along = "n",
+  expect_error(generate_model(dir, make_regmodel, vary_along = "n", n = 2,
+                              p = 4), "list")
+  expect_error(generate_model(dir, make_regmodel, vary_along = "n",
                               n = as.list(c(2,4)), p = 4), "sigma")
-  expect_error(not(generate_model(make_regmodel2, dir = dir, vary_along = "n",
+  expect_error(not(generate_model(dir, make_regmodel2, vary_along = "n",
                                   n = as.list(c(2,4)), p = 4, sigma = 1)))
-  expect_error(generate_model(make_regmodel2, dir = dir, vary_along = "n",
+  expect_error(generate_model(dir, make_regmodel2, vary_along = "n",
                               n = as.list(c(2,4)), p = as.list(c(2, 10)),
                               sigma = 1), "non-numeric argument")
-  generate_model(make_regmodel2, dir = dir, vary_along = c("n", "p"),
+  generate_model(dir, make_regmodel2, vary_along = c("n", "p"),
                               n = as.list(c(2,4)), p = as.list(c(2, 3, 10)),
                               sigma = 1)
   model1 <- load_model(dir = dir, "reg2/n_7fb7dc4afcf762daf6636854257587a1c8e7b144/p_710ded514e2bf24f2703c031577d5b5e10c1963a")
-  generate_model(make_regmodel2, dir = dir, n = 2, p = 10, sigma = 1)
+  generate_model(dir, make_regmodel2, n = 2, p = 10, sigma = 1)
   model2 <- load_model(dir = dir, "reg2")
   expect_identical(model1@params, model2@params)
   unlink(dir, recursive = TRUE)
@@ -73,10 +73,9 @@ test_that("generate_model works when vary_params in non-NULL", {
 test_that("loading ModelRef works", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(make_regmodel2, dir = dir, n = 5, p = 2, sigma = 2)
+  mref <- generate_model(dir, make_regmodel2, n = 5, p = 2, sigma = 2)
   model1 <- load(mref)
   model2 <- load_model(dir, "reg2")
   expect_equal(model1, model2) # not identical since function enivronments differ
   unlink(dir, recursive = TRUE)
 })
-
