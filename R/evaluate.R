@@ -58,7 +58,9 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 #'
 #' Given a \code{\link{Metric}} object or list of \code{\link{Metric}} objects,
 #' this function evaluates an \code{\link{Output}} object according to these
-#' metrics.  The computed values of the metrics are saved to file.
+#' metrics.  The computed values of the metrics are saved to file.  The "user"
+#' time to run the method (as measured by \code{\link{system.time}}) is added
+#' to \code{metrics} by default.
 #'
 #' This function creates objects of class \code{\link{Evals}} and saves each to
 #' file (at dir/model_name/<out_loc>/r<index>_<method_name>_evals.Rdata. Since
@@ -69,7 +71,7 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 #' @param output_ref object of class \code{\link{OutputRef}} as produced by
 #'        \code{\link{run_method}} (or list of such objects).
 #' @param metrics a list of \code{\link{Metric}} objects or a single
-#'        \code{\link{Metric}} object
+#'        \code{\link{Metric}} object.
 #' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
 #' \code{\link{run_method}}
 #' @examples
@@ -83,6 +85,11 @@ evaluate <- function(output_ref, metrics) {
     stopifnot(class(metrics) == "Metric")
     metrics <- list(metrics)
   }
+  if (computing_time@name %in% lapply(metrics, function(m) m@name))
+    warning("Metric with name 'time' is replacing the default user time ",
+            "included by simulator.")
+  else
+    metrics <- c(metrics, computing_time)
   if (class(output_ref) == "list") {
     if (all(lapply(output_ref, class) == "list")) {
       # if output_ref is a list of lists, recursively apply to each sub-list
@@ -107,7 +114,6 @@ evaluate <- function(output_ref, metrics) {
   }
   invisible(eref)
 }
-
 
 #' Run one or more metrics on outputs.
 #'

@@ -30,3 +30,11 @@ check_metric <- function(object) {
 setClass("Metric", representation(metric = "function"),
          contains = "Component", validity = check_metric)
 
+#' Metric giving timing information
+#'
+#' This is a default metric that applies across all simulations.  Gives the
+#' "user" time returned from \code{system.time}.
+computing_time <- new("Metric",
+                      name = "time",
+                      label = "Computing time (s)",
+                      metric = function(model, out) return(as.numeric(out$time[1])))
