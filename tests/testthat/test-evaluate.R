@@ -52,7 +52,7 @@ linf_error <- new("Metric",
 test_that("evaluate handles arguments as desired", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(make_testmodel, dir = dir)
+  mref <- generate_model(dir, make_testmodel)
   dref <- simulate_from_model(mref, nsim = 20, 1:3)
   oref <- run_method(dref, list(my_method, his_method))
   eref <- evaluate(oref, list(squared_error, l1_error, linf_error))

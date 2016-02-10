@@ -22,7 +22,11 @@ NULL
 #' ensures that if one later decides to add more values of the vary_along
 #' parameters, this will not lead to pre-existing files being overwritten
 #' (unless the same values of the vary_along combination are used again.
-#' Function returns a reference or list of references to the model(s) generated.
+#'
+#' If \code{object} is a directory name, the function returns a reference or
+#' list of references to the model(s) generated. If \code{object} is a
+#' \code{Simulation}, then function returns the same \code{Simulation} object
+#' but with references added to the new models created.
 #'
 #' \code{make_model} is called generating an object of class
 #' \code{\link{Model}}, called \code{model}, which is saved to
@@ -32,11 +36,14 @@ NULL
 #' when \code{model} was created.
 #'
 #' @export
+#' @param object the name of the directory where directory named "files" exists
+#'        (or should be created) to save \code{\link{Model}} object in.
+#'        Default is current working directory. Or can be an object of class
+#'        \code{\link{Simulation}}, in which case the \code{object@@dir} is used
+#'        and a simulation object is returned instead of an object of class
+#'        \code{\link{ModelRef}}.
 #' @param make_model a function that outputs an object of class
 #'        \code{\link{Model}}
-#' @param dir directory where directory named "files" exists (or is created) to
-#'        save \code{\link{Model}} object in. Default is current working
-#'        directory
 #' @param seed an integer seed for the random number generator.
 #' @param vary_along character vector with all elements contained in names(...)
 #'        See description for more details.
@@ -56,19 +63,31 @@ NULL
 #'     return(new("Model", name = "fm", label = "My First Model",
 #'                params = params, simulate = simulate))
 #'  }
-#'  generate_model(make_my_model, dir = ".")
-#'  generate_model(make_my_model, dir = ".", n = 20)
-#'  generate_model(make_my_model, dir = ".", n = as.list(c(10, 20, 30)),
+#'  generate_model(object = ".", make_my_model)
+#'  generate_model(object = ".", make_my_model, n = 20)
+#'  generate_model(object = ".", make_my_model, n = as.list(c(10, 20, 30)),
 #'                 vary_along = "n")
 #'  }
-generate_model <- function(make_model, dir = ".", seed = 123, vary_along = NULL, ...) {
+generate_model <- function(object = ".", make_model, seed = 123,
+                           vary_along = NULL, ...) {
   stopifnot(class(make_model) == "function")
+  stopifnot(length(object) == 1)
+  if (class(object) == "Simulation")
+    dir <- object@dir
+  else if (class(object) == "character")
+    dir <- object
+  else stop("object must be of class 'character' or 'Simulation'.")
   dir <- remove_slash(dir)
   stopifnot(file.info(dir)$isdir)
   passed_params <- as.list(match.call(expand.dots = FALSE)$`...`)
   passed_params <- lapply(passed_params, eval)
-  if (is.null(vary_along))
-    return(generate_model_single(make_model, dir, seed, passed_params))
+  if (is.null(vary_along)) {
+    mref <- generate_model_single(make_model, dir, seed, passed_params)
+    if (class(object) == "Simulation")
+      return(invisible(add(object, mref)))
+    else
+      return(invisible(mref))
+  }
   stopifnot(is.character(vary_along))
   if (!all(vary_along %in% names(passed_params)))
     stop("vary_along must only include names of parameters passed via \"...\".")
@@ -98,6 +117,8 @@ generate_model <- function(make_model, dir = ".", seed = 123, vary_along = NULL,
     mref[[i]] <- generate_model_single(make_model, dir, seed, params_to_pass,
                                        extension)
   }
+  if (class(object) == "Simulation")
+    return(invisible(add(object, mref)))
   invisible(mref)
 }
 

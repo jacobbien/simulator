@@ -80,8 +80,8 @@ test_that("show and add to a simulation object", {
   if (!dir.exists(dir)) dir.create(dir)
   sim <- new("Simulation", name = "sim1", label = "test simulation")
   expect_output(show(sim), "0 model")
-  mref <- generate_model(make_testmodel, dir = dir)
-  mref2 <- generate_model(make_testmodel2, dir = dir)
+  mref <- generate_model(dir, make_testmodel)
+  mref2 <- generate_model(dir, make_testmodel2)
   sim <- add(sim, mref)
   expect_error(add(sim, mref), "already")
   dref <- simulate_from_model(mref, nsim = 1, 1:3)
@@ -124,7 +124,7 @@ test_that("get relative path", {
 test_that("get model from sim", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(make_testmodels, dir = dir, vary_along = c("n", "p"),
+  mref <- generate_model(dir, make_testmodels, vary_along = c("n", "p"),
                          n = as.list(1:3), p = as.list(letters[1:4]))
   sim <- new_simulation("testmodels", "Some test models", refs = mref)
   expect_error(model(sim, subset = "a"), "unrecognized")
@@ -150,7 +150,7 @@ test_that("get model from sim", {
 test_that("get draws from sim", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(make_testmodels, dir = dir, vary_along = c("n", "p"),
+  mref <- generate_model(dir, make_testmodels, vary_along = c("n", "p"),
                          n = as.list(1:2), p = as.list(letters[1:2]))
   dref <- simulate_from_model(mref[1:2], nsim = 2, index = 1:3)
   sim <- new_simulation("testmodels", "Some test models", refs = mref)
@@ -168,7 +168,7 @@ test_that("get draws from sim", {
 test_that("get outputs and evals from sim", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(make_testmodels, dir = dir, vary_along = c("n", "p"),
+  mref <- generate_model(dir, make_testmodels, vary_along = c("n", "p"),
                          n = as.list(1:2), p = as.list(letters[1:2]))
   dref <- simulate_from_model(mref[2:3], nsim = 1, index = 1:3)
   oref <- run_method(dref, list(my_method, his_method))
@@ -198,5 +198,36 @@ test_that("get outputs and evals from sim", {
   expect_identical(lapply(eref, unlist), evals(sim, reference = TRUE))
   expect_identical(unlist(eref[[2]]), evals(sim, subset = list(n = 1, p = "b"),
                                     reference = TRUE))
+  unlink(dir, recursive = TRUE)
+})
+
+
+test_that("passing simulation instead of references works", {
+  dir <- file.path(tempdir(), "example")
+  if (!dir.exists(dir)) dir.create(dir)
+  # a single model
+  mref <- generate_model(dir, make_testmodels, n = 1, p = "a")
+  sim <- new_simulation("mysim", "My simulation", dir = dir)
+  sim2 <- generate_model(sim, make_testmodels, n = 1, p = "a")
+  expect_identical(load(mref)@params, model(sim2)@params)
+  # a sequence of models
+  mref <- generate_model(dir, make_testmodels, vary_along = c("n", "p"),
+                         n = as.list(1:2), p = as.list(letters[1:2]))
+  sim2 <- generate_model(sim, make_testmodels, vary_along = c("n", "p"),
+                        n = as.list(1:2), p = as.list(letters[1:2]))
+  f <- function(m) m@params
+  expect_identical(lapply(load(mref), f), lapply(model(sim2), f))
+  # draws
+  dref <- simulate_from_model(mref, nsim = 1, index = 1:2)
+  sim3 <- simulate_from_model(sim2, nsim = 1, index = 1:2)
+  expect_identical(load(dref), draws(sim3))
+  # outputs
+  oref <- run_method(dref, list(my_method))
+  sim4 <- run_method(sim3, list(my_method))
+  expect_identical(load(oref), output(sim4))
+  # evals
+  eref <- evaluate(oref, list(l1_error, linf_error))
+  sim5 <- evaluate(sim4, list(l1_error, linf_error))
+  expect_identical(load(eref), evals(sim5))
   unlink(dir, recursive = TRUE)
 })
