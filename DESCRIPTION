@@ -27,7 +27,6 @@ Collate:
     'create.R'
     'draws.R'
     'evaluate.R'
-    'get-from-simulation.R'
     'load.R'
     'method-class.R'
     'methods.R'

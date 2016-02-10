@@ -21,7 +21,7 @@ test_that("loading DrawsRef works (even with changing simulator.files", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   options(simulator.files = "hello")
-  mref <- generate_model(dir, make_regmodel2, n = 5, p = 2, sigma = 2)
+  mref <- generate_model(make_regmodel2, dir = dir, n = 5, p = 2, sigma = 2)
   dref <- simulate_from_model(mref, nsim = 2, index = 1:3)
   options(simulator.files = "files")
   draws1 <- load_draws(dir, "reg2", 3, simulator.files = "hello")

@@ -37,7 +37,7 @@ test_that("simulator.files is managed properly", {
   options(simulator.files = sf)
   if (!dir.exists(dir)) dir.create(dir)
   # generate_model using sf
-  mref <- generate_model(dir, make_testmodel)
+  mref <- generate_model(make_testmodel, dir = dir)
   model <- load(mref)
   # now change to sf2
   options(simulator.files = sf2)

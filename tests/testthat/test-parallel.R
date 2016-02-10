@@ -39,7 +39,7 @@ remove_time_from_out <- function(out) {
 test_that("seeds is deterministic", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  generate_model(dir, make_testmodel)
+  generate_model(make_testmodel, dir = dir)
   model_seed <- load_model(dir, "tm", more_info = TRUE)$rng$rng_seed
   seeds <- get_seeds_for_draws(model_seed, 1:4)
   seeds2 <- get_seeds_for_draws(model_seed, 1:4)
@@ -54,7 +54,7 @@ test_that("get same draws if chunks done together or separately", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   tryCatch({
-    mref <- generate_model(dir, make_testmodel)
+    mref <- generate_model(make_testmodel, dir = dir)
     # done together:
     dref <- simulate_from_model(mref, nsim = 2, index = 1:4)
     draws <- lapply(dref, load)
@@ -71,7 +71,7 @@ test_that("get same draws if chunks done together or separately", {
 test_that("simulate_from_model output same parallel v. sequential", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(dir, make_testmodel)
+  mref <- generate_model(make_testmodel, dir = dir)
   # in sequence:
   dref <- simulate_from_model(mref, nsim = 2, index = 1:5)
   seqdraws <- load(dref)
@@ -93,7 +93,7 @@ test_that("simulate_from_model output same parallel v. sequential", {
 test_that("run_method output same parallel v. sequential", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(dir, make_testmodel)
+  mref <- generate_model(make_testmodel, dir = dir)
   dref <- simulate_from_model(mref, nsim = 2, index = 1:5)
   # in sequence:
   oref <- run_method(dref[3:5], my_method)

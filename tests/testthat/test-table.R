@@ -45,7 +45,7 @@ l1_error <- new("Metric",
 test_that("can make a table", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(dir, make_testmodel, vary_along = "n",
+  mref <- generate_model(make_testmodel, dir = dir, vary_along = "n",
                          n = list(5, 100))
   dref1 <- simulate_from_model(mref[[1]], nsim = 3, index = 1:3)
   dref2 <- simulate_from_model(mref[[2]], nsim = 3, index = 1:3)

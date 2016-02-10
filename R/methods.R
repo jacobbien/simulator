@@ -2,10 +2,10 @@
 #' Run one or more methods on simulated data.
 #'
 #' Given a \code{\link{Method}} object or list of \code{\link{Method}} objects,
-#' this function runs the method(s) on the draws passed through \code{object}.
-#' The output of each method is saved to file.
+#' this function runs the method(s) on the draws specified by \code{model_name}
+#' and \code{index}.  The output of each method is saved to file.
 #'
-#' This function creates objects of class \code{\link{Output}} and saves each to
+#' This function creates objects of class \code{\link{Object}} and saves each to
 #' file (at dir/model_name/<out_loc>/r<index>_<method_name>.Rdata. If parallel
 #' is not NULL, then it must be a list containing \code{socket_names}, which can
 #' either be a positive integer specifying the number of copies to run on
@@ -22,13 +22,9 @@
 #' and indices are run in.
 #'
 #' @export
-#' @param object an object of class \code{\link{DrawsRef}} (or a list of
-#'        such objects) as returned by \code{link{simulate_from_model}}. If
-#'        \code{object} is a \code{\link{Simulation}}, then function is applied
-#'         to the referenced draws in that simulation and returns the same
-#'        \code{Simulation} object but with references added to the new outputs
-#'        created.
-#' @param methods a list of \code{\link{Method}} objects or a single
+#' @param draws_ref an object of class \code{\link{DrawsRef}} (or a list of
+#'        such objects) as returned by \code{link{simulate_from_model}}.
+#' @param my_methods a list of \code{\link{Method}} objects or a single
 #'        \code{\link{Method}} object
 #' @param out_loc (optional) a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.This can be
@@ -41,21 +37,13 @@
 #' @examples
 #' \dontrun{
 #'  }
-run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
-  if (class(object) == "Simulation")
-    draws_ref <- draws(object, reference = TRUE)
-  else
-    draws_ref <- object
+run_method <- function(draws_ref, my_methods, out_loc = "out", parallel = NULL) {
   if (class(draws_ref) == "DrawsRef") draws_ref <- list(draws_ref)
   if (class(draws_ref) == "list") {
     if (all(lapply(draws_ref, class) == "list")) {
       # if this is a list of lists, simply apply this function to each list
-      oref <- lapply(draws_ref, run_method, methods = methods,
-                    out_loc = out_loc, parallel = parallel)
-      if (class(object) == "Simulation")
-        return(invisible(add(object, oref)))
-      else
-        return(invisible(oref))
+      return(lapply(draws_ref, run_method, my_methods = my_methods,
+                    out_loc = out_loc, parallel = parallel))
     }
   }
   if (class(draws_ref) == "list" & length(draws_ref) > 1) {
@@ -71,11 +59,11 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
   if (draws_ref[[1]]@simulator.files != getOption("simulator.files"))
     stop(sprintf("draws_ref@%s must match getOption(\"%s\")",
                  "simulator.files", "simulator.files"))
-  if (class(methods) == "list") {
-    stopifnot(all(unlist(lapply(methods, function(m) class(m) == "Method"))))
+  if (class(my_methods) == "list") {
+    stopifnot(all(unlist(lapply(my_methods, function(m) class(m) == "Method"))))
   } else {
-    stopifnot(class(methods) == "Method")
-    methods <- list(methods)
+    stopifnot(class(my_methods) == "Method")
+    my_methods <- list(my_methods)
   }
   # load model
   dir <- draws_ref[[1]]@dir
@@ -88,7 +76,7 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
   if (!file.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
   # now run methods on each index
   index <- sort(index)
-  nmethods <- length(methods)
+  nmethods <- length(my_methods)
   orefs <- list()
   if (is.null(parallel) || nmethods * length(index) == 1) {
     # run sequentially
@@ -102,7 +90,7 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
         # after calling simulate_from_model for this index alone
         # this makes it so the order in which methods and indices are run will
         # not change things (note: only relevant for methods that require RNG)
-        out_list <- run_method_single(methods[[m]], model, draws_list$draws)
+        out_list <- run_method_single(my_methods[[m]], model, draws_list$draws)
         orefs[[ii]] <- save_output_to_file(out_dir, dir, out_loc,
                                                out_list$output, out_list$info)
         ii <- ii + 1
@@ -112,14 +100,12 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
     # run in parallel
     check_parallel_list(parallel)
     if (is.null(parallel$save_locally)) parallel$save_locally <- FALSE
-    orefs <- run_method_parallel(methods,  model, dir, model_name,
+    orefs <- run_method_parallel(my_methods,  model, dir, model_name,
                                      index, out_dir, out_loc,
                                      socket_names = parallel$socket_names,
                                      libraries = parallel$libraries,
                                      save_locally = parallel$save_locally)
   }
-  if (class(object) == "Simulation")
-    return(invisible(add(object, orefs)))
   invisible(orefs)
 }
 

@@ -24,12 +24,8 @@ NULL
 
 #'
 #' @export
-#' @param object an object of class \code{\link{ModelRef}} as returned by
-#'        \code{link{generate_model}}. Or a list of such objects. If
-#'        \code{object} is a \code{Simulation}, then function is applied to the
-#'        referenced models in that simulation and returns the same
-#'        \code{Simulation} object but with references added to the new draws
-#'        created.
+#' @param model_ref an object of class \code{\link{ModelRef}} as returned by
+#'        \code{link{generate_model}}. Or a list of such objects.
 #' @param nsim number of simulations to be conducted.  If a scalar, then
 #'        value repeated for each index.  Otherwise can be a vector of length
 #'        \code{length(index)}
@@ -43,24 +39,18 @@ NULL
 #' @seealso \code{\link{load_draws}} \code{\link{generate_model}} \code{\link{run_method}}
 #' @examples
 #' \dontrun{
-#'  mref <- generate_model(".", make_my_model)
+#'  mref <- generate_model(make_my_model, dir = ".")
 #'  dref1 <- simulate_from_model(mref, nsim = 50, index = 1:2)
 #'  dref2 <- simulate_from_model(mref, nsim = 50, index = 3:5,
 #'  parallel = list(socket_names = 3))
 #'  }
-simulate_from_model <- function(object, nsim,
+simulate_from_model <- function(model_ref, nsim,
                                 index = 1, parallel = NULL) {
-  if (class(object) == "Simulation")
-    model_ref <- model(object, reference = TRUE)
-  else
-    model_ref <- object
   if (class(model_ref) == "list") {
-    dref <- lapply(model_ref, simulate_from_model, nsim = nsim, index = index,
-           parallel = parallel)
-    if (class(object) == "Simulation")
-      return(invisible(add(object, dref)))
-    return(invisible(dref))
+    return(lapply(model_ref, simulate_from_model, nsim = nsim, index = index,
+           parallel = parallel))
   }
+  stopifnot(class(model_ref) == "ModelRef")
   stopifnot(index == round(index), index > 0)
   stopifnot(nsim == round(nsim), nsim > 0)
   if (length(nsim) == 1) {
@@ -99,8 +89,6 @@ simulate_from_model <- function(object, nsim,
                                libraries = parallel$libraries,
                                save_locally = parallel$save_locally)
   }
-  if (class(object) == "Simulation")
-    return(invisible(add(object, dref)))
   invisible(dref)
 }
 

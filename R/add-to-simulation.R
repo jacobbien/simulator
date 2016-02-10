@@ -1,5 +1,4 @@
 #' @include simulation-class.R
-NULL
 
 add <- function(sim, ref) stop("add not implemented for this class of ref.")
 

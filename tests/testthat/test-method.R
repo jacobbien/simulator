@@ -35,7 +35,7 @@ remove_time_from_out <- function(out) {
 test_that("run_method handles multiple indices as expected", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(dir, make_testmodel)
+  mref <- generate_model(make_testmodel, dir = dir)
   dref <- simulate_from_model(mref, 2, 1:3)
   out1 <- run_method(dref[1:2], my_method)
   out2 <- load_outputs(dir, "tm/n2", 1:2, "my")
@@ -51,7 +51,7 @@ test_that("run_method handles multiple indices as expected", {
 test_that("run_method handles multiple methods as expected", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  mref <- generate_model(dir, make_testmodel)
+  mref <- generate_model(make_testmodel, dir = dir)
   dref <- simulate_from_model(mref, nsim = 2, 1:2)
   run_method(dref, my_method)
   run_method(dref, my_method_no_list)
