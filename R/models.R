@@ -60,7 +60,7 @@ NULL
 #'       for (i in seq(nsim))  y[[i]] <- mu + rnorm(n)
 #'       return(y)
 #'     }
-#'     return(new("Model", name = "fm", label = "My First Model",
+#'     return(new_model(name = "fm", label = "My First Model",
 #'                params = params, simulate = simulate))
 #'  }
 #'  generate_model(object = ".", make_my_model)
