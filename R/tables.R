@@ -30,8 +30,8 @@ tabulate_eval <- function(evals_list, metric_name, method_names = NULL,
   if (!requireNamespace("knitr", quietly = TRUE)) {
     stop("To use this function, knitr must be installed.", call. = FALSE)
   }
-  if (class(evals_list) == "Evals") evals_list <- list(evals_list)
-  stopifnot(class(evals_list) == "list", lapply(evals_list, class) == "Evals")
+  if ("Evals" %in% class(evals_list)) evals_list <- list(evals_list)
+  stopifnot("list" %in% class(evals_list), lapply(evals_list, class) == "Evals")
   model_labels <- unlist(lapply(evals_list, function(evals) evals@model_label))
   method_labels <- unique(unlist(lapply(evals_list,
                                         function(evals) evals@method_label)))
