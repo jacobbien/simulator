@@ -3,31 +3,29 @@ options(simulator.verbose = FALSE)
 context("simulator.files")
 
 make_testmodel <- function() {
-  return(new("Model", name = "tm/n2",
-             label = sprintf("Test model"),
-             params = list(n = 2, x = runif(2)),
-             simulate = function(x, n, nsim) {
-               y <- list()
-               for (i in seq(nsim))
-                 y[[i]] <- x + rnorm(n)
-               return(y)
-             }))
+  return(new_model(name = "tm/n2",
+                   label = sprintf("Test model"),
+                   params = list(n = 2, x = runif(2)),
+                   simulate = function(x, n, nsim) {
+                     y <- list()
+                     for (i in seq(nsim))
+                       y[[i]] <- x + rnorm(n)
+                     return(y)
+                   }))
 }
 
-my_method <- new("Method",
-                 name = "my",
-                 label = "My method",
-                 method = function(model, draw) {
-                   return(list(est = mean(draw),
-                               f = draw[1]))
-                 })
+my_method <- new_method(name = "my",
+                        label = "My method",
+                        method = function(model, draw) {
+                          return(list(est = mean(draw),
+                                      f = draw[1]))
+                        })
 
-squared_error <- new("Metric",
-                     name = "se",
-                     label = "Squared Error",
-                     metric = function(model, out) {
-                       sum((out$est - model$x)^2)
-                     })
+squared_error <- new_metric(name = "se",
+                            label = "Squared Error",
+                            metric = function(model, out) {
+                              sum((out$est - model$x)^2)
+                            })
 
 
 test_that("simulator.files is managed properly", {

@@ -30,3 +30,15 @@ check_method <- function(object) {
 setClass("Method", representation(method = "function"),
          contains = "Component", validity = check_method)
 
+#' Create a Method object
+#'
+#' Creates a new \code{\link{Method}} object.
+#'
+#' @param name a short name identifier.  Must be alphanumeric.
+#' @param label a longer, human readable label that can have other characters
+#'       such as spaces, hyphens, etc.
+#' @param method a function with arguments "model" and "draw"
+#' @export
+new_method <- function(name, label, method) {
+  new("Method", name = name, label = label, method = method)
+}

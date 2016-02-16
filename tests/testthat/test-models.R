@@ -5,7 +5,7 @@ context("generate_model")
 make_regmodel <- function(n, p, sigma) {
   x <- matrix(rnorm(n * p), n, p)
   beta <- runif(p)
-  return(new("Model", name = "reg",
+  return(new_model(name = "reg",
              label = sprintf("Regression model"),
              params = list(x = x, beta = beta, signal = x %*% beta,
                            n = 1, sigma = sigma),
@@ -20,7 +20,7 @@ make_regmodel <- function(n, p, sigma) {
 make_regmodel2 <- function(n, p, sigma) {
   x <- matrix(rnorm(n * p), n, p)
   beta <- runif(p)
-  return(new("Model", name = "reg2",
+  return(new_model(name = "reg2",
              label = sprintf("Regression model"),
              params = list(x = x, beta = beta, signal = x %*% beta,
                            n = n, sigma = sigma),

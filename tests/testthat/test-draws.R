@@ -5,16 +5,16 @@ context("draws related")
 make_regmodel2 <- function(n, p, sigma) {
   x <- matrix(rnorm(n * p), n, p)
   beta <- runif(p)
-  return(new("Model", name = "reg2",
-             label = sprintf("Regression model"),
-             params = list(x = x, beta = beta, signal = x %*% beta,
-                           n = n, sigma = sigma),
-             simulate = function(signal, n, sigma, nsim) {
-               y <- list()
-               for (i in seq(nsim))
-                 y[[i]] <- signal + sigma * rnorm(n)
-               return(y)
-             }))
+  return(new_model(name = "reg2",
+                   label = sprintf("Regression model"),
+                   params = list(x = x, beta = beta, signal = x %*% beta,
+                                 n = n, sigma = sigma),
+                   simulate = function(signal, n, sigma, nsim) {
+                     y <- list()
+                     for (i in seq(nsim))
+                       y[[i]] <- signal + sigma * rnorm(n)
+                     return(y)
+                   }))
 }
 
 test_that("loading DrawsRef works (even with changing simulator.files", {

@@ -3,33 +3,31 @@ options(simulator.verbose = FALSE)
 context("Parallel")
 
 make_testmodel <- function() {
-  return(new("Model", name = "tm",
-             label = sprintf("Test model"),
-             params = list(n = 2, x = runif(2)),
-             simulate = function(x, n, nsim) {
-               y <- list()
-               for (i in seq(nsim))
-                 y[[i]] <- x + rnorm(n)
-               return(y)
-               }))
+  return(new_model(name = "tm",
+                   label = sprintf("Test model"),
+                   params = list(n = 2, x = runif(2)),
+                   simulate = function(x, n, nsim) {
+                     y <- list()
+                     for (i in seq(nsim))
+                       y[[i]] <- x + rnorm(n)
+                     return(y)
+                   }))
 }
 
 my_mean <- function(x) mean(x) # this must be exported to slaves
 
-my_method <- new("Method",
-                 name = "my",
-                 label = "My method",
-                 method = function(model, draw) {
-                   return(list(est = my_mean(draw),
-                               f = draw[1]))
-                 })
+my_method <- new_method(name = "my",
+                        label = "My method",
+                        method = function(model, draw) {
+                          return(list(est = my_mean(draw),
+                                      f = draw[1]))
+                        })
 
-other_method <- new("Method",
-                         name = "om",
-                         label = "Other method",
-                         method = function(model, draw) {
-                           return(median(draw))
-                         })
+other_method <- new_method(name = "om",
+                           label = "Other method",
+                           method = function(model, draw) {
+                             return(median(draw))
+                           })
 
 remove_time_from_out <- function(out) {
   for (i in seq(length(out@out))) out@out[[i]] <- out@out$time <- 0

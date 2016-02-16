@@ -64,3 +64,23 @@ setMethod("show", "Model", function(object) {
 })
 
 setMethod("$", "Model", function(x, name) return(x@params[[name]]))
+
+#' Create a Model object
+#'
+#' Creates a new \code{\link{Model}} object.
+#'
+#' @param name a short name identifier.  Must be alphanumeric (though -, _, and
+#'       / are allowed as long as they are not at the start or end of name.
+#' @param label a longer, human readable label that can have other characters
+#'       such as spaces, hyphens, etc.
+#' @param params a list that contains the Model object's parameters
+#' @param simulate a function that has arguments \code{nsim} and names
+#'       matching elements within \code{names(params)}. It returns a list of
+#'       length nsim, where each element of the list represents a random draw
+#'       from the \code{Model} object.
+#'
+#' @export
+new_model <- function(name, label, params = list(), simulate) {
+  new("Model", name = name, label = label, params = params,
+      simulate = simulate)
+}

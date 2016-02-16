@@ -30,11 +30,15 @@ check_metric <- function(object) {
 setClass("Metric", representation(metric = "function"),
          contains = "Component", validity = check_metric)
 
-#' Metric giving timing information
+#' Create a Metric object
 #'
-#' This is a default metric that applies across all simulations.  Gives the
-#' "user" time returned from \code{system.time}.
-computing_time <- new("Metric",
-                      name = "time",
-                      label = "Computing time (s)",
-                      metric = function(model, out) return(as.numeric(out$time[1])))
+#' Creates a new \code{\link{Metric}} object.
+#'
+#' @param name a short name identifier.  Must be alphanumeric.
+#' @param label a longer, human readable label that can have other characters
+#'       such as spaces, hyphens, etc.
+#' @param metric a function with arguments "model" and "out"
+#' @export
+new_metric <- function(name, label, metric) {
+  new("Metric", name = name, label = label, metric = metric)
+}

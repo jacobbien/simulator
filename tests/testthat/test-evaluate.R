@@ -3,51 +3,46 @@ options(simulator.verbose = FALSE)
 context("evaluate")
 
 make_testmodel <- function() {
-  return(new("Model", name = "tm",
-             label = sprintf("Test model"),
-             params = list(n = 2, x = runif(2)),
-             simulate = function(x, n, nsim) {
-               y <- list()
-               for (i in seq(nsim))
-                 y[[i]] <- x + rnorm(n)
-               return(y)
-             }))
+  return(new_model(name = "tm",
+                   label = sprintf("Test model"),
+                   params = list(n = 2, x = runif(2)),
+                   simulate = function(x, n, nsim) {
+                     y <- list()
+                     for (i in seq(nsim))
+                       y[[i]] <- x + rnorm(n)
+                     return(y)
+                   }))
 }
 
-his_method <- new("Method",
-                         name = "his",
+his_method <- new_method(name = "his",
                          label = "His method",
                          method = function(model, draw) {
                            return(list(est = median(draw)))
                          })
-my_method <- new("Method",
-                 name = "my",
-                 label = "My method",
-                 method = function(model, draw) {
-                   return(list(est = mean(draw),
-                               f = draw[1]))
-                 })
+my_method <- new_method(name = "my",
+                        label = "My method",
+                        method = function(model, draw) {
+                          return(list(est = mean(draw),
+                                      f = draw[1]))
+                        })
 
-squared_error <- new("Metric",
-                     name = "se",
-                     label = "Squared Error",
-                     metric = function(model, out) {
-                       sum((out$est - model$x)^2)
-                     })
+squared_error <- new_metric(name = "se",
+                            label = "Squared Error",
+                            metric = function(model, out) {
+                              sum((out$est - model$x)^2)
+                            })
 
-l1_error <- new("Metric",
-                name = "l1",
-                label = "L1 Error",
-                metric = function(model, out) {
-                  sum(abs(out$est - model$x))
-                })
+l1_error <- new_metric(name = "l1",
+                       label = "L1 Error",
+                       metric = function(model, out) {
+                         sum(abs(out$est - model$x))
+                       })
 
-linf_error <- new("Metric",
-                name = "li",
-                label = "L Infinity Error",
-                metric = function(model, out) {
-                  max(abs(out$est - model$x))
-                })
+linf_error <- new_metric(name = "li",
+                         label = "L Infinity Error",
+                         metric = function(model, out) {
+                           max(abs(out$est - model$x))
+                         })
 
 test_that("evaluate handles arguments as desired", {
   dir <- file.path(tempdir(), "example")

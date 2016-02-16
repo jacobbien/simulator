@@ -3,7 +3,7 @@ options(simulator.verbose = FALSE)
 context("run_method")
 
 make_testmodel <- function() {
-  return(new("Model", name = "tm/n2",
+  return(new_model(name = "tm/n2",
              label = sprintf("Test model"),
              params = list(n = 2, x = runif(2)),
              simulate = function(x, n, nsim) {
@@ -14,19 +14,15 @@ make_testmodel <- function() {
              }))
 }
 
-my_method_no_list <- new("Method",
-                         name = "mynl",
-                         label = "My method",
-                         method = function(model, draw) {
-                           return(mean(draw))
-                         })
-my_method <- new("Method",
-                 name = "my",
-                 label = "My method",
-                 method = function(model, draw) {
-                   return(list(est = mean(draw),
-                               f = draw[1]))
-                 })
+my_method_no_list <- new_method(name = "mynl",
+                                label = "My method",
+                                method = function(model, draw) {
+                                  return(mean(draw))
+                                })
+my_method <- new_method(name = "my", label = "My method",
+                        method = function(model, draw) {
+                          return(list(est = mean(draw), f = draw[1]))
+                        })
 
 remove_time_from_out <- function(out) {
   for (i in seq(length(out@out))) out@out[[i]] <- out@out$time <- 0

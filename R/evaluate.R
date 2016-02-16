@@ -90,6 +90,11 @@ evaluate <- function(object, metrics) {
     stopifnot(class(metrics) == "Metric")
     metrics <- list(metrics)
   }
+  computing_time <- new_metric(name = "time",
+                               label = "Computing time (s)",
+                               metric = function(model, out) {
+                                 return(as.numeric(out$time[1]))
+                               })
   if (!(computing_time@name %in% lapply(metrics, function(m) m@name)))
     metrics <- c(metrics, computing_time)
   if (class(object) == "Simulation")
