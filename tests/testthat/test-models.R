@@ -70,6 +70,18 @@ test_that("generate_model works when vary_params in non-NULL", {
   unlink(dir, recursive = TRUE)
 })
 
+test_that("generate_model works when make_model is a list", {
+  dir <- file.path(tempdir(), "example")
+  if (!dir.exists(dir)) dir.create(dir)
+  m1 <- load(generate_model(dir, make_regmodel, n = 1, p = 1, sigma = 1))
+  m2 <- load(generate_model(dir, make_regmodel2, n = 1, p = 1, sigma = 1))
+  m <- load(generate_model(dir, list(make_regmodel, make_regmodel2), n = 1,
+                          p = 1, sigma = 1))
+  expect_equal(list(m1, m2), m)
+  unlink(dir, recursive = TRUE)
+})
+
+
 test_that("loading ModelRef works", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)

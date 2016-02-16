@@ -43,7 +43,7 @@ NULL
 #'        and a simulation object is returned instead of an object of class
 #'        \code{\link{ModelRef}}.
 #' @param make_model a function that outputs an object of class
-#'        \code{\link{Model}}
+#'        \code{\link{Model}}.  Or a list of such functions.
 #' @param seed an integer seed for the random number generator.
 #' @param vary_along character vector with all elements contained in names(...)
 #'        See description for more details.
@@ -70,13 +70,24 @@ NULL
 #'  }
 generate_model <- function(object = ".", make_model, seed = 123,
                            vary_along = NULL, ...) {
-  stopifnot(class(make_model) == "function")
   stopifnot(length(object) == 1)
   if (class(object) == "Simulation")
     dir <- object@dir
   else if (class(object) == "character")
     dir <- object
   else stop("object must be of class 'character' or 'Simulation'.")
+  if (class(make_model) == "list") {
+    mrefs <- lapply(make_model,
+                    function(mm) {
+                      generate_model(object = dir, make_model = mm,
+                                     seed = seed, vary_along = vary_along,
+                                     ...)
+                    })
+    if (class(object) == "Simulation")
+      return(add(object, mrefs))
+    else
+      return(mrefs)
+  } else stopifnot(class(make_model) == "function")
   dir <- remove_slash(dir)
   stopifnot(file.info(dir)$isdir)
   passed_params <- as.list(match.call(expand.dots = FALSE)$`...`)
