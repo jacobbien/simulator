@@ -11,6 +11,8 @@ add <- function(sim, ref) stop("add not implemented for this class of ref.")
 #' added.  And to add an EvalsRef, the corresponding OutputRef must be added.
 #' One can also pass a list of such objects.
 #'
+#' The modified simulation object is saved to file.
+#'
 #' @export
 setGeneric("add")
 
@@ -25,6 +27,7 @@ setMethod("add", signature(sim = "Simulation", ref = "ModelRef"),
               # of file
               sim@model_refs <- c(sim@model_refs, ref)
             }
+            save_simulation(sim)
             return(sim)
           })
 
@@ -40,12 +43,14 @@ setMethod("add", signature(sim = "Simulation", ref = "DrawsRef"),
                 sim@draws_refs[[i]] <- add_dref_to_list(ref,
                                                         sim@draws_refs[[i]],
                                                         sim@dir)
+                save_simulation(sim)
                 return(sim)
               }
             }
             # it's the first DrawsRef from this model
             ref@dir <- get_relative_path(sim@dir, ref@dir)
             sim@draws_refs <- c(sim@draws_refs, list(list(ref)))
+            save_simulation(sim)
             return(sim)
           })
 
@@ -83,12 +88,14 @@ setMethod("add", signature(sim = "Simulation", ref = "OutputRef"),
                 sim@output_refs[[i]] <- add_oref_to_list(ref,
                                                          sim@output_refs[[i]],
                                                          sim@dir)
+                save_simulation(sim)
                 return(sim)
               }
             }
             # it's the first OutputRef from this model
             ref@dir <- get_relative_path(sim@dir, ref@dir)
             sim@output_refs <- c(sim@output_refs, list(list(ref)))
+            save_simulation(sim)
             return(sim)
           })
 
@@ -135,12 +142,14 @@ setMethod("add", signature(sim = "Simulation", ref = "EvalsRef"),
                 sim@evals_refs[[i]] <- add_eref_to_list(ref,
                                                         sim@evals_refs[[i]],
                                                         sim@dir)
+                save_simulation(sim)
                 return(sim)
               }
             }
             # it's the first EvalsRef from this model
             ref@dir <- get_relative_path(sim@dir, ref@dir)
             sim@evals_refs <- c(sim@evals_refs, list(list(ref)))
+            save_simulation(sim)
             return(sim)
           })
 

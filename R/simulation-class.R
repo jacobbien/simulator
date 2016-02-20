@@ -103,21 +103,70 @@ setMethod("show", "Simulation", function(object) {
 #' A Simulation object is the basic unit of a simulation study.  Roughly, one
 #' can think of it as all the files relevant to a single figure. This might be
 #' a single plot or a series of related plots/panels.  It could also correspond
-#' to a single table.
+#' to a single table.  Note that a Simulation object is light-weight even for
+#' large simulations because it only stores references to the objects
+#' not the objects themselves.  The functions \code{\link{model}},
+#' \code{\link{draws}}, \code{\link{output}}, \code{\link{evals}} can be used
+#' to load individual objects of a simulation.
+#'
+#' The Simulation object created is saved to a file so that it can be loaded
+#' in a new R session.  The simulation is saved in dir/files/name.Rdata. Note:
+#' while "files" is the default, the name of this directory is from
+#' getOption("simulator.files"), which is the value of
+#' getOption("simulator.files") when the model was created.
 #'
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @slot dir a directory that reference's directories are relative to
-#' @slot model_refs a list of \code{\link{ModelRef}} objects
-#' @slot draws_refs a list of \code{\link{DrawsRef}} objects
-#' @slot output_refs a list of \code{\link{OutputRef}} objects
-#' @slot evals_refs a list of \code{\link{EvalsRef}} objects
+#' @param dir a directory that reference's directories are relative to
+#' @param model_refs a list of \code{\link{ModelRef}} objects
+#' @param draws_refs a list of \code{\link{DrawsRef}} objects
+#' @param output_refs a list of \code{\link{OutputRef}} objects
+#' @param evals_refs a list of \code{\link{EvalsRef}} objects
 #' @export
-#' @seealso \code{\link{add}}
+#' @seealso \code{\link{add}} \code{\link{load_simulation}}
 new_simulation <- function(name, label, dir = ".", refs = list()) {
   sim <- new("Simulation", name = name, label = label, dir = dir)
-  return(add(sim, refs))
+  sim <- add(sim, refs)
+  save_simulation(sim)
+  return(sim)
 }
 
+#' Save a simulation object
+#'
+#' Saves an object of class \code{\link{Simulation}} to
+#' sim@@dir/files/sim@@name.Rdata. Note: while "files" is the default, the name
+#' of this directory is from getOption("simulator.files"), which is the value of
+#' getOption("simulator.files") when the model was created.
+#'
+#' This function overwrites any pre-existing file in that location without
+#' apology.
+#'
+#' @param sim an object of class \code{\link{Simulation}}
+#' @export
+#' @seealso \code{\link{load_simulation}}
+save_simulation <- function(sim) {
+  files_dir <- file.path(sim@dir, getOption("simulator.files"))
+  if (!file.exists(files_dir)) dir.create(files_dir, recursive = TRUE)
+  file <- sprintf("%s/sim-%s.Rdata", files_dir, sim@name)
+  save(sim, file = file)
+}
 
+#' Load a simulation object
+#'
+#' Loads an object of class \code{\link{Simulation}}.  Note that \code{dir}
+#' gives the directory where the Simulation object is stored.  Thus, if the
+#' working directory is different from the working directory when the Simulation
+#' object was created, then \code{dir} will be different from the one passed to
+#' \code{\link{new_simulation}}.
+#'
+#' @param name a short name identifier.  Must be alphanumeric.
+#' @param dir directory that contains "files" directory for this simulation
+#' @export
+#' @seealso \code{\link{new_simulation}}
+load_simulation <- function(name, dir = ".") {
+  files_dir <- file.path(dir, getOption("simulator.files"))
+  file <- sprintf("%s/sim-%s.Rdata", files_dir, name)
+  load(file)
+  return(sim)
+}

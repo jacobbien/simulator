@@ -26,7 +26,8 @@ NULL
 #' If \code{object} is a directory name, the function returns a reference or
 #' list of references to the model(s) generated. If \code{object} is a
 #' \code{Simulation}, then function returns the same \code{Simulation} object
-#' but with references added to the new models created.
+#' but with references added to the new models created.  These changes to the
+#' \code{Simulation} object are saved to file.
 #'
 #' \code{make_model} is called generating an object of class
 #' \code{\link{Model}}, called \code{model}, which is saved to
@@ -84,9 +85,9 @@ generate_model <- function(object = ".", make_model, seed = 123,
                                      ...)
                     })
     if (class(object) == "Simulation")
-      return(add(object, mrefs))
+      return(invisible(add(object, mrefs)))
     else
-      return(mrefs)
+      return(invisible(mrefs))
   } else stopifnot(class(make_model) == "function")
   dir <- remove_slash(dir)
   stopifnot(file.info(dir)$isdir)
@@ -116,7 +117,8 @@ generate_model <- function(object = ".", make_model, seed = 123,
         break
       }
       if (class(val) == "integer") next
-      if (class(val) == "numeric" & round(val) == val) next
+      if (class(val) == "numeric")
+        if(round(val) == val) next
       is_integer_valued[j] <- FALSE
     }
   }
