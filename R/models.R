@@ -99,15 +99,33 @@ generate_model <- function(object = ".", make_model, seed = 123,
     else
       return(invisible(mref))
   }
+  # everything beyond this point focuses on using "vary_along" functionality
   stopifnot(is.character(vary_along))
   if (!all(vary_along %in% names(passed_params)))
     stop("vary_along must only include names of parameters passed via \"...\".")
   if (!all(unlist(lapply(passed_params[vary_along], is.list))))
       stop("each parameter named in vary_along must be passed (through ...)",
            " as a list.")
-  if (!requireNamespace("digest", quietly = TRUE))
-    stop("The package digest must be installed for vary_along to be used.",
-         call. = FALSE)
+  # vary_along parameters that are entirely integer-valued will not be digest
+  is_integer_valued <- rep(TRUE, length(vary_along))
+  for (j in seq_along(vary_along)) {
+    for (k in seq_along(passed_params[[vary_along[j]]])) {
+      val <- passed_params[[vary_along[j]]][[k]]
+      if (length(val) != 1) {
+        is_integer_valued[j] <- FALSE
+        break
+      }
+      if (class(val) == "integer") next
+      if (class(val) == "numeric" & round(val) == val) next
+      is_integer_valued[j] <- FALSE
+    }
+  }
+  if (!all(is_integer_valued)) {
+    if (!requireNamespace("digest", quietly = TRUE))
+      stop("The package digest must be installed for vary_along to be used",
+           " with non-integer-valued parameters.",
+           call. = FALSE)
+  }
   indices <- lapply(passed_params[vary_along], function(a) seq(length(a)))
   ii <- expand.grid(indices)
   # loop over all combinations of parameters named in vary_along
@@ -118,11 +136,15 @@ generate_model <- function(object = ".", make_model, seed = 123,
     for (j in seq(ncol(ii))) { # jth vary_along parameter
       var <- vary_along[j]
       params_to_pass[[var]] <- passed_params[[var]][[ii[i, j]]]
-      # apply hash this object to get a unique file name
-      # this means that if we later decide to add some more combinations,
-      # we will not write on top of the pre-existing ones (unless the same
-      # value combinations of the vary_along parameters are used).
-      ext[j] <- paste0(var, "_", digest::sha1(params_to_pass[[var]]))
+      if (is_integer_valued[j]) {
+        ext[j] <- paste0(var, "_", params_to_pass[[var]])
+      } else {
+        # apply hash to this object to get a unique file name
+        # this means that if we later decide to add some more combinations,
+        # we will not write on top of the pre-existing ones (unless the same
+        # value combinations of the vary_along parameters are used).
+        ext[j] <- paste0(var, "_", digest::sha1(params_to_pass[[var]]))
+      }
     }
     extension <- paste(ext, collapse = "/")
     mref[[i]] <- generate_model_single(make_model, dir, seed, params_to_pass,
