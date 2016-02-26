@@ -143,6 +143,8 @@ simulate_from_model_single <- function(model, nsim, index, seed) {
   time <- system.time({
     sims1 <- do.call(model@simulate, c(model@params[args], nsim = nsim))
   })
+  if (length(sims1) != nsim)
+    stop("model's simulate function must return list of length nsim.")
   rng <- list(rng_seed = seed, rng_end_seed = .Random.seed)
   sims <- list()
   for (i in seq(nsim))
