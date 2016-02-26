@@ -56,7 +56,8 @@ test_that("get same draws if chunks done together or separately", {
     # done together:
     dref <- simulate_from_model(mref, nsim = 2, index = 1:4)
     draws <- lapply(dref, load)
-    file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:4)))
+    file.remove(file.path(dir, options("simulator.files"),
+                          sprintf("tm/r%s.Rdata", 1:4)))
     # done separately, and out of order:
     dref2a <- simulate_from_model(mref, nsim = 2, index = 3:4)
     dref2b <- simulate_from_model(mref, nsim = 2, index = 1:2)
@@ -73,13 +74,15 @@ test_that("simulate_from_model output same parallel v. sequential", {
   # in sequence:
   dref <- simulate_from_model(mref, nsim = 2, index = 1:5)
   seqdraws <- load(dref)
-  file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:5)))
+  file.remove(file.path(dir, options("simulator.files"),
+                        sprintf("tm/r%s.Rdata", 1:5)))
   dref <- simulate_from_model(mref, nsim = 2, index = 1:5,
                       parallel = list(socket_names = 2, save_locally = FALSE))
   pardraws <- load(dref)
   expect_identical(seqdraws, pardraws)
 
-  file.remove(file.path(dir, sprintf("files/tm/r%s.Rdata", 1:5)))
+  file.remove(file.path(dir, options("simulator.files"),
+                        sprintf("tm/r%s.Rdata", 1:5)))
   dref2 <- simulate_from_model(mref, nsim = 2, index = 1:5,
                               parallel = list(socket_names = 2,
                                               save_locally = TRUE))
@@ -96,13 +99,15 @@ test_that("run_method output same parallel v. sequential", {
   # in sequence:
   oref <- run_method(dref[3:5], my_method)
   seqout <- load(oref[[2]])
-  file.remove(file.path(dir, sprintf("files/tm/n2/out/r%s_my.Rdata", 3:5)))
+  file.remove(file.path(dir, options("simulator.files"),
+                        sprintf("tm/n2/out/r%s_my.Rdata", 3:5)))
   run_method(dref[3:5], my_method,
              parallel = list(socket_names = 2, save_locally = FALSE))
   parout <- load_outputs(dir, "tm", 4, method_name = "my")
   expect_identical(remove_time_from_out(seqout),
                    remove_time_from_out(parout))
-  file.remove(file.path(dir, sprintf("files/tm/out/r%s_my.Rdata", 3:5)))
+  file.remove(file.path(dir, options("simulator.files"),
+                        sprintf("tm/out/r%s_my.Rdata", 3:5)))
   run_method(dref[3:5], list(my_method, other_method),
              parallel = list(socket_names = 3, save_locally = TRUE))
   parout2 <- load_outputs(dir, "tm", 4, method_name = "my")

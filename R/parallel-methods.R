@@ -31,13 +31,12 @@ run_method_parallel <- function(my_methods, model, dir, model_name, index,
   function_to_do <- function(dir, model_name, index, method) {
     model <- load_model(dir, model_name)
     draws_list <- load_draws(dir, model_name, index, more_info = TRUE)
-    seed <- draws_list$rng$rng_end_seed
-    .Random.seed <<- seed
     # run each method as if it had been run directly
     # after calling simulate_from_model for this index alone
     # this makes it so the order in which methods and indices are run will
     # not change things (note: only relevant for methods that require RNG)
-    out_list <- run_method_single(method, model, draws_list$draws)
+    seed <- draws_list$rng$rng_end_seed
+    out_list <- run_method_single(method, model, draws_list$draws, seed)
     return(out_list)
   }
   num_methods <- length(my_methods)

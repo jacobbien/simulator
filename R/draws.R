@@ -203,7 +203,7 @@ load_draws <- function(dir, model_name, index, more_info = FALSE,
           warning=function(w) stop(sprintf("Could not find draws file at %s.",
                                            draws_files[i])))
     newdraws <- c(newdraws, draws@draws)
-    rnglist[[i]] <- rng[[1]]
+    rnglist[[i]] <- rng
   }
   indices <- paste(index, collapse = ", ")
   nsim <- length(newdraws)
