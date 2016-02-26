@@ -216,3 +216,31 @@ get_model_indices <- function(sim, subset) {
   else stop("subset is not in a valid format.")
   return(ii)
 }
+
+#' Create a simulation that is a subset of a preexisting simulation object
+#'
+#' Given a simulation, creates a new simulation that is a subset of the
+#' preexisting simulation.  Does not save this new one to file.  To do so,
+#' first change the name (and, potentially, label) of the simulation
+#' and then use \code{\link{save_simulation}}.  If you call
+#' \code{\link{save_simulation}} before changing the name, you will overwrite
+#' the preexisting simulation.
+#'
+#' @param sim a simulation object
+#' @param subset specifies which models should be selected. See
+#'        \code{\link{model}} for details
+#' @param index a vector of positive integers specifying which draws' objects
+#'        are desired. If missing, then all draws' evals are returned.
+#' @param methods character vector of method names of interest.  If missing,
+#'        then all methods' evals are returned
+#' @export
+subset_simulation <- function(sim, subset, index, methods) {
+  mref <- model(sim, subset = subset, reference = TRUE)
+  dref <- draws(sim, subset = subset, index = index, reference = TRUE)
+  oref <- output(sim, subset = subset, index = index, methods = methods,
+                 reference = TRUE)
+  eref <- evals(sim, subset = subset, index = index, methods = methods,
+                 reference = TRUE)
+  new_simulation(name = sim@name, label = sim@label,
+                 refs = c(mref, dref, oref, eref), save_to_file = FALSE)
+}

@@ -123,12 +123,16 @@ setMethod("show", "Simulation", function(object) {
 #' @param draws_refs a list of \code{\link{DrawsRef}} objects
 #' @param output_refs a list of \code{\link{OutputRef}} objects
 #' @param evals_refs a list of \code{\link{EvalsRef}} objects
+#' @param save_to_file whether this new simulation should be saved to file.
+#'        Default is TRUE. If TRUE, then this simulation can be loaded
+#'        in a new R session using \code{dir} and \code{name}.
 #' @export
 #' @seealso \code{\link{add}} \code{\link{load_simulation}}
-new_simulation <- function(name, label, dir = ".", refs = list()) {
+new_simulation <- function(name, label, dir = ".", refs = list(),
+                           save_to_file = TRUE) {
   sim <- new("Simulation", name = name, label = label, dir = dir)
-  sim <- add(sim, refs)
-  save_simulation(sim)
+  sim <- add(sim, refs, update_saved = save_to_file)
+  if (save_to_file) save_simulation(sim)
   return(sim)
 }
 

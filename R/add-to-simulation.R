@@ -1,7 +1,9 @@
 #' @include simulation-class.R
 NULL
 
-add <- function(sim, ref) stop("add not implemented for this class of ref.")
+add <- function(sim, ref, ...) {
+  stop("add not implemented for this class of ref.")
+}
 
 #' Add a reference to a simulation
 #'
@@ -11,13 +13,14 @@ add <- function(sim, ref) stop("add not implemented for this class of ref.")
 #' added.  And to add an EvalsRef, the corresponding OutputRef must be added.
 #' One can also pass a list of such objects.
 #'
-#' The modified simulation object is saved to file.
+#' The modified simulation object is saved to file if \code{update_saved} is
+#' TRUE.
 #'
 #' @export
 setGeneric("add")
 
 setMethod("add", signature(sim = "Simulation", ref = "ModelRef"),
-          function(sim, ref) {
+          function(sim, ref, update_saved = TRUE) {
             mnames <- lapply(sim@model_refs, function(ref) ref@name)
             if (ref@name %in% mnames) {
               stop("A model of this name is already in this simulation.")
@@ -27,12 +30,12 @@ setMethod("add", signature(sim = "Simulation", ref = "ModelRef"),
               # of file
               sim@model_refs <- c(sim@model_refs, ref)
             }
-            save_simulation(sim)
+            if (update_saved) save_simulation(sim)
             return(sim)
           })
 
 setMethod("add", signature(sim = "Simulation", ref = "DrawsRef"),
-          function(sim, ref) {
+          function(sim, ref, update_saved = TRUE) {
             mnames <- lapply(unlist(sim@model_refs), function(mref) mref@name)
             if (!(ref@model_name %in% mnames))
               stop("Cannot add draws until model named ", ref@model_name,
@@ -43,14 +46,14 @@ setMethod("add", signature(sim = "Simulation", ref = "DrawsRef"),
                 sim@draws_refs[[i]] <- add_dref_to_list(ref,
                                                         sim@draws_refs[[i]],
                                                         sim@dir)
-                save_simulation(sim)
+                if (update_saved) save_simulation(sim)
                 return(sim)
               }
             }
             # it's the first DrawsRef from this model
             ref@dir <- get_relative_path(sim@dir, ref@dir)
             sim@draws_refs <- c(sim@draws_refs, list(list(ref)))
-            save_simulation(sim)
+            if (update_saved) save_simulation(sim)
             return(sim)
           })
 
@@ -74,7 +77,7 @@ add_dref_to_list <- function(dref, dref_list, sim_dir) {
 }
 
 setMethod("add", signature(sim = "Simulation", ref = "OutputRef"),
-          function(sim, ref) {
+          function(sim, ref, update_saved = TRUE) {
             drefs <- unlist(sim@draws_refs)
             dnames <- lapply(drefs, function(dref) dref@model_name)
             dindex <- lapply(drefs, function(dref) dref@index)
@@ -88,14 +91,14 @@ setMethod("add", signature(sim = "Simulation", ref = "OutputRef"),
                 sim@output_refs[[i]] <- add_oref_to_list(ref,
                                                          sim@output_refs[[i]],
                                                          sim@dir)
-                save_simulation(sim)
+                if (update_saved) save_simulation(sim)
                 return(sim)
               }
             }
             # it's the first OutputRef from this model
             ref@dir <- get_relative_path(sim@dir, ref@dir)
             sim@output_refs <- c(sim@output_refs, list(list(ref)))
-            save_simulation(sim)
+            if (update_saved) save_simulation(sim)
             return(sim)
           })
 
@@ -123,7 +126,7 @@ add_oref_to_list <- function(oref, oref_list, sim_dir) {
 }
 
 setMethod("add", signature(sim = "Simulation", ref = "EvalsRef"),
-          function(sim, ref) {
+          function(sim, ref, update_saved = TRUE) {
             orefs <- unlist(sim@output_refs)
             onames <- lapply(orefs, function(oref) oref@model_name)
             oindex <- lapply(orefs, function(oref) oref@index)
@@ -142,14 +145,14 @@ setMethod("add", signature(sim = "Simulation", ref = "EvalsRef"),
                 sim@evals_refs[[i]] <- add_eref_to_list(ref,
                                                         sim@evals_refs[[i]],
                                                         sim@dir)
-                save_simulation(sim)
+                if (update_saved) save_simulation(sim)
                 return(sim)
               }
             }
             # it's the first EvalsRef from this model
             ref@dir <- get_relative_path(sim@dir, ref@dir)
             sim@evals_refs <- c(sim@evals_refs, list(list(ref)))
-            save_simulation(sim)
+            if (update_saved) save_simulation(sim)
             return(sim)
           })
 
@@ -178,14 +181,14 @@ add_eref_to_list <- function(eref, eref_list, sim_dir) {
 
 
 setMethod("add", signature(sim = "Simulation", ref = "list"),
-          function(sim, ref) {
+          function(sim, ref, update_saved = TRUE) {
             ref <- unlist(ref)
             classes <- unlist(lapply(ref, class))
             proper_order <- c("ModelRef", "DrawsRef", "OutputRef", "EvalsRef")
             for (cl in proper_order) {
               ii <- which(classes == cl)
               for (i in ii) {
-                sim <- add(sim, ref[[i]])
+                sim <- add(sim, ref[[i]], update_saved = update_saved)
               }
             }
             return(sim)
