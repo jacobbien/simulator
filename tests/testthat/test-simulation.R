@@ -106,7 +106,7 @@ test_that("show and add to a simulation object", {
   expect_output(add(sim, eref[[1]]), "already")
   expect_error(add(sim, eref2c), "until output")
   # check that adding a list of references works:
-  sim <- new("Simulation", name = "sim1", label = "test simulation")
+  sim <- new("Simulation", name = "sim1", label = "test simulation", dir = dir)
   sim2 <- add(sim, list(oref, mref2, dref, mref))
   sim3 <- add(sim, mref2)
   sim3 <- add(sim3, mref)
@@ -127,7 +127,8 @@ test_that("get model from sim", {
   if (!dir.exists(dir)) dir.create(dir)
   mref <- generate_model(dir, make_testmodels, vary_along = c("n", "p"),
                          n = as.list(1:3), p = as.list(letters[1:4]))
-  sim <- new_simulation("testmodels", "Some test models", refs = mref)
+  sim <- new_simulation("testmodels", "Some test models", dir = dir,
+                        refs = mref)
   expect_error(model(sim, subset = "a"), "unrecognized")
   expect_error(model(sim, subset = -1), "must be")
   expect_error(model(sim, subset = 1.2), "must be")
@@ -154,7 +155,8 @@ test_that("get draws from sim", {
   mref <- generate_model(dir, make_testmodels, vary_along = c("n", "p"),
                          n = as.list(1:2), p = as.list(letters[1:2]))
   dref <- simulate_from_model(mref[1:2], nsim = 2, index = 1:3)
-  sim <- new_simulation("testmodels", "Some test models", refs = mref)
+  sim <- new_simulation("testmodels", "Some test models", dir = dir,
+                        refs = mref)
   expect_identical(draws(sim), list())
   sim <- add(sim, dref)
   expect_identical(draws(sim, subset = 3), list())
@@ -173,7 +175,8 @@ test_that("get outputs and evals from sim", {
                          n = as.list(1:2), p = as.list(letters[1:2]))
   dref <- simulate_from_model(mref[2:3], nsim = 1, index = 1:3)
   oref <- run_method(dref, list(my_method, his_method))
-  sim <- new_simulation("testmodels", "Some test models", refs = c(mref, dref))
+  sim <- new_simulation("testmodels", "Some test models", dir = dir,
+                        refs = c(mref, dref))
   expect_identical(output(sim), list())
   sim <- add(sim, oref)
   expect_identical(output(sim, subset = 1), list())

@@ -1,115 +1,196 @@
 #' @include utils.R
 NULL
 
-#' Create a new simulation.
+#' Create template for a new set of simulations
 #'
 #' This function is the fastest way to get started.  Creates the skeleton of a
 #' simulation.
 #'
 #' @export
-#' @param where to create the new simulation
+#' @param dir where to create the skeleton of a new set of simulations
 #' @examples
 #' \dontrun{
 #'  create("./examples")
 #'  }
-create <- function(path = "../example") {
-  path <- remove_slash(path)
-  if (dir.exists(path))
+create <- function(dir = "./my_sims") {
+  dir <- remove_slash(dir)
+  if (dir.exists(dir))
     stop ("This directory already exists.  Choose a new directory name.")
   else
-    dir.create(path)
-  write_models(file.path(path, "model_functions.R"))
-  write_methods(file.path(path, "method_functions.R"))
-  write_evals(file.path(path, "eval_functions.R"))
-  write_main(file.path(path, "main.R"), path)
-  cat(sprintf("New simulation created!  Go to %s to get started.",
-              file.path(path, "main.R")), fill = TRUE)
+    dir.create(dir)
+  write_models(file.path(dir, "model_functions.R"))
+  write_methods(file.path(dir, "method_functions.R"))
+  write_evals(file.path(dir, "eval_functions.R"))
+  write_main(file.path(dir, "main.R"))
+  write_rmd(file.path(dir, "writeup.Rmd"))
+  catsim(sprintf("New simulation template created!  Go to %s to get started.",
+              file.path(dir, "main.R")), fill = TRUE)
 }
 
 write_models <- function(filename) {
-  str <-
-"make_my_%s_model <- function() {
-  # this function returns an object of class Model
-  n <- 20
-  params <- list(n = n, mu = rnorm(n)) # model parameters
-  simulate <- function(mu, n, nsim) {
-    # define function here that returns a list of length nsim
-    y <- list()
-    for (i in seq(nsim))  y[[i]] <- mu + rnorm(n)
-    return(y)
-  }
-  return(new(\"Model\", name = \"%s\", label = \"My %s Model\",
-             params = params, simulate = simulate))
-}\n"
-  dcat(sprintf(str, "first", "fm", "First"), outfile = filename, append = FALSE)
-  dcat(sprintf(str, "second", "sm", "Second"), outfile = filename)
+  str <- '## @knitr models
+
+make_my_model <- function(some, optional, parameters) {
+  a_param_not_passed <- 2
+  some_can_be_random <- rnorm(3)
+  new_model("name-of-model", "Human Readable Label",
+            params = list(some = some,
+                          optional = optional,
+                          parameters = parameters,
+                          a_param_not_passed = a_param_not_passed,
+                          some_can_be_random = some_can_be_random),
+            simulate = function(some, some_can_be_random, nsim) {
+              # this function returns a list of length nsim
+              a <- some - mean(some_can_be_random)
+              return(as.list(a * runif(nsim)))
+            })
+}'
+  dcat(str, outfile = filename, append = FALSE)
 }
 
 write_methods <- function(filename) {
-  str <-
-"%s_method <- new(\"Method\",
-                  name = \"%s\",
-                  label = \"%s Method\",
-                  method = function(model, draw) {
-                      return(%s)
-                  })\n\n"
-  dcat(sprintf(str, "my", "mm", "My New", "list(est = median(draw))"),
-       outfile = filename, append = FALSE)
-  dcat(sprintf(str, "their", "tm", "Their", "list(est = mean(draw))"),
-       outfile = filename)
+  str <- '## @knitr methods
+
+my_method <- new_method("my-method", "My Method",
+                        method = function(model, draw) {
+                          list(fit = model$optional + draw)
+                        })
+
+their_method <- new_method("their-method", "Their Method",
+                           method = function(model, draw) {
+                             list(fit = model$optional + 2 * draw)
+                           })'
+  dcat(str, outfile = filename, append = FALSE)
 }
 
 write_evals <- function(filename) {
-  str <-
-    "%s_err <- new(\"Metric\",
-  name = \"%s\",
-  label = \"%s\",
-  metric = function(model, out) {
-  return(%s)
-  })\n\n"
-  dcat(sprintf(str, "abs", "abserr", "Absolute Error",
-               "sum(abs(out$est - model$mu))"), outfile = filename,
-       append = FALSE)
-  dcat(sprintf(str, "sq", "sqerr", "Squared Error",
-               "sum((out$est - model$mu)^2)"), outfile = filename)
+  str <- '## @knitr metrics
+
+your_loss <- new_metric("yourloss", "Your loss function",
+                        metric = function(model, out) {
+                          return(abs(model$parameters - out$fit))
+                        })'
+    dcat(str, outfile = filename, append = FALSE)
 }
 
 
-write_main <- function(filename, dir) {
-  dcat("# This is the main simulation file.", outfile = filename, append = FALSE)
-  dcat("library(simulator) # this file was created under simulator version ",
-       installed.packages()["simulator", "Version"], outfile = filename)
-  dcat(sprintf("source(\"%s\")", normalizePath(file.path(dir, "model_functions.R"))),
-       outfile = filename)
-  dcat(sprintf("source(\"%s\")", normalizePath(file.path(dir, "method_functions.R"))),
-       outfile = filename)
-  dcat(sprintf("source(\"%s\")", normalizePath(file.path(dir, "eval_functions.R"))),
-       outfile = filename)
-  dcat(sprintf("dir <- \"%s\"", normalizePath(dir)), outfile = filename)
-  hline(outfile = filename)
-  dcat("generate_model(make_my_first_model, dir = dir)", outfile = filename)
-  dcat("simulate_from_model(dir = dir, model_name = \"fm\", nsim = 20, index = 1)",
-       outfile = filename)
-  str <-
-"run_method(my_methods = list(my_method, their_method), dir = dir,
-           model_name = \"fm\", index = 1)"
-  dcat(str, outfile = filename)
-  str <-
-"evaluate(metrics = list(abs_err, sq_err),
-         dir = dir,
-         model_name = \"fm\",
-         index = 1,
-         method_names = c(\"mm\", \"tm\"))"
-  dcat(str, outfile = filename)
+write_main <- function(filename) {
+
+  str <- '# This is the main simulator file
+
+library(simulator) # this file was created under simulator version %s
+
+source("model_functions.R")
+source("method_functions.R")
+source("eval_functions.R")
+
+## @knitr main
+
+sim <- new_simulation("my-simulation", "My simulation") %s
+  generate_model(make_my_model, seed = 123,
+                 some = as.list(1:3),
+                 optional = 2, parameters = 3,
+                 vary_along = "some") %s
+  simulate_from_model(nsim = 5, index = 1) %s
+  run_method(list(my_method, their_method)) %s
+  evaluate(your_loss)
+
+## @knitr plots
+
+plot_eval_by(sim, "yourloss", varying = "some", use_ggplot2 = FALSE)'
+  dcat(sprintf(str, installed.packages()["simulator", "Version"],
+       "%>%", "%>%", "%>%", "%>%"),
+       outfile = filename, append = FALSE)
 }
+
+write_rmd <- function(filename) {
+  str <- '---
+title: "My Simulation"
+author: "My Name"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+code <- c("model_functions.R",
+          "method_functions.R",
+          "eval_functions.R",
+          "main.R")
+code_lastmodified <- max(file.info(code)$mtime)
+sapply(code, read_chunk)
+```
+
+This is a `knitr` report generated by the `simulator` to describe your simulation.
+Knitting this file will rerun the simulation if any of the code files have been
+modified since the `simulation` object was last created.
+
+# Main simulation
+
+```{r}
+library(simulator)
+```
+
+```{r, echo = FALSE, results = \'hide\', warning = FALSE, message = FALSE}
+<<models>>
+<<methods>>
+<<metrics>>
+```
+
+```{r, eval = FALSE}
+<<main>>
+```
+
+```{r, echo = FALSE, results = \'hide\', message = FALSE, warning = FALSE}
+name_of_simulation <- "my-simulation"
+sim_lastmodified <- file.info(sprintf("files/sim-%s.Rdata",
+                              name_of_simulation))$mtime
+if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
+  <<main>>
+} else{
+  sim <- load_simulation(name_of_simulation)
+}
+```
+
+```{r, fig.width = 6, fig.height = 4, results = \'hide\', warning = FALSE, message = FALSE}
+<<plots>>
+```
+
+# Components
+
+## Models
+
+```{r, eval = FALSE}
+<<models>>
+```
+
+## Methods
+
+```{r, eval = FALSE}
+<<methods>>
+```
+
+## Metrics
+
+```{r, eval = FALSE}
+<<metrics>>
+```
+
+
+# Conclusion
+
+To cite the `simulator`, please use
+
+```{r}
+citation("simulator")
+```'
+  dcat(str, outfile = filename, append = FALSE)
+}
+
 
 dcat <- function(..., append, outfile = "") {
   if (missing(append)) append <- TRUE
   cat(..., file = outfile, fill = TRUE, sep = "", append = append)
 }
 
-hline <- function(..., append=TRUE) dcat(..., rep("#",80), append=append)
-
-test <- function() {
-  create("../example")
-}
+hline <- function(..., append=TRUE) dcat(..., rep("#", 80), append=append)
