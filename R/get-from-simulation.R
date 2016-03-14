@@ -23,8 +23,7 @@ NULL
 #'        below for details
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-model <- function(sim, subset = 1:num_models, reference = FALSE) {
-  num_models <- length(sim@model_refs)
+model <- function(sim, subset = NULL, reference = FALSE) {
   ii <- get_model_indices(sim, subset)
   mref <- sim@model_refs[ii]
   obj <- lapply(mref, function(m) {
@@ -47,7 +46,7 @@ model <- function(sim, subset = 1:num_models, reference = FALSE) {
 #'        are desired. If missing, then all draws' outputs are returned.
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-draws <- function(sim, subset, index, reference = FALSE) {
+draws <- function(sim, subset = NULL, index, reference = FALSE) {
   if (!missing(index))
     stopifnot(is.numeric(index), index > 0, index == round(index))
   if (length(sim@draws_refs) == 0) return(list())
@@ -97,7 +96,8 @@ draws <- function(sim, subset, index, reference = FALSE) {
 #'        then all methods' outputs are returned
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-output <- function(sim, subset, index, methods, reference = FALSE) {
+output <- function(sim, subset = NULL, index, methods,
+                   reference = FALSE) {
   outputs_or_evals(sim, sim@output_refs, TRUE, subset, index, methods, reference)
 }
 
@@ -114,8 +114,10 @@ output <- function(sim, subset, index, methods, reference = FALSE) {
 #'        then all methods' evals are returned
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-evals <- function(sim, subset, index, methods, reference = FALSE) {
-  outputs_or_evals(sim, sim@evals_refs, FALSE, subset, index, methods, reference)
+evals <- function(sim, subset = NULL, index, methods,
+                  reference = FALSE) {
+  outputs_or_evals(sim, sim@evals_refs, FALSE, subset, index, methods,
+                   reference)
 }
 
 #' Internal function used by both outputs and evals
@@ -184,6 +186,7 @@ outputs_or_evals <- function(sim, refs, sort_by_method,
 #' @param subset a vector indicating which models should be returned.
 get_model_indices <- function(sim, subset) {
   num_models <- length(sim@model_refs)
+  if (is.null(subset)) subset = seq(num_models)
   if (num_models == 0) stop("This simulation has no models.")
   if (is.numeric(subset)) {
     if (!all(subset == round(subset) & subset >= 1 & subset <= num_models))
@@ -234,7 +237,8 @@ get_model_indices <- function(sim, subset) {
 #' @param methods character vector of method names of interest.  If missing,
 #'        then all methods' evals are returned
 #' @export
-subset_simulation <- function(sim, subset, index, methods) {
+subset_simulation <- function(sim, subset = NULL, index, methods) {
+  if (is.null(subset)) subset = seq_along(sim@model_refs)
   mref <- model(sim, subset = subset, reference = TRUE)
   dref <- draws(sim, subset = subset, index = index, reference = TRUE)
   oref <- output(sim, subset = subset, index = index, methods = methods,

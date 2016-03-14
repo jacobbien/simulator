@@ -156,7 +156,7 @@ evaluate_single <- function(metrics, model, output) {
     evals[[1]][[rid]] <- list()
     for (m in seq_along(metrics)) {
       evals[[1]][[rid]][[metric_names[m]]] <- metrics[[m]]@metric(model,
-                                                             output@out[[rid]])
+                                                                  output@out[[rid]])
     }
   }
   new("Evals", model_name = model@name,
