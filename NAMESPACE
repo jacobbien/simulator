@@ -2,6 +2,7 @@
 
 S3method(as.data.frame,Evals)
 S3method(as.data.frame,listofEvals)
+export()
 export(add)
 export(create)
 export(draws)
@@ -47,3 +48,4 @@ exportClasses(ModelRef)
 exportClasses(Output)
 exportClasses(OutputRef)
 exportClasses(Simulation)
+importFrom(magrittr,"%>%")

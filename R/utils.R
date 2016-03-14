@@ -1,3 +1,6 @@
+#' @importFrom magrittr %>%
+#' @export
+magrittr::`%>%`
 
 remove_slash <- function(s) {
   # if ends with slash, remove it

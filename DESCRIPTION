@@ -8,6 +8,8 @@ Depends:
     R (>= 3.2.0)
 License: GPL-3
 LazyData: true
+Imports:
+    magrittr
 Suggests:
     digest,
     ggplot2,
