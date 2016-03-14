@@ -1,3 +1,5 @@
+#' @include extended-method-class.R
+NULL
 
 #' Run one or more methods on simulated data.
 #'
@@ -19,7 +21,11 @@
 #' was at the end of calling \code{\link{simulate_from_model}} on this index.
 #' This is only relevant for randomized methods.  The choice to do this ensures
 #' that one will get identical results regardless of the order in which methods
-#' and indices are run in.
+#' and indices are run in.  When \code{\link{ExtendedMethod}} objects are
+#' passed, these are run after all \code{Method} objects have been run.  This is
+#' because each \code{ExtendedMethod} object depends on the output of its base
+#' method.  Furthermore, before an \code{ExtendedMethod} is called, the RNG
+#' state is restored to what it was after the base method had been called.
 #'
 #' @export
 #' @param object an object of class \code{\link{DrawsRef}} (or a list of
@@ -28,8 +34,9 @@
 #'         to the referenced draws in that simulation and returns the same
 #'        \code{Simulation} object but with references added to the new outputs
 #'        created.
-#' @param methods a list of \code{\link{Method}} objects or a single
-#'        \code{\link{Method}} object
+#' @param methods a list of \code{\link{Method}} and/or
+#'        \code{\link{ExtendedMethod}} objects or a single \code{\link{Method}}
+#'        or object \code{\link{ExtendedMethod}}
 #' @param out_loc (optional) a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
@@ -42,6 +49,25 @@
 #' \dontrun{
 #'  }
 run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
+  if (class(methods) == "list") {
+    classes <- unlist(lapply(methods, class))
+    stopifnot(classes %in% c("Method", "ExtendedMethod"))
+    if (length(unique(classes)) == 2) {
+      if (class(object) != "Simulation")
+        stop("When both Method and ExtendedMethod objects passed to \"methods\"",
+             " object must be of class \"Simulation\" for now.")
+        # run all the methods first followed by all the extended methods
+        object <- run_method(object, methods = methods[classes == "Method"],
+                             out_loc = out_loc, parallel = parallel)
+        object <- run_method(object,
+                             methods = methods[classes == "ExtendedMethod"],
+                             out_loc = out_loc, parallel = parallel)
+        return(invisible(object))
+    }
+  } else {
+    stopifnot(class(methods) %in% c("Method", "ExtendedMethod"))
+    methods <- list(methods)
+  }
   if (class(object) == "Simulation")
     draws_ref <- draws(object, reference = TRUE)
   else
@@ -71,12 +97,6 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
   if (draws_ref[[1]]@simulator.files != getOption("simulator.files"))
     stop(sprintf("draws_ref@%s must match getOption(\"%s\")",
                  "simulator.files", "simulator.files"))
-  if (class(methods) == "list") {
-    stopifnot(all(unlist(lapply(methods, function(m) class(m) == "Method"))))
-  } else {
-    stopifnot(class(methods) == "Method")
-    methods <- list(methods)
-  }
   # load model
   dir <- draws_ref[[1]]@dir
   model_name <- draws_ref[[1]]@model_name
@@ -97,13 +117,23 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
       draws_list <- load_draws(dir, model_name, index[i], more_info = TRUE)
       # get state of RNG after i-th simulation
       for (m in seq(nmethods)) {
-        seed <- draws_list$rng$rng_end_seed
-        # run each method as if it had been run directly
-        # after calling simulate_from_model for this index alone
-        # this makes it so the order in which methods and indices are run will
-        # not change things (note: only relevant for methods that require RNG)
-        out_list <- run_method_single(methods[[m]], model, draws_list$draws,
-                                      seed = seed)
+        if (class(methods[[m]]) == "Method") {
+          out_list <- run_method_single(methods[[m]], model, draws_list)
+        } else {
+          # ExtendedMethod
+          tryCatch({
+            base_out_list <- load_outputs(dir, model_name, index[i],
+                                          methods[[m]]@base_method@name,
+                                          more_info = TRUE)},
+            error = function(e) stop("Could not find output of method \"",
+                                     methods[[m]]@base_method@label,
+                                     "\" for index ", index[i], ".",
+                                      call. = FALSE))
+
+          out_list <- run_extendedmethod_single(methods[[m]], model,
+                                                draws_list$draws,
+                                                base_out_list)
+        }
         orefs[[ii]] <- save_output_to_file(out_dir, dir, out_loc,
                                                out_list$output, out_list$info)
         ii <- ii + 1
@@ -113,18 +143,27 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
     # run in parallel
     check_parallel_list(parallel)
     if (is.null(parallel$save_locally)) parallel$save_locally <- FALSE
-    orefs <- run_method_parallel(methods,  model, dir, model_name,
-                                     index, out_dir, out_loc,
-                                     socket_names = parallel$socket_names,
-                                     libraries = parallel$libraries,
-                                     save_locally = parallel$save_locally)
-  }
+    if (all(lapply(methods, class) == "Method"))
+      orefs <- run_method_parallel(methods, dir, model_name,
+                                   index, out_dir, out_loc,
+                                   socket_names = parallel$socket_names,
+                                   libraries = parallel$libraries,
+                                   save_locally = parallel$save_locally)
+    else if (all(lapply(methods, class) == "ExtendedMethod")) {
+      # extended methods
+      orefs <- run_extmethod_parallel(methods, dir, model_name,
+                                   index, out_dir, out_loc,
+                                   socket_names = parallel$socket_names,
+                                   libraries = parallel$libraries,
+                                   save_locally = parallel$save_locally)
+      } else stop("This should never happen!")
+    }
   if (class(object) == "Simulation")
     return(invisible(add(object, orefs)))
   invisible(orefs)
 }
 
-#' Run one or more methods on simulated data.
+#' Run a single method on a single index of simulated data.
 #'
 #' This is an internal function.  Users should call the wrapper function.
 #' \code{\link{run_method}}. Here "single" refers to a single index-method
@@ -132,30 +171,80 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
 #'
 #' @param method a \code{\link{Method}} object
 #' @param model a \code{\link{Model}} object
-#' @param draws a \code{\link{Draws}} object generated by \code{model}
-#' @param seed what to set the RNG seed to
-run_method_single <- function(method, model, draws, seed) {
-  .Random.seed <<- seed
-  stopifnot(length(draws@index) == 1)
+#' @param draws_list the result of loading a \code{\link{Draws}} object with
+#'        \code{more_info = TRUE} so that it includes RNG endstate.
+run_method_single <- function(method, model, draws_list) {
+  .Random.seed <<- draws_list$rng$rng_end_seed
+  # run this method as if it had been run directly
+  # after calling simulate_from_model for this index alone
+  # this makes it so the order in which methods and indices are run will
+  # not change things (note: only relevant for methods that require RNG)
+  stopifnot(length(draws_list$draws@index) == 1)
   out <- list()
-  for (rid in names(draws@draws)) {
+  for (rid in names(draws_list$draws@draws)) {
     out[[rid]] <- list()
-    time <- system.time({temp <- method@method(model, draws@draws[[rid]])})
+    time <- system.time({temp <- method@method(model,
+                                               draws_list$draws@draws[[rid]])})
     if (class(temp) != "list") temp <- list(out = temp)
     out[[rid]] <- temp
     out[[rid]]$time <- time
   }
   output <- new("Output",
                 model_name = model@name,
-                index = draws@index,
+                index = draws_list$draws@index,
                 method_name = method@name,
                 method_label = method@label,
                 out = out)
   # record seed state at start and end of calling this method on this index
-  rng <- list(rng_seed = seed, rng_end_seed = .Random.seed)
+  rng <- list(rng_seed = draws_list$rng$rng_end_seed,
+              rng_end_seed = .Random.seed)
   info <- list(method = method, date_generated = date(), rng = rng)
   list(output = output, info = info)
 }
+
+#' Run a single extended method on a single index of simulated data.
+#'
+#' This is an internal function.  Users should call the wrapper function.
+#' \code{\link{run_method}}. Here "single" refers to a single
+#' index-ExtendedMethod
+#' pair.
+#'
+#' @param extmethod a \code{\link{ExtendedMethod}} object
+#' @param model a \code{\link{Model}} object
+#' @param draws a \code{\link{Draws}} object generated by \code{model}
+#' @param output_list the result of loading a \code{\link{Output}} object with
+#'        \code{more_info = TRUE} so that it includes RNG endstate.
+run_extendedmethod_single <- function(extmethod, model, draws,
+                                      base_output_list) {
+  .Random.seed <<- base_output_list$rng$rng_end_seed
+  stopifnot(length(draws@index) == 1)
+  out <- list()
+  for (rid in names(draws@draws)) {
+    out[[rid]] <- list()
+    time <- system.time({
+      temp <- extmethod@extended_method(model = model,
+                                       draw = draws@draws[[rid]],
+                                       out = base_output_list$output@out[[rid]],
+                                       base_method = extmethod@base_method)
+      })
+    if (class(temp) != "list") temp <- list(out = temp)
+    out[[rid]] <- temp
+    # add together the times from running base_method and the extension
+    out[[rid]]$time <- time + base_output_list$output@out[[rid]]$time
+  }
+  output <- new("Output",
+                model_name = model@name,
+                index = draws@index,
+                method_name = extmethod@name,
+                method_label = extmethod@label,
+                out = out)
+  # record seed state at start and end of calling this method on this index
+  rng <- list(rng_seed = base_output_list$rng$rng_end_seed,
+              rng_end_seed = .Random.seed)
+  info <- list(method = extmethod, date_generated = date(), rng = rng)
+  list(output = output, info = info)
+}
+
 
 save_output_to_file <- function(out_dir, dir, out_loc, output, info) {
   stopifnot(length(output@index) == 1)

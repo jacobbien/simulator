@@ -8,7 +8,7 @@ check_method <- function(object) {
     if(errors == TRUE) errors <- character()
     args <- names(formals(object@method))
     str <- "method must be a function with arguments \"model\" and \"draw\"."
-    if (length(args) != 2 || any(args != c("model", "draw")))
+    if (!all((c("model", "draw") %in% args)))
       errors <- c(errors, str)
     if (length(errors) == 0) TRUE else errors
 }

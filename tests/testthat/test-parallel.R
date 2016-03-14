@@ -100,7 +100,7 @@ test_that("run_method output same parallel v. sequential", {
   oref <- run_method(dref[3:5], my_method)
   seqout <- load(oref[[2]])
   file.remove(file.path(dir, options("simulator.files"),
-                        sprintf("tm/n2/out/r%s_my.Rdata", 3:5)))
+                        sprintf("tm/out/r%s_my.Rdata", 3:5)))
   run_method(dref[3:5], my_method,
              parallel = list(socket_names = 2, save_locally = FALSE))
   parout <- load_outputs(dir, "tm", 4, method_name = "my")
