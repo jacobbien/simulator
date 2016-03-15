@@ -6,8 +6,6 @@ Description: A framework for performing simulations such as those common in
     methodological statistics papers.
 Depends:
     R (>= 3.2.0)
-License: GPL-3
-LazyData: true
 Imports:
     magrittr
 Suggests:
@@ -15,6 +13,8 @@ Suggests:
     ggplot2,
     knitr,
     testthat
+License: GPL-3
+LazyData: true
 VignetteBuilder: knitr
 Collate:
     'output-class.R'
@@ -40,6 +40,7 @@ Collate:
     'parallel-draws.R'
     'parallel-methods.R'
     'parallel.R'
+    'pipe.R'
     'plot_eval.R'
     'plot_eval_by.R'
     'plot_evals.R'

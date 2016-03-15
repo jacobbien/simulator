@@ -2,7 +2,7 @@
 
 S3method(as.data.frame,Evals)
 S3method(as.data.frame,listofEvals)
-export()
+export("%>%")
 export(add)
 export(create)
 export(draws)
