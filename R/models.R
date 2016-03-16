@@ -152,6 +152,9 @@ generate_model <- function(object = ".", make_model, seed = 123,
     mref[[i]] <- generate_model_single(make_model, dir, seed, params_to_pass,
                                        extension)
   }
+  model_labels <- unlist(lapply(mref, function(m) m@label))
+  if (length(unique(model_labels)) < length(model_labels))
+    warning("Labels are not unique across models.  This can lead to confusion.")
   if (class(object) == "Simulation")
     return(invisible(add(object, mref)))
   invisible(mref)

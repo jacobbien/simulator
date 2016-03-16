@@ -42,7 +42,12 @@ plot_eval <- function(evals, metric_name, varying, use_ggplot2 = TRUE, main,
   }
   if (missing(ylab))
     ylab <- evals[[1]]@metric_label[evals[[1]]@metric_name == metric_name]
+  evals <- subset_evals(evals, metric_names = metric_name)
   evals_df <- as.data.frame(evals)
+  if(any(table(evals_df[, c("Model", "Method", "Draw")]) != 1)) {
+    stop("plot_eval should only be called on metrics that are scalar-valued.",
+         " Plot a vector-valued metric versus another using plot_evals.")
+  }
   if (missing(ylim)) {
     ylim <- range(evals_df[[metric_name]])
     if (include_zero) ylim <- range(ylim, 0)
@@ -93,6 +98,8 @@ ggplot_eval <- function(evals_df, metric_name, method_name, method_label,
              ggplot2::scale_y_continuous(limits = ylim))
   }
   # display multiple facets...
+  if (length(unique(facet_mains)) < length(facet_mains))
+    stop("Labels of individual plots must be unique. Pass facet_mains explicitly.")
   levels(evals_df$Model) <- facet_mains
   ggplot2::ggplot(evals_df, ggplot2::aes_string("Method", metric_name)) +
     ggplot2::geom_boxplot() +
