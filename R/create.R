@@ -33,7 +33,7 @@ write_models <- function(filename) {
 make_my_model <- function(some, optional, parameters) {
   a_param_not_passed <- 2
   some_can_be_random <- rnorm(3)
-  new_model("name-of-model", "Human Readable Label",
+  new_model("name-of-model", sprintf("Human Readable Label (some = %s)", some),
             params = list(some = some,
                           optional = optional,
                           parameters = parameters,
@@ -84,9 +84,13 @@ source("model_functions.R")
 source("method_functions.R")
 source("eval_functions.R")
 
+## @knitr init
+
+name_of_simulation <- "my-simulation"
+
 ## @knitr main
 
-sim <- new_simulation("my-simulation", "My simulation") %s
+sim <- new_simulation(name_of_simulation, "My simulation") %s
   generate_model(make_my_model, seed = 123,
                  some = as.list(1:3),
                  optional = 2, parameters = 3,
@@ -97,7 +101,11 @@ sim <- new_simulation("my-simulation", "My simulation") %s
 
 ## @knitr plots
 
-plot_eval_by(sim, "yourloss", varying = "some", use_ggplot2 = FALSE)'
+plot_eval_by(sim, "yourloss", varying = "some", use_ggplot2 = FALSE)
+
+## @knitr tables
+
+tabulate_eval(evals(sim), "yourloss", output_type = \"markdown\")'
   dcat(sprintf(str, installed.packages()["simulator", "Version"],
        "%>%", "%>%", "%>%", "%>%"),
        outfile = filename, append = FALSE)
@@ -138,11 +146,12 @@ library(simulator)
 ```
 
 ```{r, eval = FALSE}
+<<init>>
 <<main>>
 ```
 
 ```{r, echo = FALSE, results = \'hide\', message = FALSE, warning = FALSE}
-name_of_simulation <- "my-simulation"
+<<init>>
 sim_lastmodified <- file.info(sprintf("files/sim-%s.Rdata",
                               name_of_simulation))$mtime
 if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
@@ -152,8 +161,16 @@ if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
 }
 ```
 
+We can make plots.
+
 ```{r, fig.width = 6, fig.height = 4, results = \'hide\', warning = FALSE, message = FALSE}
 <<plots>>
+```
+
+And tables too.
+
+```{r, results = \'asis\'}
+<<tables>>
 ```
 
 # Components
@@ -181,7 +198,7 @@ if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
 
 To cite the `simulator`, please use
 
-```{r}
+```{r, results=\'asis\'}
 citation("simulator")
 ```'
   dcat(str, outfile = filename, append = FALSE)
