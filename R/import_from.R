@@ -6,3 +6,6 @@
 #' @importFrom magrittr %>%
 #' @export
 magrittr::`%>%`
+
+#' @importFrom methods setClass setGeneric setMethod
+NULL

@@ -17,12 +17,13 @@ check_extended_method <- function(object) {
 
 #' An S4 class representing the extension of a method
 #'
-#' An object of class \code{ExtendedMethod} is like a \code{Method} except
-#' it uses the output of another method in addition to the \code{Model} and
-#' \code{Draws}.
+#' An object of class \code{ExtendedMethod} is like a
+#' \code{\linkS4class{Method}} except it uses the output of another method in
+#'  addition to the \code{\linkS4class{Model}} and
+#'  \code{\linkS4class{Draws}}.
 #'
-#' While one can create an \code{ExtendedMethod} from scratch,
-#' typically it will be cleaner to write a \code{\link{MethodExtension}} object
+#' While one can create an \code{\linkS4class{ExtendedMethod}} from scratch,
+#' typically it will be cleaner to write a \code{MethodExtension} object
 #' and then use the addition operator:
 #' \code{my_extended_method = my_base_method + my_method_extension}. For
 #' example, if \code{my_base_method} is the lasso, \code{my_method_extension}
@@ -31,12 +32,13 @@ check_extended_method <- function(object) {
 #' is that if we have several methods, we only have to write the
 #' cross-validation \code{MethodExtension} object once.
 #'
-#' This class inherits from the \code{\link{Component}} class.
+#' This class inherits from the \code{\linkS4class{Component}} class.
 #'
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @slot base_method the object of class \code{Method} that is being extended
+#' @slot base_method the object of class \code{\linkS4class{Method}} that is
+#'       being extended
 #' @slot extended_method a function with arguments "model", "draw", "out", and
 #'       "base_method".
 #' @export
@@ -46,12 +48,13 @@ setClass("ExtendedMethod",
 
 #' Create an ExtendedMethod object
 #'
-#' Creates a new \code{\link{ExtendedMethod}} object.
+#' Creates a new \code{\linkS4class{ExtendedMethod}} object.
 #'
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @param base_method the object of class \code{Method} that is being extended
+#' @param base_method the object of class \code{\linkS4class{Method}} that is
+#'        being extended
 #' @param extended_method a function with arguments "model", "draw", "out", and
 #'       "base_method".
 #' @export

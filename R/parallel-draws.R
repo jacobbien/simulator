@@ -4,7 +4,7 @@
 #' by indices and of size determined by nsim. Users should call the wrapper
 #' function \code{\link{simulate_from_model}}.
 #'
-#' @param model_ref object of class \code{\link{ModelRef}}
+#' @param model_ref object of class \code{\linkS4class{ModelRef}}
 #' @param nsim number of simulations to be conducted on each chunk.  Vector of
 #'        same length as \code{index}
 #' @param index a vector of positive integer indices.  Allows simulations to be
@@ -14,9 +14,9 @@
 #' @param seeds a list of \code{length(index)} L'Ecuyer-CMRG seed vectors.
 #'        Each should be from a separate stream.  In particular, starting from
 #'        the seed used to generate the model object, seeds[i] should be the
-#'        result of calling \code{\link{parallel::nextRNGStream}} index[i]
+#'        result of calling \code{\link[parallel]{nextRNGStream}} index[i]
 #'        times.
-#' @param socket_names (quoting from \code{\link{parallel::makePSOCKcluster}}
+#' @param socket_names (quoting from \code{\link[parallel]{makePSOCKcluster}}
 #'        "either a character vector of host names on which to run the worker
 #'        copies of R, or a positive integer (in which case that number of
 #'        copies is run on localhost)."

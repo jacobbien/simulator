@@ -3,12 +3,12 @@ NULL
 
 #' Simulate from a model.
 #'
-#' Given a reference to a \code{\link{Model}} object, this function calls the
+#' Given a reference to a \code{\linkS4class{Model}} object, this function calls the
 #' model's \code{simulate} function on its \code{params}.  It repeats this
 #' \code{nsim} times.  For example, when simulating regression with a fixed
 #' design, this function would generate \code{nsim} response vectors \code{y}.
 #'
-#' This function creates objects of class \code{\link{Draws}} and saves each to
+#' This function creates objects of class \code{\linkS4class{Draws}} and saves each to
 #' file (at dir/files/model_name/r<index>.Rdata). Note: while "files" is the
 #' default, the name of this directory is from getOption("simulator.files"),
 #' which is the value of getOption("simulator.files") when the model was
@@ -24,7 +24,7 @@ NULL
 
 #'
 #' @export
-#' @param object an object of class \code{\link{ModelRef}} as returned by
+#' @param object an object of class \code{\linkS4class{ModelRef}} as returned by
 #'        \code{link{generate_model}}. Or a list of such objects. If
 #'        \code{object} is a \code{Simulation}, then function is applied to the
 #'        referenced models in that simulation and returns the same
@@ -164,9 +164,9 @@ simulate_from_model_single <- function(model, nsim, index, seed) {
 #' Load one or more draws objects from file.
 #'
 #' After \code{\link{simulate_from_model}} has been called, this function can
-#' be used to load one or more of the saved \code{\link{Draws}} object(s)
+#' be used to load one or more of the saved \code{\linkS4class{Draws}} object(s)
 #' (along with RNG information).  If multiple indices are provided, these will be combined
-#' into a new single \code{\link{Draws}} object.
+#' into a new single \code{\linkS4class{Draws}} object.
 #'
 #' @export
 #' @param dir the directory passed to \code{\link{generate_model}})
@@ -191,19 +191,22 @@ load_draws <- function(dir, model_name, index, more_info = FALSE,
   index <- sort(unique(index))
   draws_files <- sprintf("%s/r%s.Rdata", md$dir, index)
   if (length(index) == 1) {
-    tryCatch(load(draws_files),
+    env <- new.env()
+    tryCatch(load(draws_files, envir = env),
          warning=function(w) stop(sprintf("Could not find draws file at %s.",
                                           draws_files)))
-    if (more_info) return(list(draws = draws, rng = rng))
+    draws <- env$draws
+    if (more_info) return(list(draws = draws, rng = env$rng))
     else return(draws)
   }
   newdraws <- rnglist <- list()
+  env <- new.env()
   for (i in seq_along(index)) {
-    tryCatch(load(draws_files[i]),
+    tryCatch(load(draws_files[i], envir = env),
           warning=function(w) stop(sprintf("Could not find draws file at %s.",
                                            draws_files[i])))
-    newdraws <- c(newdraws, draws@draws)
-    rnglist[[i]] <- rng
+    newdraws <- c(newdraws, env$draws@draws)
+    rnglist[[i]] <- env$rng
   }
   indices <- paste(index, collapse = ", ")
   nsim <- length(newdraws)

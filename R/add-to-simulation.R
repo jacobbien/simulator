@@ -1,10 +1,6 @@
 #' @include simulation-class.R
 NULL
 
-add <- function(sim, ref, ...) {
-  stop("add not implemented for this class of ref.")
-}
-
 #' Add a reference to a simulation
 #'
 #' Adds a ModelRef, DrawsRef, OutputRef, or EvalsRef to a simulation object.
@@ -16,9 +12,20 @@ add <- function(sim, ref, ...) {
 #' The modified simulation object is saved to file if \code{update_saved} is
 #' TRUE.
 #'
+#' @param sim simulation being added to
+#' @param ref the reference object being added
+#' @param update_saved default is TRUE. Determines whether change to simulation
+#'        object should be saved to file
+#' @param ... not used
+#'
 #' @export
+add <- function(sim, ref, ...) {
+  stop("add not implemented for this class of ref.")
+}
+
 setGeneric("add")
 
+#' @rdname add
 setMethod("add", signature(sim = "Simulation", ref = "ModelRef"),
           function(sim, ref, update_saved = TRUE) {
             mnames <- lapply(sim@model_refs, function(ref) ref@name)
@@ -34,6 +41,7 @@ setMethod("add", signature(sim = "Simulation", ref = "ModelRef"),
             return(sim)
           })
 
+#' @rdname add
 setMethod("add", signature(sim = "Simulation", ref = "DrawsRef"),
           function(sim, ref, update_saved = TRUE) {
             mnames <- lapply(unlist(sim@model_refs), function(mref) mref@name)
@@ -66,6 +74,7 @@ setMethod("add", signature(sim = "Simulation", ref = "DrawsRef"),
 #' @param dref DrawsRef to add
 #' @param dref_list list of DrawsRef objects
 #' @param sim_dir sim@@dir
+#' @keywords internal
 add_dref_to_list <- function(dref, dref_list, sim_dir) {
   str <- "DrawsRef with model name %s and index %s is already in simulation."
   if (dref@index %in% lapply(dref_list, function(d) d@index))
@@ -76,6 +85,7 @@ add_dref_to_list <- function(dref, dref_list, sim_dir) {
   c(dref_list, dref)
 }
 
+#' @rdname add
 setMethod("add", signature(sim = "Simulation", ref = "OutputRef"),
           function(sim, ref, update_saved = TRUE) {
             drefs <- unlist(sim@draws_refs)
@@ -111,6 +121,7 @@ setMethod("add", signature(sim = "Simulation", ref = "OutputRef"),
 #' @param oref OutputRef to add
 #' @param oref_list list of OutputRef objects
 #' @param sim_dir sim@@dir
+#' @keywords internal
 add_oref_to_list <- function(oref, oref_list, sim_dir) {
   str <- "OutputRef with model name %s, index %s, and method %s is already in simulation."
   same_index <- lapply(oref_list, function(o) o@index) == oref@index
@@ -125,6 +136,7 @@ add_oref_to_list <- function(oref, oref_list, sim_dir) {
   c(oref_list, oref)
 }
 
+#' @rdname add
 setMethod("add", signature(sim = "Simulation", ref = "EvalsRef"),
           function(sim, ref, update_saved = TRUE) {
             orefs <- unlist(sim@output_refs)
@@ -162,9 +174,10 @@ setMethod("add", signature(sim = "Simulation", ref = "EvalsRef"),
 #' list. Although not checked, it is assumed that this is only called on a list
 #' of EvalsRef objects all coming from same model.
 #'
-#' @param oref EvalsRef to add
-#' @param oref_list list of EvalsRef objects
+#' @param eref EvalsRef to add
+#' @param eref_list list of EvalsRef objects
 #' @param sim_dir sim@@dir
+#' @keywords internal
 add_eref_to_list <- function(eref, eref_list, sim_dir) {
   str <- "EvalsRef with model name %s, index %s, and method %s is already in simulation."
   same_index <- lapply(eref_list, function(e) e@index) == eref@index
@@ -179,7 +192,7 @@ add_eref_to_list <- function(eref, eref_list, sim_dir) {
   c(eref_list, eref)
 }
 
-
+#' @rdname add
 setMethod("add", signature(sim = "Simulation", ref = "list"),
           function(sim, ref, update_saved = TRUE) {
             ref <- unlist(ref)

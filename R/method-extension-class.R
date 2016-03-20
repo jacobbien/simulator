@@ -18,9 +18,9 @@ check_method_extension <- function(object) {
 #' An S4 class used to create an extended version of a method
 #'
 #' An object of class \code{MethodExtension} when added to a \code{Method}
-#' creates a \code{\link{ExtendedMethod}}.
+#' creates a \code{\linkS4class{ExtendedMethod}}.
 #'
-#' This class inherits from the \code{\link{Component}} class.
+#' This class inherits from the \code{\linkS4class{Component}} class.
 #'
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
@@ -36,9 +36,9 @@ setClass("MethodExtension",
 #' Create an object that can be used to make an extended version of a method
 #'
 #' Creates an object of class \code{MethodExtension}, which when added to a
-#' \code{Method} creates an \code{\link{ExtendedMethod}}.
+#' \code{Method} creates an \code{\linkS4class{ExtendedMethod}}.
 #'
-#' This class inherits from the \code{\link{Component}} class.
+#' This class inherits from the \code{\linkS4class{Component}} class.
 #'
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param label a longer, human readable label that can have other characters
@@ -52,6 +52,11 @@ new_method_extension <- function(name, label, method_extension) {
       method_extension = method_extension)
 }
 
+#' Create an ExtendedMethod from a Method and MethodExtension
+#'
+#' @param e1 an object of class \code{\linkS4class{Method}}
+#' @param e2 an object of class \code{\linkS4class{MethodExtension}}
+#' @export
 setMethod("+", signature(e1 = "Method", e2 = "MethodExtension"),
           function(e1, e2) {
             new_extended_method(paste0(e1@name, "_", e2@name),

@@ -8,6 +8,7 @@ Description: A framework for performing simulations such as those common in
 Depends:
     R (>= 3.2.0)
 Imports:
+    methods,
     magrittr
 Suggests:
     digest,
@@ -33,6 +34,7 @@ Collate:
     'method-class.R'
     'extended-method-class.R'
     'get-from-simulation.R'
+    'import_from.R'
     'load.R'
     'method-extension-class.R'
     'methods.R'
@@ -41,7 +43,6 @@ Collate:
     'parallel-draws.R'
     'parallel-methods.R'
     'parallel.R'
-    'pipe.R'
     'plot_eval.R'
     'plot_eval_by.R'
     'plot_evals.R'

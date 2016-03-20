@@ -43,19 +43,19 @@ check_evals <- function(object) {
 #' that plot functions can use human-readable labels without requiring
 #' re-loading these.
 #'
-#' @slot model_name the name of the \code{\link{Model}} object this output is
+#' @slot model_name the name of the \code{\linkS4class{Model}} object this output is
 #'       derived from.
-#' @slot model_label the label of the \code{\link{Model}} object this output is
+#' @slot model_label the label of the \code{\linkS4class{Model}} object this output is
 #'       derived from.
-#' @slot index the index of the \code{\link{Draws}} object this output is
+#' @slot index the index of the \code{\linkS4class{Draws}} object this output is
 #'       derived from.
-#' @slot method_name the name of the \code{\link{Method}} object this output is
+#' @slot method_name the name of the \code{\linkS4class{Method}} object this output is
 #'       derived from.
-#' @slot method_label the label of the \code{\link{Method}} object this output
+#' @slot method_label the label of the \code{\linkS4class{Method}} object this output
 #'       is derived from.
-#' @slot metric_name the name of the \code{\link{Metric}} object this output is
+#' @slot metric_name the name of the \code{\linkS4class{Metric}} object this output is
 #'       derived from.
-#' @slot metric_label the label of the \code{\link{Metric}} object this output
+#' @slot metric_label the label of the \code{\linkS4class{Metric}} object this output
 #'       is derived from.
 #' @slot evals a named list with each element labeled by a method_name
 #'       each evals[[m]] is itself a named list with each element labeled
@@ -93,9 +93,13 @@ setMethod("show", "Evals", function(object) {
 #' Convert an Evals to a data.frame
 #'
 #' This is equivalent to calling \code{as(x, "data.frame")}
-#' @param x object of class \code{\link{Evals}}
+#' @param x object of class \code{\linkS4class{Evals}}
+#' @param row.names not used
+#' @param optional not used
+#' @param ... not used
 #' @export
-as.data.frame.Evals <- function(x) as(x, "data.frame")
+as.data.frame.Evals <- function(x, row.names = NULL, optional = FALSE, ...)
+  as(x, "data.frame")
 
 setAs(from = "Evals", to = "data.frame",
       def = function(from) {
@@ -130,5 +134,9 @@ setAs(from = "Evals", to = "data.frame",
 #' will be invoked instead of as.data.frame.list, which is defined in base.
 #'
 #' @param x a listofEvals object
+#' @param row.names not used
+#' @param optional not used
+#' @param ... not used
 #' @export
-as.data.frame.listofEvals <- function(x) do.call("rbind", lapply(x, as.data.frame))
+as.data.frame.listofEvals <- function(x, row.names = NULL, optional = FALSE, ...)
+  do.call("rbind", lapply(x, as.data.frame))

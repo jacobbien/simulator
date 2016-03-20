@@ -3,7 +3,7 @@
 #'
 #' If evals is a \code{listofEvals}, then each model will be its own plot.
 #'
-#' @param evals an object of class \code{\link{Evals}} or of class
+#' @param evals an object of class \code{\linkS4class{Evals}} or of class
 #'        \code{listofEvals}
 #' @param metric_name the name of a metric to plot
 #' @param use_ggplot2 whether to use \code{ggplot2} (requires installation
@@ -21,7 +21,7 @@
 #' @param ... additional arguments to pass to \code{boxplot} (only when
 #'        \code{use_ggplot2 = FALSE}).
 #' @export
-plot_eval <- function(evals, metric_name, varying, use_ggplot2 = TRUE, main,
+plot_eval <- function(evals, metric_name, use_ggplot2 = TRUE, main,
                       facet_mains, ylab, ylim, include_zero = FALSE, angle = 0,
                       ...) {
   if ("Evals" %in% class(evals)) {
@@ -83,7 +83,7 @@ plot_eval <- function(evals, metric_name, varying, use_ggplot2 = TRUE, main,
 }
 
 #' Make a boxplot of a metric for each method using ggplot2
-#'
+#' @keywords internal
 ggplot_eval <- function(evals_df, metric_name, method_name, method_label,
                         main, facet_mains, ylab, ylim, nrow, ncol) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {

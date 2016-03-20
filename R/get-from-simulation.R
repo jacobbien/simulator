@@ -122,9 +122,11 @@ evals <- function(sim, subset = NULL, index, methods,
 
 #' Internal function used by both outputs and evals
 #'
+#' @param sim simulation object
 #' @param refs either sim@@output_refs or sim@@evals_refs
 #' @param sort_by_method whether returned object should have each method's objects
 #'        in its own list or not
+#' @keywords internal
 outputs_or_evals <- function(sim, refs, sort_by_method,
                              subset, index, methods, reference) {
   if (!missing(index))

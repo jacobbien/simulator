@@ -1,30 +1,27 @@
 #' Evaluate outputs of methods according to provided metrics.
 #'
-#' Given a \code{\link{Metric}} object or list of \code{\link{Metric}} objects,
-#' this function evaluates an \code{\link{Output}} object according to these
+#' Given a \code{\linkS4class{Metric}} object or list of \code{\linkS4class{Metric}} objects,
+#' this function evaluates an \code{\linkS4class{Output}} object according to these
 #' metrics.  The computed values of the metrics are saved to file.
 #'
-#' This function creates objects of class \code{\link{Evals}} and saves each to
+#' This function creates objects of class \code{\linkS4class{Evals}} and saves each to
 #' file (at dir/model_name/<out_loc>/r<index>_<method_name>_evals.Rdata. Since
 #' evaluating metrics is usually (in statistical methodological papers) fast,
 #' parallel functionality has not been developed for the evaluation component.
 #'
-#' @param metrics a list of \code{\link{Metric}} objects or a single
-#'        \code{\link{Metric}} object
-#' @param dir the directory where \code{\link{Model}} object was saved (by
+#' @param metrics a list of \code{\linkS4class{Metric}} objects or a single
+#'        \code{\linkS4class{Metric}} object
+#' @param dir the directory where \code{\linkS4class{Model}} object was saved (by
 #'        \code{\link{generate_model}})
-#' @param model_name the \code{\link{Model}} object's \code{name} attribute
-#' @param index the index of a computed \code{\link{Draws}} object.  Can
+#' @param model_name the \code{\linkS4class{Model}} object's \code{name} attribute
+#' @param index the index of a computed \code{\linkS4class{Draws}} object.  Can
 #'        alternately be a vector of such indices.
-#' @param method_names the \code{\link{Method}} objects' \code{name} attributes
+#' @param method_names the \code{\linkS4class{Method}} objects' \code{name} attributes
 #'        as a character vector.
 #' @param out_loc (optional) a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.
 #' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
 #' \code{\link{run_method}}
-#' @examples
-#' \dontrun{
-#'  }
 evaluate_internal <- function(metrics, dir = ".", model_name, index, method_names,
                        out_loc = "out") {
   # make sure metrics is a list of Metric objects
@@ -56,32 +53,29 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 
 #' Evaluate outputs of methods according to provided metrics.
 #'
-#' Given a \code{\link{Metric}} object or list of \code{\link{Metric}} objects,
-#' this function evaluates an \code{\link{Output}} object according to these
+#' Given a \code{\linkS4class{Metric}} object or list of \code{\linkS4class{Metric}} objects,
+#' this function evaluates an \code{\linkS4class{Output}} object according to these
 #' metrics.  The computed values of the metrics are saved to file.  The "user"
 #' time to run the method (as measured by \code{\link{system.time}}) is added
 #' to \code{metrics} by default unless one of the passed metrics has name
 #' "time".
 #'
-#' This function creates objects of class \code{\link{Evals}} and saves each to
+#' This function creates objects of class \code{\linkS4class{Evals}} and saves each to
 #' file (at dir/model_name/<out_loc>/r<index>_<method_name>_evals.Rdata. Since
 #' evaluating metrics is usually (in statistical methodological papers) fast,
 #' parallel functionality has not been developed for the evaluation component.
 #'
 #' @export
-#' @param object object of class \code{\link{OutputRef}} as produced by
+#' @param object object of class \code{\linkS4class{OutputRef}} as produced by
 #'        \code{\link{run_method}} (or list of such objects). If
-#'        \code{object} is a \code{\link{Simulation}}, then function is applied
+#'        \code{object} is a \code{\linkS4class{Simulation}}, then function is applied
 #'         to the referenced outputs in that simulation and returns the same
 #'        \code{Simulation} object but with references added to the new evals
 #'        created.
-#' @param metrics a list of \code{\link{Metric}} objects or a single
-#'        \code{\link{Metric}} object.
+#' @param metrics a list of \code{\linkS4class{Metric}} objects or a single
+#'        \code{\linkS4class{Metric}} object.
 #' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
 #' \code{\link{run_method}}
-#' @examples
-#' \dontrun{
-#'  }
 evaluate <- function(object, metrics) {
   # make sure metrics is a list of Metric objects
   if (class(metrics) == "list") {
@@ -133,14 +127,14 @@ evaluate <- function(object, metrics) {
 
 #' Run one or more metrics on outputs.
 #'
-#' This is an internal function.  Users should call the wrapper function.
-#' \code{\link{run_metrics}}. Here "single" refers to a single output (and
+#' This is an internal function.  Users should call the wrapper function
+#' \code{\link{evaluate}}. Here "single" refers to a single output (and
 #' thus a single method, though not necessarily a single index).
 #' The metrics provided are run and saved together in a file.
 #'
-#' @param metrics a list of \code{\link{Metric}} objects
-#' @param model a \code{\link{Model}} object
-#' @param output a \code{\link{Output}} object
+#' @param metrics a list of \code{\linkS4class{Metric}} objects
+#' @param model a \code{\linkS4class{Model}} object
+#' @param output a \code{\linkS4class{Output}} object
 evaluate_single <- function(metrics, model, output) {
   if (class(metrics) == "Metric") metrics <- list(metrics)
   else if (is.list(metrics)) {
@@ -172,16 +166,16 @@ evaluate_single <- function(metrics, model, output) {
 #' Load one or more Evals objects from file.
 #'
 #' After \code{\link{evaluate}} has been called, this function can
-#' be used to load one or more of the saved \code{\link{Evals}} object(s).
+#' be used to load one or more of the saved \code{\linkS4class{Evals}} object(s).
 #' If multiple indices are provided, these will be combined by index into a
-#' new single \code{\link{Evals}} object.  If multiple methods are provided,
-#' a list of \code{\link{Evals}} objects will be returned.
+#' new single \code{\linkS4class{Evals}} object.  If multiple methods are provided,
+#' a list of \code{\linkS4class{Evals}} objects will be returned.
 #'
 #' @export
 #' @param dir the directory passed to \code{\link{generate_model}})
-#' @param model_name the \code{\link{Model}} object's \code{name}
+#' @param model_name the \code{\linkS4class{Model}} object's \code{name}
 #' @param index a vector of positive integers.
-#' @param method_names the \code{name} of one or more \code{\link{Method}}
+#' @param method_names the \code{name} of one or more \code{\linkS4class{Method}}
 #'        objects.
 #' @param metric_names (optional) a character vector of which elements of
 #'        evals should be loaded. If NULL, then all elements are loaded.
@@ -191,9 +185,6 @@ evaluate_single <- function(metrics, model, output) {
 #'        \code{\link{run_method}}.
 #' @seealso \code{\link{load_model}} \code{\link{load_draws}}
 #'          \code{\link{as.data.frame.Evals}}
-#' @examples
-#' \dontrun{
-#' }
 load_evals <- function(dir, model_name, index, method_names,
                          metric_names = NULL, out_loc = "out",
                        simulator.files = NULL) {
@@ -256,8 +247,8 @@ save_evals_to_file <- function(out_dir, dir, out_loc, evals) {
 #' If \code{method_names} is \code{NULL}, then subsetting is not done over
 #' methods.  Likewise for \code{metric_names}.
 #'
-#' @param evals an object of class \code{\link{Evals}} or
-#'        \code{\link{listofEvals}}.
+#' @param evals an object of class \code{\linkS4class{Evals}} or
+#'        \code{listofEvals}.
 #' @param method_names a character vector of method names
 #' @param metric_names a character vector of metric names
 #' @export
@@ -291,7 +282,7 @@ subset_evals <- function(evals, method_names = NULL, metric_names = NULL) {
 
 #' @export
 #' @rdname load_evals
-#' @param ref an object of class \code{\link{EvalsRef}}
+#' @param ref an object of class \code{\linkS4class{EvalsRef}}
 load_evals_from_ref <- function(ref, metric_names = NULL) {
   return(load_evals(dir = ref@dir, model_name = ref@model_name,
                       index = ref@index,

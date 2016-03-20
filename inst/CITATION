@@ -1,0 +1,5 @@
+bibentry(bibtype = "article",
+         title = "The {simulator}: An Engine to Streamline Simulations",
+         author = person("Jacob", "Bien"),
+         year = {2016},
+         journal = "Submitted")

@@ -7,14 +7,14 @@
 #' Uses \code{knitr}'s function \code{kable} to put table in various formats,
 #' including latex, html, markdown, etc.
 #'
-#' @param evals_list a list of one or more objects of class \code{\link{Evals}}.
+#' @param evals_list a list of one or more objects of class \code{\linkS4class{Evals}}.
 #'        Each evals object should just differ by model_name.
 #' @param metric_name the name of a metric to tabulate.  Must be scalar valued.
 #' @param method_names character vector indicating methods to include in table.
 #'        If NULL, then will include all methods found in evals_list.
 #' @param caption caption of plot
 #' @param se_format format of the standard error
-#' @param output_type see \code{knitr::kable}'s argument format for options.
+#' @param output_type see \code{\link[knitr]{kable}}'s argument format for options.
 #'        Default is "latex" but other options include "html" and "markdown"
 #' @param format_args arguments to pass to the function \code{\link{format}}
 #' @param na_string what to write in table in place of NA

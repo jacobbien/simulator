@@ -11,7 +11,7 @@
 #' The arguments errbars, method_col, method_lty, method_lwd, method_pch only
 #' apply when use_ggplot2 is FALSE.
 #'
-#' @param sim an object of class \code{\link{simulation}}
+#' @param sim an object of class \code{\linkS4class{Simulation}}
 #' @param metric_name the name of a metric to plot
 #' @param varying character vector giving the name of a parameter that is
 #'        varied across the models in evals. For now, this parameter must be
@@ -69,7 +69,7 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE, main,
   metric_label <- e[[1]]@metric_label
   # prepare data.frame that has varying, metric_name, and "Method" as columns
   df <- as.data.frame(e)
-  ii <- match(df$Model, model_names)
+  ii <- match(df[["Model"]], model_names)
   df[[varying]] <- unlist(vals)[ii] # add column 'varying' to data.frame
 
   # plotting parameters:
@@ -87,8 +87,8 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE, main,
   method_pch <- recycle(method_pch, num_methods)
   if (use_ggplot2) {
     return(ggplot2::ggplot(df, ggplot2::aes_string(varying, metric_name)) +
-             ggplot2::geom_point(ggplot2::aes(color = Method, group = Method)) +
-             ggplot2::stat_smooth(ggplot2::aes(color = Method, group = Method)) +
+             ggplot2::geom_point(ggplot2::aes_string(color = "Method", group = "Method")) +
+             ggplot2::stat_smooth(ggplot2::aes_string(color = "Method", group = "Method")) +
              ggplot2::labs(x = xlab, y = ylab, title = main) +
              ggplot2::scale_colour_discrete(labels = method_labels) +
              ggplot2::ylim(ylim) +
@@ -98,7 +98,7 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE, main,
     plot(0, 0, xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          main = main, type = "n", ...)
     for (m in seq_along(method_names)) {
-      df2 <- df[df$Method == method_names[m], ] # subset by method
+      df2 <- df[df[["Method"]] == method_names[m], ] # subset by method
       points(df2[[varying]], df2[[metric_name]],
              col = method_col[m], pch = method_pch[m])
       se <- function(a) sd(a) / sqrt(length(a))

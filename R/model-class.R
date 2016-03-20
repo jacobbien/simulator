@@ -28,7 +28,7 @@ check_model <- function(object) {
 #' To get parameters stored in a \code{Model} object, a shortcut for
 #' \code{my_model@@params$my_parameter} is \code{my_model$my_parameter}.
 #'
-#' This class inherits from the \code{\link{Component}} class.
+#' This class inherits from the \code{\linkS4class{Component}} class.
 #'
 #' @slot name a short name identifier.  Must be alphanumeric (though -, _, and
 #'       / are allowed as long as they are not at the start or end of name.
@@ -63,11 +63,15 @@ setMethod("show", "Model", function(object) {
   }
 })
 
+#' Get element of \code{\linkS4class{Model}}'s \code{params} list
+#' @param x object of class \code{\linkS4class{Model}}
+#' @param name name of an element appearing in \code{x@@params}
+#' @export
 setMethod("$", "Model", function(x, name) return(x@params[[name]]))
 
 #' Create a Model object
 #'
-#' Creates a new \code{\link{Model}} object.
+#' Creates a new \code{\linkS4class{Model}} object.
 #'
 #' @param name a short name identifier.  Must be alphanumeric (though -, _, and
 #'       / are allowed as long as they are not at the start or end of name.

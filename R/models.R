@@ -4,7 +4,7 @@ NULL
 #' Generate a model.
 #'
 #' This function executes the \code{make_model} function provided by the user
-#' and writes to file the resulting \code{\link{Model}} object(s).  For example,
+#' and writes to file the resulting \code{\linkS4class{Model}} object(s).  For example,
 #' when simulating regression with a fixed design, \code{X} would be generated
 #' in this function and \code{n}, \code{p}, \code{beta}, and \code{sigma} would
 #' also be specified.
@@ -30,7 +30,7 @@ NULL
 #' \code{Simulation} object are saved to file.
 #'
 #' \code{make_model} is called generating an object of class
-#' \code{\link{Model}}, called \code{model}, which is saved to
+#' \code{\linkS4class{Model}}, called \code{model}, which is saved to
 #' \code{dir/name/model.Rdata} (where \code{name} is the name attribute of
 #' \code{model}). This file also contains the random number generator state and
 #' other information such as the function \code{make_model} itself and the date
@@ -38,13 +38,13 @@ NULL
 #'
 #' @export
 #' @param object the name of the directory where directory named "files" exists
-#'        (or should be created) to save \code{\link{Model}} object in.
+#'        (or should be created) to save \code{\linkS4class{Model}} object in.
 #'        Default is current working directory. Or can be an object of class
-#'        \code{\link{Simulation}}, in which case the \code{object@@dir} is used
+#'        \code{\linkS4class{Simulation}}, in which case the \code{object@@dir} is used
 #'        and a simulation object is returned instead of an object of class
-#'        \code{\link{ModelRef}}.
+#'        \code{\linkS4class{ModelRef}}.
 #' @param make_model a function that outputs an object of class
-#'        \code{\link{Model}}.  Or a list of such functions.
+#'        \code{\linkS4class{Model}}.  Or a list of such functions.
 #' @param seed an integer seed for the random number generator.
 #' @param vary_along character vector with all elements contained in names(...)
 #'        See description for more details.
@@ -205,11 +205,11 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
 #' Load a model from file.
 #'
 #' After \code{\link{generate_model}} has been called, this function can be used
-#' to load the saved \code{\link{Model}} object (along with the RNG state and
+#' to load the saved \code{\linkS4class{Model}} object (along with the RNG state and
 #' other information if desired).
 #'
-#' Depending on \code{more_info}, either returns \code{\link{Model}} object
-#' or a list containing \code{\link{Model}} object and other information.
+#' Depending on \code{more_info}, either returns \code{\linkS4class{Model}} object
+#' or a list containing \code{\linkS4class{Model}} object and other information.
 #'
 #' @export
 #' @param dir the directory passed to \code{\link{generate_model}})
@@ -229,11 +229,13 @@ load_model <- function(dir, model_name, more_info = FALSE,
                        simulator.files = NULL) {
   md <- get_model_dir_and_file(dir, model_name,
                                simulator.files = simulator.files)
-  tryCatch(load(md$file),
+  env <- new.env()
+  tryCatch(load(md$file, envir = env),
            warning=function(w)
              stop(sprintf("Could not find model file at %s.", md$file)))
+  model <- env$model
   if (more_info)
-    return(list(model = model, rng = rng, info = info))
+    return(list(model = model, rng = env$rng, info = env$info))
   else
     return(model)
 }

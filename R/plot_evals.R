@@ -3,7 +3,7 @@
 #'
 #' If evals is a \code{listofEvals}, then each model will be its own plot.
 #'
-#' @param evals an object of class \code{\link{Evals}} or of class
+#' @param evals an object of class \code{\linkS4class{Evals}} or of class
 #'        \code{listofEvals}
 #' @param metric_name_x the name of metric to plot on x axis
 #' @param metric_name_y the name of metric to plot on y axis
@@ -94,7 +94,7 @@ plot_evals <- function(evals, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
          main = facet_mains[i], type = "n", ...)
     for (r in unique(evals_df[["Draw"]])) {
       for (m in seq_along(method_names[[1]])) {
-        ii <- evals_df$Method == method_names[[1]][m] & evals_df$Draw == r
+        ii <- evals_df[["Method"]] == method_names[[1]][m] & evals_df[["Draw"]] == r
         points(evals_df[ii, metric_name_x], evals_df[ii, metric_name_y],
                col = method_col[m], lty = method_lty[m],
                lwd = method_lwd[m], pch = method_pch[m], type = "o")
@@ -120,17 +120,20 @@ ggplot_evals <- function(evals_df, metric_name_x, metric_name_y, method_labels,
   }
   if (missing(main)) main <- NULL
   if (length(unique(evals_df$Model)) == 1) {
-    return(ggplot2::ggplot(evals_df, ggplot2::aes_string(metric_name_x, metric_name_y)) +
-             ggplot2::geom_line(ggplot2::aes(color = Method, group = Method:Draw)) +
+    return(ggplot2::ggplot(evals_df, ggplot2::aes_string(metric_name_x,
+                                                         metric_name_y)) +
+             ggplot2::geom_line(ggplot2::aes_string(color = "Method",
+                                         group = "interaction(Method,Draw)")) +
              ggplot2::labs(x = xlab, y = ylab, title = main) +
              ggplot2::scale_colour_discrete(labels = method_labels) +
              ggplot2::ylim(ylim) +
              ggplot2::xlim(xlim))
   }
   # display multiple facets...
-  levels(evals_df$Model) <- facet_mains
+  levels(evals_df[["Model"]]) <- facet_mains
   ggplot2::ggplot(evals_df, ggplot2::aes_string(metric_name_x, metric_name_y)) +
-    ggplot2::geom_line(ggplot2::aes(color = Method, group = Method:Draw)) +
+    ggplot2::geom_line(ggplot2::aes_string(color = "Method",
+                                        group = "interaction(Method,Draw)")) +
     ggplot2::labs(x = xlab, y = ylab, title = main) +
     ggplot2::scale_colour_discrete(labels = method_labels) +
     ggplot2::ylim(ylim) +

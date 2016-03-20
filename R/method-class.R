@@ -18,9 +18,9 @@ check_method <- function(object) {
 #'
 #' An object of class \code{Method} consists of a name, label, and a function
 #' \code{method} that takes arguments model and draw. A draw refers
-#' to a single element of the list in an object of class \code{\link{Draws}}.
+#' to a single element of the list in an object of class \code{\linkS4class{Draws}}.
 #'
-#' This class inherits from the \code{\link{Component}} class.
+#' This class inherits from the \code{\linkS4class{Component}} class.
 #'
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
@@ -32,7 +32,7 @@ setClass("Method", representation(method = "function"),
 
 #' Create a Method object
 #'
-#' Creates a new \code{\link{Method}} object.
+#' Creates a new \code{\linkS4class{Method}} object.
 #'
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param label a longer, human readable label that can have other characters

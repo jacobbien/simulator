@@ -16,7 +16,7 @@
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
 #'        the same Model and Draws objects.
-#' @param socket_names (quoting from \code{\link{parallel::makePSOCKcluster}}
+#' @param socket_names (quoting from \code{\link[parallel]{makePSOCKcluster}}
 #'        "either a character vector of host names on which to run the worker
 #'        copies of R, or a positive integer (in which case that number of
 #'        copies is run on localhost)."
@@ -24,6 +24,7 @@
 #'        slaves.
 #' @param save_locally if TRUE, then files will be saved on slaves.  If FALSE,
 #'        they will be saved on master.
+#' @keywords internal
 run_method_parallel <- function(my_methods, dir, model_name, index,
                                 out_dir, out_loc, socket_names, libraries,
                                 save_locally = TRUE) {
@@ -79,7 +80,7 @@ run_method_parallel <- function(my_methods, dir, model_name, index,
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
 #'        the same Model and Draws objects.
-#' @param socket_names (quoting from \code{\link{parallel::makePSOCKcluster}}
+#' @param socket_names (quoting from \code{\link[parallel]{makePSOCKcluster}})
 #'        "either a character vector of host names on which to run the worker
 #'        copies of R, or a positive integer (in which case that number of
 #'        copies is run on localhost)."
@@ -87,6 +88,7 @@ run_method_parallel <- function(my_methods, dir, model_name, index,
 #'        slaves.
 #' @param save_locally if TRUE, then files will be saved on slaves.  If FALSE,
 #'        they will be saved on master.
+#' @keywords internal
 run_extmethod_parallel <- function(my_extmethods, dir, model_name, index,
                                 out_dir, out_loc, socket_names, libraries,
                                 save_locally = TRUE) {

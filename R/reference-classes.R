@@ -48,10 +48,10 @@ check_evalsref <- function(object) {
 #' An S4 class representing a reference to an object of class Model.
 #'
 #' This identifies the necessary information to locate a saved object
-#' of class \code{\link{Model}}.
+#' of class \code{\linkS4class{Model}}.
 #'
 #' @slot dir directory where the directory "files" is that contains the
-#'        referenced \code{\link{Model}} object
+#'        referenced \code{\linkS4class{Model}} object
 #' @slot name a short name identifier.
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
@@ -76,12 +76,12 @@ setMethod("show", "ModelRef", function(object) {
 #' An S4 class representing a reference to an object of class Draws.
 #'
 #' This identifies the necessary information to locate a saved object
-#' of class \code{\link{Draws}}.
+#' of class \code{\linkS4class{Draws}}.
 #'
 #' @slot dir directory where the directory \code{getOption("simulator.files")}
-#'        is that contains the referenced \code{\link{Model}} object
-#' @slot model_name name of the referenced \code{\link{Model}} object
-#' @slot index the index of the referenced \code{\link{Draws}} object.  Can
+#'        is that contains the referenced \code{\linkS4class{Model}} object
+#' @slot model_name name of the referenced \code{\linkS4class{Model}} object
+#' @slot index the index of the referenced \code{\linkS4class{Draws}} object.  Can
 #'        alternately be a vector of such indices.
 #' @slot simulator.files Default is \code{getOption("simulator.files")}
 #'
@@ -104,14 +104,14 @@ setMethod("show", "DrawsRef", function(object) {
 #' An S4 class representing a reference to an object of class Output.
 #'
 #' This identifies the necessary information to locate a saved object
-#' of class \code{\link{Output}}.
+#' of class \code{\linkS4class{Output}}.
 #'
 #' @slot dir directory where the directory \code{getOption("simulator.files")}
-#'        is that contains the referenced \code{\link{Model}} object
-#' @slot model_name name of the referenced \code{\link{Model}} object
-#' @slot index the index of the referenced \code{\link{Draws}} object.  Can
+#'        is that contains the referenced \code{\linkS4class{Model}} object
+#' @slot model_name name of the referenced \code{\linkS4class{Model}} object
+#' @slot index the index of the referenced \code{\linkS4class{Draws}} object.  Can
 #'        alternately be a vector of such indices.
-#' @slot method_name the name of the \code{\link{Method}} object this output is
+#' @slot method_name the name of the \code{\linkS4class{Method}} object this output is
 #'       derived from.
 #' @slot out_loc a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.This can be
@@ -141,15 +141,15 @@ setMethod("show", "OutputRef", function(object) {
 #' An S4 class representing a reference to an object of class Evals
 #'
 #' This identifies the necessary information to locate a saved object
-#' of class \code{\link{Evals}}.  Note that \code{metric_names} is not
+#' of class \code{\linkS4class{Evals}}.  Note that \code{metric_names} is not
 #' needed to identify an Evals object since Evals objects combine all metrics
 #' together into a single file and object.
 #'
 #' @slot dir directory where the directory \code{getOption("simulator.files")}
-#'        is that contains the referenced \code{\link{Model}} object
-#' @slot model_name name of the referenced \code{\link{Model}} object
-#' @slot index the index of the referenced \code{\link{Draws}} object.
-#' @slot method_name the name of the \code{\link{Method}} object this output is
+#'        is that contains the referenced \code{\linkS4class{Model}} object
+#' @slot model_name name of the referenced \code{\linkS4class{Model}} object
+#' @slot index the index of the referenced \code{\linkS4class{Draws}} object.
+#' @slot method_name the name of the \code{\linkS4class{Method}} object this output is
 #'       derived from.
 #' @slot out_loc a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.This can be

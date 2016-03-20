@@ -41,13 +41,13 @@ check_output <- function(object) {
 #' model, draws, and method objects this output was derived from.  It also has
 #' a list called \code{out}, which is where the output of the method is stored.
 #'
-#' @slot model_name the name of the \code{\link{Model}} object this output is
+#' @slot model_name the name of the \code{\linkS4class{Model}} object this output is
 #'       derived from.
-#' @slot index the index of the \code{\link{Draws}} object this output is
+#' @slot index the index of the \code{\linkS4class{Draws}} object this output is
 #'       derived from.
-#' @slot method_name the name of the \code{\link{Method}} object this output is
+#' @slot method_name the name of the \code{\linkS4class{Method}} object this output is
 #'       derived from.
-#' @slot method_label the label of the \code{\link{Method}} object this output
+#' @slot method_label the label of the \code{\linkS4class{Method}} object this output
 #'       is derived from.
 #' @slot out a named list with each element labeled as \code{ri.j} where
 #'       \code{i} is the \code{index} and \code{j} ranges from \code{1} to

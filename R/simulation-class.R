@@ -28,12 +28,11 @@ check_simulation <- function(object) {
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @param dir common directory which serves as basis for individual reference
-#'        paths
-#' @slot model_refs a list of \code{\link{ModelRef}} objects
-#' @slot draws_refs a list of lists of \code{\link{DrawsRef}} objects
-#' @slot output_refs a list of lists of \code{\link{OutputRef}} objects
-#' @slot evals_refs a list of lists of \code{\link{EvalsRef}} objects
+#' @slot dir name of the directory where directory named "files" exists.
+#' @slot model_refs a list of \code{\linkS4class{ModelRef}} objects
+#' @slot draws_refs a list of lists of \code{\linkS4class{DrawsRef}} objects
+#' @slot output_refs a list of lists of \code{\linkS4class{OutputRef}} objects
+#' @slot evals_refs a list of lists of \code{\linkS4class{EvalsRef}} objects
 #'
 #' @rdname Simulation
 #' @export
@@ -95,10 +94,10 @@ setMethod("show", "Simulation", function(object) {
 
 #' Make a new simulation object
 #'
-#' Creates an object of class \code{\link{Simulation}}.  In addition to having
+#' Creates an object of class \code{\linkS4class{Simulation}}.  In addition to having
 #' a name and label, this object consists of a set of references to objects of
-#' class \code{\link{ModelRef}}, \code{\link{DrawsRef}},
-#' \code{\link{OutputRef}}, and \code{\link{EvalsRef}}.
+#' class \code{\linkS4class{ModelRef}}, \code{\linkS4class{DrawsRef}},
+#' \code{\linkS4class{OutputRef}}, and \code{\linkS4class{EvalsRef}}.
 #'
 #' A Simulation object is the basic unit of a simulation study.  Roughly, one
 #' can think of it as all the files relevant to a single figure. This might be
@@ -119,15 +118,14 @@ setMethod("show", "Simulation", function(object) {
 #' @param label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
 #' @param dir a directory that reference's directories are relative to
-#' @param model_refs a list of \code{\link{ModelRef}} objects
-#' @param draws_refs a list of \code{\link{DrawsRef}} objects
-#' @param output_refs a list of \code{\link{OutputRef}} objects
-#' @param evals_refs a list of \code{\link{EvalsRef}} objects
+#' @param refs a list containing objects of class \code{\linkS4class{ModelRef}},
+#'        \code{\linkS4class{DrawsRef}}, \code{\linkS4class{OutputRef}},
+#'        and \code{\linkS4class{EvalsRef}}
 #' @param save_to_file whether this new simulation should be saved to file.
 #'        Default is TRUE. If TRUE, then this simulation can be loaded
 #'        in a new R session using \code{dir} and \code{name}.
 #' @export
-#' @seealso \code{\link{add}} \code{\link{load_simulation}}
+#' @seealso \code{\link{add}} \code{\link{load_simulation}} \code{\link{save_simulation}}
 new_simulation <- function(name, label, dir = ".", refs = list(),
                            save_to_file = TRUE) {
   sim <- new("Simulation", name = name, label = label, dir = dir)
@@ -138,7 +136,7 @@ new_simulation <- function(name, label, dir = ".", refs = list(),
 
 #' Save a simulation object
 #'
-#' Saves an object of class \code{\link{Simulation}} to
+#' Saves an object of class \code{\linkS4class{Simulation}} to
 #' sim@@dir/files/sim@@name.Rdata. Note: while "files" is the default, the name
 #' of this directory is from getOption("simulator.files"), which is the value of
 #' getOption("simulator.files") when the model was created.
@@ -146,9 +144,9 @@ new_simulation <- function(name, label, dir = ".", refs = list(),
 #' This function overwrites any pre-existing file in that location without
 #' apology.
 #'
-#' @param sim an object of class \code{\link{Simulation}}
+#' @param sim an object of class \code{\linkS4class{Simulation}}
 #' @export
-#' @seealso \code{\link{load_simulation}}
+#' @seealso \code{\link{new_simulation}} \code{\link{load_simulation}}
 save_simulation <- function(sim) {
   files_dir <- file.path(sim@dir, getOption("simulator.files"))
   if (!file.exists(files_dir)) dir.create(files_dir, recursive = TRUE)
@@ -158,7 +156,7 @@ save_simulation <- function(sim) {
 
 #' Load a simulation object
 #'
-#' Loads an object of class \code{\link{Simulation}}.  Note that \code{dir}
+#' Loads an object of class \code{\linkS4class{Simulation}}.  Note that \code{dir}
 #' gives the directory where the Simulation object is stored.  Thus, if the
 #' working directory is different from the working directory when the Simulation
 #' object was created, then \code{dir} will be different from the one passed to
@@ -167,10 +165,11 @@ save_simulation <- function(sim) {
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param dir directory that contains "files" directory for this simulation
 #' @export
-#' @seealso \code{\link{new_simulation}}
+#' @seealso \code{\link{new_simulation}} \code{\link{save_simulation}}
 load_simulation <- function(name, dir = ".") {
   files_dir <- file.path(dir, getOption("simulator.files"))
   file <- sprintf("%s/sim-%s.Rdata", files_dir, name)
-  load(file)
-  return(sim)
+  env <- new.env()
+  load(file, envir = env)
+  return(env$sim)
 }

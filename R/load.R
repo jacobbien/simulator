@@ -1,13 +1,20 @@
 #' @include reference-classes.R
 
-#' @export
+#' Load simulator objects
+#' @exportMethod load
 setGeneric("load")
 
+#' Load a ModelRef
+#'
+#' @param file object to load
 setMethod("load", signature(file = "ModelRef"), function(file) {
   return(load_model(dir = file@dir, model_name = file@name, more_info = FALSE,
                     simulator.files = file@simulator.files))
 })
 
+#' Load a DrawsRef
+#'
+#' @param file object to load
 setMethod("load", signature(file = "DrawsRef"), function(file) {
   return(load_draws(dir = file@dir, model_name = file@model_name,
                     index = file@index,
@@ -15,15 +22,24 @@ setMethod("load", signature(file = "DrawsRef"), function(file) {
                     simulator.files = file@simulator.files))
 })
 
+#' Load an OutputRef
+#'
+#' @param file object to load
 setMethod("load", signature(file = "OutputRef"), function(file) {
   load_outputs_from_ref(file)
 })
 
+#' Load an EvalsRef
+#'
+#' @param file object to load
 setMethod("load", signature(file = "EvalsRef"), function(file) {
   load_evals_from_ref(file)
 })
 
 
+#' Load a list of reference objects
+#'
+#' @param file list of objects to load
 setMethod("load", signature(file = "list"), function(file) {
   if (length(file) == 0) return(list())
   if (all(unlist(lapply(file, class)) == "list")) {

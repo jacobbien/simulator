@@ -1,4 +1,5 @@
 #' Load necessary libraries on a cluster
+#' @keywords internal
 load_libraries_on_cluster <- function(cl, libs) {
   libs <- unique(libs)
   stopifnot(is.character(libs))
@@ -37,7 +38,7 @@ check_parallel_list <- function(parallel) {
 #'        is a named list of parameters to be passed to \code{save_to_file} for
 #'        job \code{i}. Each \code{save_params[[i]]} must include \code{out_dir},
 #'        which is location where file is to be saved.
-#' @param socket_names (quoting from \code{\link{parallel::makePSOCKcluster}}
+#' @param socket_names (quoting from \code{\link[parallel]{makePSOCKcluster}}
 #'        "either a character vector of host names on which to run the worker
 #'        copies of R, or a positive integer (in which case that number of
 #'        copies is run on localhost)."
@@ -45,6 +46,7 @@ check_parallel_list <- function(parallel) {
 #'        slaves.
 #' @param save_locally if TRUE, then files will be saved on slaves.  If FALSE,
 #'        they will be saved on master.
+#' @keywords internal
 do_in_parallel <- function(function_to_do, function_params,
                            save_to_file, save_params, socket_names,
                            libraries, save_locally = TRUE) {

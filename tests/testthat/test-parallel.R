@@ -49,6 +49,8 @@ test_that("seeds is deterministic", {
 })
 
 test_that("get same draws if chunks done together or separately", {
+  skip_on_cran() # http://r-pkgs.had.co.nz/tests.html says risky to
+  # test parallel code on CRAN
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   tryCatch({
@@ -68,6 +70,8 @@ test_that("get same draws if chunks done together or separately", {
 })
 
 test_that("simulate_from_model output same parallel v. sequential", {
+  skip_on_cran() # http://r-pkgs.had.co.nz/tests.html says risky to
+  # test parallel code on CRAN
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   mref <- generate_model(dir, make_testmodel)
@@ -92,6 +96,8 @@ test_that("simulate_from_model output same parallel v. sequential", {
 })
 
 test_that("run_method output same parallel v. sequential", {
+  skip_on_cran() # http://r-pkgs.had.co.nz/tests.html says risky to
+  # test parallel code on CRAN
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
   mref <- generate_model(dir, make_testmodel)

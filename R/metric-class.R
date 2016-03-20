@@ -17,10 +17,10 @@ check_metric <- function(object) {
 #'
 #' An object of class \code{Metric} consists of a name, label, and a function
 #' \code{metric} that takes arguments \code{model} (of class
-#' \code{\link{Model}}) and \code{out} (of class \code{\link{Output}}), which
+#' \code{\linkS4class{Model}}) and \code{out} (of class \code{\linkS4class{Output}}), which
 #' is the output of a method.
 #'
-#' This class inherits from the \code{\link{Component}} class.
+#' This class inherits from the \code{\linkS4class{Component}} class.
 #'
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
@@ -32,7 +32,7 @@ setClass("Metric", representation(metric = "function"),
 
 #' Create a Metric object
 #'
-#' Creates a new \code{\link{Metric}} object.
+#' Creates a new \code{\linkS4class{Metric}} object.
 #'
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param label a longer, human readable label that can have other characters

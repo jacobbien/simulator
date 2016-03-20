@@ -34,7 +34,7 @@ check_draws <- function(object) {
 #' simulated draws from a model object.  The Model object's \code{simulate}
 #' function populates this list.
 #'
-#' This class inherits from the \code{\link{Component}} class.
+#' This class inherits from the \code{\linkS4class{Component}} class.
 #'
 #' @slot name a short name identifier.  Must be alphanumeric. Should use
 #'       the name of the Model object that generated it.
