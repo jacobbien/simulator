@@ -1,11 +1,13 @@
-#' Pipe operator
-#'
+
+#' This is not magrittr's pipe (actually it is)
 #' @name %>%
-#' @rdname pipe
-#' @keywords internal
 #' @importFrom magrittr %>%
 #' @export
-magrittr::`%>%`
+#' @keywords internal
+NULL
+
+
+
 
 #' @importFrom methods setClass setGeneric setMethod
 NULL
