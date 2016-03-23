@@ -30,19 +30,18 @@ create <- function(dir = "./my_sims") {
 write_models <- function(filename) {
   str <- '## @knitr models
 
-make_my_model <- function(some, optional, parameters) {
-  a_param_not_passed <- 2
-  some_can_be_random <- rnorm(3)
-  new_model("name-of-model", sprintf("Human Readable Label (some = %s)", some),
-            params = list(some = some,
-                          optional = optional,
-                          parameters = parameters,
-                          a_param_not_passed = a_param_not_passed,
-                          some_can_be_random = some_can_be_random),
-            simulate = function(some, some_can_be_random, nsim) {
-              # this function returns a list of length nsim
-              a <- some - mean(some_can_be_random)
-              return(as.list(a * runif(nsim)))
+make_my_model <- function(n, prob) {
+  new_model(name = "contaminated-normal",
+            label = sprintf("Contaminated normal (n = %s, prob = %s)", n, prob),
+            params = list(n = n, mu = 2, prob = prob),
+            simulate = function(n, mu, prob, nsim) {
+              # this function must return a list of length nsim
+              contam <- runif(n * nsim) < prob
+              x <- matrix(rep(NA, n * nsim), n, nsim)
+              x[contam] <- rexp(sum(contam))
+              x[!contam] <- rnorm(sum(!contam))
+              x <- mu + x # true mean is mu
+              return(split(x, col(x))) # make each col its own list element
             })
 }'
   dcat(str, outfile = filename, append = FALSE)
@@ -53,12 +52,12 @@ write_methods <- function(filename) {
 
 my_method <- new_method("my-method", "My Method",
                         method = function(model, draw) {
-                          list(fit = model$optional + draw)
+                          list(fit = median(draw))
                         })
 
 their_method <- new_method("their-method", "Their Method",
                            method = function(model, draw) {
-                             list(fit = model$optional + 2 * draw)
+                             list(fit = mean(draw))
                            })'
   dcat(str, outfile = filename, append = FALSE)
 }
@@ -66,9 +65,14 @@ their_method <- new_method("their-method", "Their Method",
 write_evals <- function(filename) {
   str <- '## @knitr metrics
 
-your_loss <- new_metric("yourloss", "Your loss function",
+his_loss <- new_metric("hisloss", "His loss function",
                         metric = function(model, out) {
-                          return(abs(model$parameters - out$fit))
+                          return((model$mu - out$fit)^2)
+})
+
+her_loss <- new_metric("herloss", "Her loss function",
+                        metric = function(model, out) {
+                          return(abs(model$mu - out$fit))
                         })'
     dcat(str, outfile = filename, append = FALSE)
 }
@@ -86,26 +90,28 @@ source("eval_functions.R")
 
 ## @knitr init
 
-name_of_simulation <- "my-simulation"
+name_of_simulation <- "normal-mean-estimation-with-contamination"
 
 ## @knitr main
 
-sim <- new_simulation(name_of_simulation, "My simulation") %s
+sim <- new_simulation(name = name_of_simulation,
+                      label = "Mean estimation under contaminated normal") %s
   generate_model(make_my_model, seed = 123,
-                 some = as.list(1:3),
-                 optional = 2, parameters = 3,
-                 vary_along = "some") %s
-  simulate_from_model(nsim = 5, index = 1) %s
+                 n = 50,
+                 prob = as.list(seq(0, 1, length = 6)),
+                 vary_along = "prob") %s
+  simulate_from_model(nsim = 10) %s
   run_method(list(my_method, their_method)) %s
-  evaluate(your_loss)
+  evaluate(list(his_loss, her_loss))
 
 ## @knitr plots
 
-plot_eval_by(sim, "yourloss", varying = "some", use_ggplot2 = FALSE)
+plot_eval_by(sim, "hisloss", varying = "prob")
 
 ## @knitr tables
 
-tabulate_eval(evals(sim), "yourloss", output_type = \"markdown\")'
+tabulate_eval(evals(sim), "herloss", output_type = \"markdown\", 
+              format_args = list(digits = 1))'
   dcat(sprintf(str, installed.packages()["simulator", "Version"],
        "%>%", "%>%", "%>%", "%>%"),
        outfile = filename, append = FALSE)
