@@ -45,10 +45,10 @@ NULL
 #'        \code{\linkS4class{ModelRef}}.
 #' @param make_model a function that outputs an object of class
 #'        \code{\linkS4class{Model}}.  Or a list of such functions.
+#' @param ... optional parameters that may be passed to make_model
 #' @param seed an integer seed for the random number generator.
 #' @param vary_along character vector with all elements contained in names(...)
 #'        See description for more details.
-#' @param ... optional parameters that may be passed to make_model
 #' @seealso \code{\link{simulate_from_model}} \code{\link{run_method}}
 #' @examples
 #' \dontrun{
@@ -69,9 +69,14 @@ NULL
 #'  generate_model(object = ".", make_my_model, n = as.list(c(10, 20, 30)),
 #'                 vary_along = "n")
 #'  }
-generate_model <- function(object = ".", make_model, seed = 123,
-                           vary_along = NULL, ...) {
+generate_model <- function(object = ".", make_model, ..., seed = 123,
+                           vary_along = NULL) {
   stopifnot(length(object) == 1)
+  make_model_args <- names(formals(make_model))
+  illegal_arguments <- c("seed", "object", "vary_along")
+  if (any(illegal_arguments %in% make_model_args))
+    stop(sprintf("Function 'make_model' cannot have an argument named '%s'.",
+         illegal_arguments[illegal_arguments %in% make_model_args][1]))
   if (class(object) == "Simulation")
     dir <- object@dir
   else if (class(object) == "character")
@@ -107,22 +112,24 @@ generate_model <- function(object = ".", make_model, seed = 123,
   if (!all(unlist(lapply(passed_params[vary_along], is.list))))
       stop("each parameter named in vary_along must be passed (through ...)",
            " as a list.")
-  # vary_along parameters that are entirely integer-valued will not be digest
-  is_integer_valued <- rep(TRUE, length(vary_along))
+  # vary_along parameters that can be written as a short decimal will not be
+  # digest
+  is_short_decimal <- rep(TRUE, length(vary_along))
   for (j in seq_along(vary_along)) {
     for (k in seq_along(passed_params[[vary_along[j]]])) {
       val <- passed_params[[vary_along[j]]][[k]]
       if (length(val) != 1) {
-        is_integer_valued[j] <- FALSE
+        is_short_decimal[j] <- FALSE
         break
       }
       if (class(val) == "integer") next
       if (class(val) == "numeric")
-        if(round(val) == val) next
-      is_integer_valued[j] <- FALSE
+        if(abs(round(val, getOption("simulator.ndecimal")) - val) < 1e-12)
+          next
+      is_short_decimal[j] <- FALSE
     }
   }
-  if (!all(is_integer_valued)) {
+  if (!all(is_short_decimal)) {
     if (!requireNamespace("digest", quietly = TRUE))
       stop("The package digest must be installed for vary_along to be used",
            " with non-integer-valued parameters.",
@@ -138,7 +145,7 @@ generate_model <- function(object = ".", make_model, seed = 123,
     for (j in seq(ncol(ii))) { # jth vary_along parameter
       var <- vary_along[j]
       params_to_pass[[var]] <- passed_params[[var]][[ii[i, j]]]
-      if (is_integer_valued[j]) {
+      if (is_short_decimal[j]) {
         ext[j] <- paste0(var, "_", params_to_pass[[var]])
       } else {
         # apply hash to this object to get a unique file name
