@@ -178,10 +178,13 @@ run_method_single <- function(method, model, draws_list) {
   # not change things (note: only relevant for methods that require RNG)
   stopifnot(length(draws_list$draws@index) == 1)
   out <- list()
+  settings_args <- intersect(names(formals(method@method)),
+                             names(method@settings))
   for (rid in names(draws_list$draws@draws)) {
     out[[rid]] <- list()
-    time <- system.time({temp <- method@method(model,
-                                               draws_list$draws@draws[[rid]])})
+    arguments <- c(list(model = model, draw = draws_list$draws@draws[[rid]]),
+                   method@settings[settings_args])
+    time <- system.time({temp <- do.call(method@method, arguments)})
     if (class(temp) != "list") temp <- list(out = temp)
     out[[rid]] <- temp
     out[[rid]]$time <- time

@@ -25,9 +25,13 @@ check_method <- function(object) {
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @slot method a function with arguments "model" and "draw"
+#' @slot settings (optional) a list of "settings" for the method (e.g., tuning
+#'       parameters or related information that might distinguish two otherwise
+#'       identical methods).
+#' @slot method a function that has arguments "model", "draw"
+#'       and (optionally) names matching elements within \code{names(settings)}
 #' @export
-setClass("Method", representation(method = "function"),
+setClass("Method", representation(settings = "list", method = "function"),
          contains = "Component", validity = check_method)
 
 #' Create a Method object
@@ -37,8 +41,12 @@ setClass("Method", representation(method = "function"),
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @param method a function with arguments "model" and "draw"
+#' @param method a function that has arguments "model", "draw"
+#'       and (optionally) names matching elements within \code{names(settings)}
+#' @param settings (optional) a list of "settings" for the method (e.g., tuning
+#'       parameters or related information that might distinguish two otherwise
+#'       identical methods).
 #' @export
-new_method <- function(name, label, method) {
-  new("Method", name = name, label = label, method = method)
+new_method <- function(name, label, method, settings = list()) {
+  new("Method", name = name, label = label, settings = settings, method = method)
 }
