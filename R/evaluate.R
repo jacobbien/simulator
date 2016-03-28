@@ -43,7 +43,12 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
     for (m in seq(num_methods)) {
       output <- load_outputs(dir, model_name, index[i], method_names[m],
                              out_loc = out_loc)
-      evals <- evaluate_single(metrics, model, output)
+      if (any(unlist(lapply(metrics,
+                     function(m) "draw" %in% names(formals(m@metric))))))
+        draws <- load_draws(dir, model_name, index[i])
+      else
+        draws <- NULL
+      evals <- evaluate_single(metrics, model, output, draws)
       erefs[[ii]] <- save_evals_to_file(out_dir, dir, out_loc, evals)
       ii <- ii + 1
     }
@@ -135,24 +140,32 @@ evaluate <- function(object, metrics) {
 #' @param metrics a list of \code{\linkS4class{Metric}} objects
 #' @param model a \code{\linkS4class{Model}} object
 #' @param output a \code{\linkS4class{Output}} object
-evaluate_single <- function(metrics, model, output) {
+#' @param draws (optional) a \code{\linkS4class{Draws}} object or NULL
+evaluate_single <- function(metrics, model, output, draws = NULL) {
   if (class(metrics) == "Metric") metrics <- list(metrics)
   else if (is.list(metrics)) {
     stopifnot(all(unlist(lapply(metrics, class)) == "Metric"))
   }
   stopifnot(class(model) == "Model")
   stopifnot(class(output) == "Output")
-  evals <- list()
-  evals[[output@method_name]] <- list()
+  ev <- list()
   metric_names <- unlist(lapply(metrics, function(m) m@name))
   metric_labels <- unlist(lapply(metrics, function(m) m@label))
   for (rid in names(output@out)) {
-    evals[[1]][[rid]] <- list()
+    ev[[rid]] <- list()
     for (m in seq_along(metrics)) {
-      evals[[1]][[rid]][[metric_names[m]]] <- metrics[[m]]@metric(model,
-                                                                  output@out[[rid]])
+      mname <- metric_names[m]
+      if ("draw" %in% names(formals(metrics[[m]]@metric)))
+        ev[[rid]][[mname]] <- metrics[[m]]@metric(model = model,
+                                                  out = output@out[[rid]],
+                                                  draw = draws@draws[[rid]])
+      else
+        ev[[rid]][[mname]] <- metrics[[m]]@metric(model = model,
+                                                  out = output@out[[rid]])
     }
   }
+  evals <- list()
+  evals[[output@method_name]] <- ev
   new("Evals", model_name = model@name,
                model_label = model@label,
                index = output@index,

@@ -44,6 +44,12 @@ linf_error <- new_metric(name = "li",
                            max(abs(out$est - model$x))
                          })
 
+normy <- new_metric(name = "normy",
+                         label = "Norm of y",
+                         metric = function(model, out, draw) {
+                           sqrt(sum(draw^2))
+                         })
+
 test_that("evaluate handles arguments as desired", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
@@ -60,5 +66,6 @@ test_that("evaluate handles arguments as desired", {
   evaluate(oref, l1_error)
   evals12b <- load_evals(dir, "tm", 1:2, "his", metric_names = "l1")
   expect_identical(subset_evals(evals12a, method = "his"), evals12b)
+  evaluate(oref, list(l1_error, linf_error, normy))
   unlink(dir, recursive = TRUE)
 })

@@ -6,8 +6,17 @@ check_metric <- function(object) {
   if (length(errors) == 1)
     if(errors == TRUE) errors <- character()
     args <- names(formals(object@metric))
-    str <- "metric must be a function with arguments \"model\" and \"out\"."
-    if (length(args) != 2 || any(args != c("model", "out")))
+    str <- paste("metric must be a function with arguments \"model\" and",
+                 "\"out\" (and optionally \"draw\")")
+    if (length(args) == 2) {
+      if (!all(sort(args) == c("model", "out")))
+        errors <- c(errors, str)
+    }
+    else if (length(args) == 3) {
+      if (!all(sort(args) == c("draw", "model", "out")))
+        errors <- c(errors, str)
+    }
+    else
       errors <- c(errors, str)
     if (length(errors) == 0) TRUE else errors
 }
@@ -25,7 +34,8 @@ check_metric <- function(object) {
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @slot metric a function with arguments "model" and "out"
+#' @param metric a function with arguments "model" and "out" (and optionally
+#'        "draw")
 #' @export
 setClass("Metric", representation(metric = "function"),
          contains = "Component", validity = check_metric)
@@ -37,7 +47,8 @@ setClass("Metric", representation(metric = "function"),
 #' @param name a short name identifier.  Must be alphanumeric.
 #' @param label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @param metric a function with arguments "model" and "out"
+#' @param metric a function with arguments "model" and "out" (and optionally
+#'        "draw")
 #' @export
 new_metric <- function(name, label, metric) {
   new("Metric", name = name, label = label, metric = metric)
