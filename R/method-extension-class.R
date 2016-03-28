@@ -65,3 +65,19 @@ setMethod("+", signature(e1 = "Method", e2 = "MethodExtension"),
                                 extended_method = e2@method_extension)
           })
 
+#' Create a list of ExtendedMethod from a list of Methods and a MethodExtension
+#'
+#' @param e1 a list of objects of class \code{\linkS4class{Method}}
+#' @param e2 an object of class \code{\linkS4class{MethodExtension}}
+#' @export
+setMethod("+", signature(e1 = "list", e2 = "MethodExtension"),
+          function(e1, e2) {
+            stopifnot(lapply(e1, class) == "Method")
+            lapply(e1, function(m) {
+              new_extended_method(paste0(m@name, "_", e2@name),
+                                  paste0(m@label, " ", e2@label),
+                                  base_method = m,
+                                  extended_method = e2@method_extension)
+            })
+          })
+
