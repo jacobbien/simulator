@@ -3,8 +3,8 @@
 #'
 #' If evals is a \code{listofEvals}, then each model will be its own plot.
 #'
-#' @param evals an object of class \code{\linkS4class{Evals}} or of class
-#'        \code{listofEvals}
+#' @param object an object of class \code{\linkS4class{Simulation}},
+#'        \code{\linkS4class{Evals}}, or \code{listofEvals}
 #' @param metric_name the name of a metric to plot
 #' @param use_ggplot2 whether to use \code{ggplot2} (requires installation
 #'        of \code{ggplot2})
@@ -21,9 +21,13 @@
 #' @param ... additional arguments to pass to \code{boxplot} (only when
 #'        \code{use_ggplot2 = FALSE}).
 #' @export
-plot_eval <- function(evals, metric_name, use_ggplot2 = TRUE, main,
+plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
                       facet_mains, ylab, ylim, include_zero = FALSE, angle = 0,
                       ...) {
+  if (length(class(object)) == 1) {
+    if (class(object) == "Simulation")
+      evals <- evals(object)
+  }
   if ("Evals" %in% class(evals)) {
     evals <- list(evals)
     class(evals) <- c("listofEvals", "list")
