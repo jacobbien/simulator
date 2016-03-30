@@ -76,12 +76,11 @@ setMethod("add", signature(sim = "Simulation", ref = "DrawsRef"),
 #' @param sim_dir sim@@dir
 #' @keywords internal
 add_dref_to_list <- function(dref, dref_list, sim_dir) {
-  str <- "DrawsRef with model name %s and index %s is already in simulation."
-  if (dref@index %in% lapply(dref_list, function(d) d@index))
-    cat(sprintf(str, dref@model_name, dref@index), fill = TRUE)
-  dref@dir <- get_relative_path(sim_dir, dref@dir)
   # change dref@dir so that file.path(sim@dir, dref@dir) is location
   # of file
+  dref@dir <- get_relative_path(sim_dir, dref@dir)
+  if (any(unlist(lapply(dref_list, function(d) identical(dref, d)))))
+    return(dref_list) # don't add because dref is already in dref_list
   c(dref_list, dref)
 }
 
@@ -123,16 +122,11 @@ setMethod("add", signature(sim = "Simulation", ref = "OutputRef"),
 #' @param sim_dir sim@@dir
 #' @keywords internal
 add_oref_to_list <- function(oref, oref_list, sim_dir) {
-  str <- "OutputRef with model name %s, index %s, and method %s is already in simulation."
-  same_index <- lapply(oref_list, function(o) o@index) == oref@index
-  same_method <- lapply(oref_list,
-                        function(o) o@method_name) == oref@method_name
-  if (any(same_index & same_method))
-    cat(sprintf(str, oref@model_name, oref@index, oref@method_name),
-        fill = TRUE)
-  oref@dir <- get_relative_path(sim_dir, oref@dir)
   # change oref@dir so that file.path(sim@dir, oref@dir) is location
   # of file
+  oref@dir <- get_relative_path(sim_dir, oref@dir)
+  if (any(unlist(lapply(oref_list, function(o) identical(oref, o)))))
+    return(oref_list) # don't add because oref is already in oref_list
   c(oref_list, oref)
 }
 
@@ -179,16 +173,11 @@ setMethod("add", signature(sim = "Simulation", ref = "EvalsRef"),
 #' @param sim_dir sim@@dir
 #' @keywords internal
 add_eref_to_list <- function(eref, eref_list, sim_dir) {
-  str <- "EvalsRef with model name %s, index %s, and method %s is already in simulation."
-  same_index <- lapply(eref_list, function(e) e@index) == eref@index
-  same_method <- lapply(eref_list,
-                        function(e) e@method_name) == eref@method_name
-  if (any(same_index & same_method))
-    cat(sprintf(str, eref@model_name, eref@index, eref@method_name),
-        fill = TRUE)
-  eref@dir <- get_relative_path(sim_dir, eref@dir)
   # change eref@dir so that file.path(sim@dir, eref@dir) is location
   # of file
+  eref@dir <- get_relative_path(sim_dir, eref@dir)
+  if (any(unlist(lapply(eref_list, function(e) identical(eref, e)))))
+    return(eref_list) # don't add because eref is already in eref_list
   c(eref_list, eref)
 }
 
