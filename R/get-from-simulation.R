@@ -64,17 +64,21 @@ draws <- function(sim, subset = NULL, index, reference = FALSE) {
         next # subset excluded this model
     }
     # this model's draws should be included (if they match the index)
-    if (missing(index))
-      obj[[i]] <- dref[[i]]
-    else {
-      index_of_dref <- lapply(dref[[i]], function(d) d@index)
-      if (any(index_of_dref %in% index)) {
-        obj[[i]] <- dref[[i]][index_of_dref %in% index]
-      } else next # all draws indices for this model do not appear in index
+    obj[[i]] <- dref[[i]]
+    keep <- rep(FALSE, length(dref[[i]]))
+    for (j in seq_along(dref[[i]])) {
+      if (!missing(index)) {
+        if (any(dref[[i]][[j]]@index %in% index)) {
+          # only include the desired indices in the DrawsRef
+          obj[[i]][[j]]@index <- intersect(obj[[i]][[j]]@index, index)
+          keep[j] <- TRUE
+        }
+      }
+      # each object's dir should no longer be relative to sim's dir
+      obj[[i]][[j]]@dir <- normalizePath(file.path(sim@dir,
+                                                   obj[[i]][[j]]@dir))
     }
-    # each object's dir should no longer be relative to sim's dir
-    obj[[i]] <- lapply(obj[[i]], function(d) {
-      d@dir <- normalizePath(file.path(sim@dir, d@dir)); return(d)})
+    if (!missing(index)) obj[[i]] <- obj[[i]][keep]
   }
   if (length(obj) == 0) return(list())
   obj <- obj[!unlist(lapply(obj, is.null))]

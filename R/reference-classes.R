@@ -54,8 +54,8 @@ check_evalsref <- function(object) {
 #'        referenced \code{\linkS4class{Model}} object
 #' @slot name a short name identifier.
 #' @slot label a longer, human readable label that can have other characters
-#'       such as spaces, hyphens, etc.
-#' @slot simulator.files Default is \code{getOption("simulator.files")}.
+#' @slot simulator.files simulator functions will use
+#'       \code{getOption("simulator.files")} if simulator.files not provided.
 #'
 #' @export
 setClass("ModelRef", representation(dir = "character", name = "character",
@@ -83,7 +83,8 @@ setMethod("show", "ModelRef", function(object) {
 #' @slot model_name name of the referenced \code{\linkS4class{Model}} object
 #' @slot index the index of the referenced \code{\linkS4class{Draws}} object.  Can
 #'        alternately be a vector of such indices.
-#' @slot simulator.files Default is \code{getOption("simulator.files")}
+#' @slot simulator.files simulator functions will use
+#'       \code{getOption("simulator.files")} if simulator.files not provided.
 #'
 #' @export
 setClass("DrawsRef", representation(dir = "character", model_name = "character",
@@ -117,7 +118,8 @@ setMethod("show", "DrawsRef", function(object) {
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
 #'        the same Model and Draws objects.
-#' @slot simulator.files Default is \code{getOption("simulator.files")}
+#' @slot simulator.files simulator functions will use
+#'       \code{getOption("simulator.files")} if simulator.files not provided.
 #'
 #' @export
 setClass("OutputRef", representation(dir = "character", model_name = "character",
@@ -155,7 +157,8 @@ setMethod("show", "OutputRef", function(object) {
 #'        (relative to model's path) that method outputs are stored.This can be
 #'        useful for staying organized when multiple simulations are based on
 #'        the same Model and Draws objects.
-#' @slot simulator.files Default is \code{getOption("simulator.files")}
+#' @slot simulator.files simulator functions will use
+#'       \code{getOption("simulator.files")} if simulator.files not provided.
 #'
 #' @export
 setClass("EvalsRef", representation(dir = "character", model_name = "character",

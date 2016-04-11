@@ -36,6 +36,7 @@ Collate:
     'get-from-simulation.R'
     'import_from.R'
     'load.R'
+    'manage.R'
     'method-extension-class.R'
     'methods.R'
     'metric-class.R'

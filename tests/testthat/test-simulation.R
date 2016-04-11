@@ -116,12 +116,6 @@ test_that("show and add to a simulation object", {
   unlink(dir, recursive = TRUE)
 })
 
-test_that("get relative path", {
-  expect_identical(get_relative_path("../..", "."), "tests/testthat")
-  expect_identical(get_relative_path("../..", ".."), "tests")
-  expect_identical(get_relative_path("..", "../.."), "..")
-})
-
 test_that("get model from sim", {
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)

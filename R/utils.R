@@ -46,3 +46,15 @@ get_relative_path <- function(base_path, path) {
     str <- c(str, p[(ncommon + 1):length(p)])
   return(paste0(str, collapse = "/"))
 }
+
+#' Write memory in human readable way
+#'
+#' @param memory_in_bytes the amount of memory in Bytes.
+#' @export
+memory_as_string <- function(memory_in_bytes) {
+  units <- c("Bytes", "KB", "MB", "GB", "TB")
+  ii <- floor(log(memory_in_bytes, 1000))
+  if (ii >= length(units)) stop("Really? That's an enormous simulation!")
+  if (ii < 0) stop("Negative memory?  How strange.")
+  paste(round(memory_in_bytes / 1000^ii, 2), units[ii+1])
+}

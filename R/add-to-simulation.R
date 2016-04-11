@@ -88,9 +88,13 @@ add_dref_to_list <- function(dref, dref_list, sim_dir) {
 setMethod("add", signature(sim = "Simulation", ref = "OutputRef"),
           function(sim, ref, update_saved = TRUE) {
             drefs <- unlist(sim@draws_refs)
-            dnames <- lapply(drefs, function(dref) dref@model_name)
-            dindex <- lapply(drefs, function(dref) dref@index)
-            if (!any(dnames == ref@model_name & dindex == ref@index))
+            dnames_match <- lapply(drefs,
+                                   function(dref)
+                                     dref@model_name == ref@model_name)
+            dindex_match <- lapply(drefs,
+                                   function(dref)
+                                     all(ref@index %in% dref@index))
+            if (!any(unlist(dnames_match) & unlist(dindex_match)))
               stop("Cannot add output until draws with name ", ref@model_name,
                    " and index ", ref@index,
                    " has been added to simulation.")
@@ -139,12 +143,13 @@ setMethod("add", signature(sim = "Simulation", ref = "EvalsRef"),
             omethod <- lapply(orefs, function(oref) oref@method_name)
             match <- onames == ref@model_name & oindex == ref@index
             match <- match & omethod == ref@method_name
-            if (!any(match))
+            if (!any(match)) {
               stop("Cannot add eval until output with model_name ",
                    ref@model_name,
                    " and index ", ref@index,
                    " and method_name ", ref@method_name,
                    " has been added to simulation.")
+            }
             # search for list containing EvalsRef objects from same model
             for (i in seq_along(sim@evals_refs)) {
               if (ref@model_name == sim@evals_refs[[i]][[1]]@model_name) {
