@@ -132,7 +132,7 @@ setMethod("load", signature(file = "list"), function(file) {
               "set of indices")
     }
     return(load_evals(dir = dir, model_name = model_name, index = index,
-                      method_name = mnames,
+                      method_names = mnames,
                       metric_names = NULL,
                       out_loc = file[[i]]@out_loc,
                       simulator.files = file[[i]]@simulator.files))

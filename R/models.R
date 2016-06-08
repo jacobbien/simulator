@@ -98,6 +98,15 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
   stopifnot(file.info(dir)$isdir)
   passed_params <- as.list(match.call(expand.dots = FALSE)$`...`)
   passed_params <- lapply(passed_params, eval)
+  if (length(passed_params) > 1) {
+    # add any passed parameters that aren't part of "vary_along" to it as singletons
+    # so that the model name stem will be added to
+    passed_but_not_varied <- setdiff(names(passed_params), vary_along)
+    for (var_name in passed_but_not_varied) {
+      passed_params[[var_name]] <- list(passed_params[[var_name]])
+    }
+    vary_along <- sort(c(vary_along, passed_but_not_varied))
+  }
   if (is.null(vary_along)) {
     mref <- generate_model_single(make_model, dir, seed, passed_params)
     if (class(object) == "Simulation")
@@ -164,6 +173,7 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
     warning("Labels are not unique across models.  This can lead to confusion.")
   if (class(object) == "Simulation")
     return(invisible(add(object, mref)))
+  if (length(mref) == 1) mref <- mref[[1]]
   invisible(mref)
 }
 

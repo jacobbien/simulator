@@ -34,7 +34,7 @@ check_metric <- function(object) {
 #' @slot name a short name identifier.  Must be alphanumeric.
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
-#' @param metric a function with arguments "model" and "out" (and optionally
+#' @slot metric a function with arguments "model" and "out" (and optionally
 #'        "draw")
 #' @export
 setClass("Metric", representation(metric = "function"),
