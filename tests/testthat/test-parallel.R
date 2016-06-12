@@ -53,18 +53,16 @@ test_that("get same draws if chunks done together or separately", {
   # test parallel code on CRAN
   dir <- file.path(tempdir(), "example")
   if (!dir.exists(dir)) dir.create(dir)
-  tryCatch({
-    mref <- generate_model(dir, make_testmodel)
-    # done together:
-    dref <- simulate_from_model(mref, nsim = 2, index = 1:4)
-    draws <- lapply(dref, load)
-    file.remove(file.path(dir, options("simulator.files"),
-                          sprintf("tm/r%s.Rdata", 1:4)))
-    # done separately, and out of order:
-    dref2a <- simulate_from_model(mref, nsim = 2, index = 3:4)
-    dref2b <- simulate_from_model(mref, nsim = 2, index = 1:2)
-    draws2 <- c(lapply(dref2b, load), lapply(dref2a, load))
-  }, finally={sink()})
+  mref <- generate_model(dir, make_testmodel)
+  # done together:
+  dref <- simulate_from_model(mref, nsim = 2, index = 1:4)
+  draws <- lapply(dref, load)
+  file.remove(file.path(dir, options("simulator.files"),
+                        sprintf("tm/r%s.Rdata", 1:4)))
+  # done separately, and out of order:
+  dref2a <- simulate_from_model(mref, nsim = 2, index = 3:4)
+  dref2b <- simulate_from_model(mref, nsim = 2, index = 1:2)
+  draws2 <- c(lapply(dref2b, load), lapply(dref2a, load))
   expect_identical(draws, draws2)
   unlink(dir, recursive = TRUE)
 })

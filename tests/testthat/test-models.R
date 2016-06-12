@@ -6,7 +6,7 @@ make_regmodel <- function(n, p, sigma) {
   x <- matrix(rnorm(n * p), n, p)
   beta <- runif(p)
   return(new_model(name = "reg",
-             label = sprintf("Regression model"),
+             label = "Regression model",
              params = list(x = x, beta = beta, signal = x %*% beta,
                            n = 1, sigma = sigma),
              simulate = function(signal, n, sigma, nsim) {
@@ -21,7 +21,7 @@ make_regmodel2 <- function(n, p, sigma) {
   x <- matrix(rnorm(n * p), n, p)
   beta <- runif(p)
   return(new_model(name = "reg2",
-             label = sprintf("Regression model"),
+             label = "Regression model",
              params = list(x = x, beta = beta, signal = x %*% beta,
                            n = n, sigma = sigma),
              simulate = function(signal, n, sigma, nsim) {
@@ -37,12 +37,10 @@ test_that("generate_model works with ... when vary_params = NULL", {
   if (!dir.exists(dir)) dir.create(dir)
   expect_error(generate_model(dir, make_regmodel), "missing")
   expect_error(generate_model(dir, make_regmodel, n = 5, p = 2), "missing")
-  expect_error(not(generate_model(dir, make_regmodel, n = 5, p = 2,
-                                  sigma = 2)))
   expect_warning(generate_model(dir, make_regmodel, n = 5, p = 2, sigma = 2),
                  "sets n to a value different from")
-  expect_error(not(generate_model(dir, make_regmodel, n = 1, p = 2,
-                                  sigma = 2)))
+  expect_error(generate_model(dir, make_regmodel, n = 1, p = 2,
+                                  sigma = 2), NA)
   unlink(dir, recursive = TRUE)
 })
 
@@ -54,15 +52,16 @@ test_that("generate_model works when vary_params in non-NULL", {
   expect_error(generate_model(dir, make_regmodel, vary_along = "n", n = 2,
                               p = 4), "list")
   expect_error(generate_model(dir, make_regmodel, vary_along = "n",
-                              n = as.list(c(2,4)), p = 4), "sigma")
-  expect_error(not(generate_model(dir, make_regmodel2, vary_along = "n",
-                                  n = as.list(c(2,4)), p = 4, sigma = 1)))
+                              n = as.list(c(2, 4)), p = 4), "sigma")
+  expect_warning(generate_model(dir, make_regmodel2, vary_along = "n",
+                                  n = as.list(c(2, 4)), p = 4, sigma = 1),
+                 "Labels are not unique")
   expect_error(generate_model(dir, make_regmodel2, vary_along = "n",
-                              n = as.list(c(2,4)), p = as.list(c(2, 10)),
+                              n = as.list(c(2, 4)), p = as.list(c(2, 10)),
                               sigma = 1), "non-numeric argument")
-  generate_model(dir, make_regmodel2, vary_along = c("n", "p"),
-                              n = as.list(c(2,4)), p = as.list(c(2, 3, 10)),
-                              sigma = 1)
+  expect_warning(generate_model(dir, make_regmodel2, vary_along = c("n", "p"),
+                              n = as.list(c(2, 4)), p = as.list(c(2, 3, 10)),
+                              sigma = 1), "Labels are not unique")
   model1 <- load_model(dir = dir, "reg2/n_2/p_10/sigma_1")
   generate_model(dir, make_regmodel2, n = 2, p = 10, sigma = 1)
   model2 <- load_model(dir = dir, "reg2/n_2/p_10/sigma_1")

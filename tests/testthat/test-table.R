@@ -58,7 +58,7 @@ test_that("can make a table", {
   evlist <- list(evals1, evals2)
   expect_error(tabulate_eval(evlist, "sqerr", method_names = "yours"),
                "not found in any evals")
-  expect_error(not(tabulate_eval(evlist, "sqerr", method_names = "his",
-                format_args = list(digits = 2))))
+  expect_error(tabulate_eval(evlist, "sqerr", method_names = "his",
+                format_args = list(digits = 2)), NA)
   unlink(dir, recursive = TRUE)
 })

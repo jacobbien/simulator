@@ -33,12 +33,12 @@ check_parallel_list <- function(parallel) {
 #' @param function_params a list where \code{function_params[[i]]} is
 #'        a named list of parameters to be passed to \code{function_to_do} for
 #'        job \code{i}
-#' @param save_to_file
+#' @param save_to_file function that saves stuff to file
 #' @param save_params a list where \code{save_params[[i]]}
 #'        is a named list of parameters to be passed to \code{save_to_file} for
 #'        job \code{i}. Each \code{save_params[[i]]} must include \code{out_dir},
 #'        which is location where file is to be saved.
-#' @param socket_names (quoting from \code{\link[parallel]{makePSOCKcluster}}
+#' @param socket_names quoting from \code{\link[parallel]{makePSOCKcluster}}:
 #'        "either a character vector of host names on which to run the worker
 #'        copies of R, or a positive integer (in which case that number of
 #'        copies is run on localhost)."

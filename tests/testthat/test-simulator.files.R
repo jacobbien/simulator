@@ -41,7 +41,7 @@ test_that("simulator.files is managed properly", {
   options(simulator.files = sf2)
   model2 <- load(mref)
   expect_equal(model, model2) # not identical b/c function enivronments differ
-  expect_output(mref, sf) # show(mref) should show simulator.files
+  expect_output(show(mref), sf) # show(mref) should show simulator.files
   expect_error(simulate_from_model(mref, nsim = 1), "match getOption")
   options(simulator.files = sf)
   dref <- simulate_from_model(mref, nsim = 1)
@@ -49,12 +49,12 @@ test_that("simulator.files is managed properly", {
   options(simulator.files = sf2)
   draws2 <- load(dref)
   expect_identical(draws, draws2)
-  expect_output(dref, sf) # show(dref) should show simulator.files
+  expect_output(show(dref), sf) # show(dref) should show simulator.files
   expect_error(run_method(dref, my_method), "match getOption")
   options(simulator.files = sf)
   oref <- run_method(dref, my_method)
   options(simulator.files = sf2)
-  expect_output(oref, sf) # show(oref) should show simulator.files
+  expect_output(show(oref), sf) # show(oref) should show simulator.files
   expect_error(evaluate(oref, squared_error), "match getOption")
   options(simulator.files = sf)
   eref <- evaluate(oref, squared_error)

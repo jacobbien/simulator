@@ -19,10 +19,10 @@ License: GPL-3
 LazyData: true
 VignetteBuilder: knitr
 Collate:
+    'evals-class.R'
     'output-class.R'
     'component-class.R'
     'model-class.R'
-    'evals-class.R'
     'draws-class.R'
     'reference-classes.R'
     'simulation-class.R'
@@ -49,3 +49,4 @@ Collate:
     'plot_evals.R'
     'tables.R'
     'zzz.R'
+RoxygenNote: 5.0.1

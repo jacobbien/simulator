@@ -93,13 +93,9 @@ tabulate_eval <- function(evals_list, metric_name, method_names = NULL,
   tab[is.na(tabm)] <- na_string
   if (is.null(caption)) {
     if (is.na(metric_label)) metric_label <- metric_name
-    sdn <- sd(tabn, na.rm = TRUE)
-    if (!is.na(sdn)) {
-      # some cells of table are not NA
-      if (sdn == 0)
-        ndraws <- min(tabn, na.rm = TRUE)
-      else ndraws <- "differing numbers of"
-    }
+    ndraws <- unique(as.vector(tabn))
+    ndraws <- ndraws[!is.na(ndraws)]
+    if (length(ndraws) > 1) ndraws <- "differing numbers of"
     caption <- sprintf("A comparison of %s (averaged over %s replicates).",
                        metric_label, ndraws)
   }
@@ -108,6 +104,6 @@ tabulate_eval <- function(evals_list, metric_name, method_names = NULL,
   else if (output_type %in% c("markdown", "html"))
     str <- paste("<!--", str, "-->")
   else str <- ""
-  cat(str, fill = TRUE)
+  catsim(str, sep = "\n")
   knitr::kable(tab, format = output_type, caption = caption, escape = FALSE)
 }
