@@ -51,7 +51,7 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
                           function(e) metric_name_x %in% e@metric_name)))
   stopifnot(unlist(lapply(evals,
                           function(e) metric_name_y %in% e@metric_name)))
-  evals_df <- as.data.frame(evals)
+  ev_df <- as.data.frame(evals)
   method_names <- lapply(evals, function(e) e@method_name)
   if (length(unique(method_names)) != 1)
     stop("All models must have same methods.")
@@ -69,15 +69,15 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
     xlab <- evals[[1]]@metric_label[evals[[1]]@metric_name == metric_name_x]
   if (missing(ylab))
     ylab <- evals[[1]]@metric_label[evals[[1]]@metric_name == metric_name_y]
-  evals_df <- as.data.frame(evals)
-  if (missing(xlim)) xlim <- range(evals_df[[metric_name_x]])
+  ev_df <- as.data.frame(evals)
+  if (missing(xlim)) xlim <- range(ev_df[[metric_name_x]])
   if (missing(ylim)) {
-    ylim <- range(evals_df[[metric_name_y]])
+    ylim <- range(ev_df[[metric_name_y]])
     if (include_zero) ylim <- range(0, ylim)
   }
   nrow <- floor(sqrt(length(evals)))
   ncol <- ceiling(length(evals) / nrow)
-  if (use_ggplot2) return(ggplot_evals(evals_df, metric_name_x, metric_name_y,
+  if (use_ggplot2) return(ggplot_evals(ev_df, metric_name_x, metric_name_y,
                                        method_labels = evals[[1]]@method_label,
                                        main = main, facet_mains = facet_mains,
                                        xlab = xlab, ylab = ylab,
@@ -93,13 +93,13 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
   par(mfrow = c(nrow, ncol))
   palette(options("simulator.color_palette")[[1]])
   for (i in seq_along(evals)) {
-    evals_df <- as.data.frame(evals[[i]])
+    ev_df <- as.data.frame(evals[[i]])
     plot(0, 0, xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          main = facet_mains[i], type = "n", ...)
-    for (r in unique(evals_df[["Draw"]])) {
+    for (r in unique(ev_df[["Draw"]])) {
       for (m in seq_along(method_names[[1]])) {
-        ii <- evals_df[["Method"]] == method_names[[1]][m] & evals_df[["Draw"]] == r
-        points(evals_df[ii, metric_name_x], evals_df[ii, metric_name_y],
+        ii <- ev_df[["Method"]] == method_names[[1]][m] & ev_df[["Draw"]] == r
+        points(ev_df[ii, metric_name_x], ev_df[ii, metric_name_y],
                col = method_col[m], lty = method_lty[m],
                lwd = method_lwd[m], pch = method_pch[m], type = "o")
       }
@@ -116,15 +116,15 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
 }
 
 
-ggplot_evals <- function(evals_df, metric_name_x, metric_name_y, method_labels,
+ggplot_evals <- function(ev_df, metric_name_x, metric_name_y, method_labels,
                          main, facet_mains, xlab, ylab, xlim, ylim,
                          nrow, ncol) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("To use this function, ggplot2 must be installed.", call. = FALSE)
   }
   if (missing(main)) main <- NULL
-  if (length(unique(evals_df$Model)) == 1) {
-    return(ggplot2::ggplot(evals_df, ggplot2::aes_string(metric_name_x,
+  if (length(unique(ev_df$Model)) == 1) {
+    return(ggplot2::ggplot(ev_df, ggplot2::aes_string(metric_name_x,
                                                          metric_name_y)) +
              ggplot2::geom_line(ggplot2::aes_string(color = "Method",
                                          group = "interaction(Method,Draw)")) +
@@ -134,8 +134,8 @@ ggplot_evals <- function(evals_df, metric_name_x, metric_name_y, method_labels,
              ggplot2::xlim(xlim))
   }
   # display multiple facets...
-  levels(evals_df[["Model"]]) <- facet_mains
-  ggplot2::ggplot(evals_df, ggplot2::aes_string(metric_name_x, metric_name_y)) +
+  levels(ev_df[["Model"]]) <- facet_mains
+  ggplot2::ggplot(ev_df, ggplot2::aes_string(metric_name_x, metric_name_y)) +
     ggplot2::geom_line(ggplot2::aes_string(color = "Method",
                                         group = "interaction(Method,Draw)")) +
     ggplot2::labs(x = xlab, y = ylab, title = main) +
