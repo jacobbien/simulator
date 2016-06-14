@@ -110,7 +110,7 @@ plot_eval_by(sim, "hisloss", varying = "prob")
 
 ## @knitr tables
 
-tabulate_eval(evals(sim), "herloss", output_type = \"markdown\", 
+tabulate_eval(sim, "herloss", output_type = \"markdown\",
               format_args = list(digits = 1))'
   dcat(sprintf(str, installed.packages()["simulator", "Version"],
        "%>%", "%>%", "%>%", "%>%"),

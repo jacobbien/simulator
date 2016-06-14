@@ -7,7 +7,8 @@
 #' Uses \code{knitr}'s function \code{kable} to put table in various formats,
 #' including latex, html, markdown, etc.
 #'
-#' @param evals_list a list of one or more objects of class \code{\linkS4class{Evals}}.
+#' @param object an object of class \code{\linkS4class{Simulation}},
+#'        \code{\linkS4class{Evals}}, or \code{listofEvals}.
 #'        Each evals object should just differ by model_name.
 #' @param metric_name the name of a metric to tabulate.  Must be scalar valued.
 #' @param method_names character vector indicating methods to include in table.
@@ -19,7 +20,7 @@
 #' @param format_args arguments to pass to the function \code{\link{format}}
 #' @param na_string what to write in table in place of NA
 #' @export
-tabulate_eval <- function(evals_list, metric_name, method_names = NULL,
+tabulate_eval <- function(object, metric_name, method_names = NULL,
                           caption = NULL,
                           se_format = c("Paren", "PlusMinus", "None"),
                           output_type = "latex",
@@ -30,7 +31,21 @@ tabulate_eval <- function(evals_list, metric_name, method_names = NULL,
   if (!requireNamespace("knitr", quietly = TRUE)) {
     stop("To use this function, knitr must be installed.", call. = FALSE)
   }
-  if ("Evals" %in% class(evals_list)) evals_list <- list(evals_list)
+  if (length(class(object)) == 1) {
+    if (class(object) == "Simulation")
+      evals_list <- evals(object)
+    if (class(object) == "list") {
+      evals_list <- object
+      class(evals_list) <- c("listofEvals", "list")
+    }
+  }
+  if ("Evals" %in% class(object)) {
+    evals_list <- list(object)
+    class(evals_list) <- c("listofEvals", "list")
+  }
+  else if (!("listofEvals" %in% class(evals_list)))
+    stop("Invalid class for evals object.")
+
   stopifnot("list" %in% class(evals_list), lapply(evals_list, class) == "Evals")
   model_labels <- unlist(lapply(evals_list, function(evals) evals@model_label))
   method_labels <- unique(unlist(lapply(evals_list,
