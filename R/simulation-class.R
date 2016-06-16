@@ -25,7 +25,8 @@ check_simulation <- function(object) {
 #' When a reference ref is added to a simulation sim, ref@@dir is changed so
 #' that the referenced file is located at file.path(sim@@dir, ref@@dir).
 #'
-#' @slot name a short name identifier.  Must be alphanumeric.
+#' @slot name a short name identifier.  Must be an alphanumeric (but can also
+#'       have - or _ within
 #' @slot label a longer, human readable label that can have other characters
 #'       such as spaces, hyphens, etc.
 #' @slot dir name of the directory where directory named "files" exists.
@@ -176,3 +177,38 @@ load_simulation <- function(name, dir = ".") {
   env$sim@dir <- dir
   return(env$sim)
 }
+
+#' Give simulation a new name
+#'
+#' Note that \code{\link{save_simulation}} needs to be called for this change
+#' to be saved to file.
+#'
+#' @param sim object of class \code{\linkS4class{Simulation}}
+#' @param name a short name identifier.  Must be an alphanumeric (but can also
+#'       have - or _ within
+#' @export
+rename <- function(sim, name) {
+  sim@name <- name
+  return(sim)
+}
+
+#' Give simulation a new label
+#'
+#' Note that \code{\link{save_simulation}} needs to be called for this change
+#' to be saved to file.
+#'
+#' @param sim object of class \code{\linkS4class{Simulation}}
+#' @param label a longer, human readable label that can have other characters
+#'        such as spaces, hyphens, etc.
+#' @export
+relabel <- function(sim, label) {
+  sim@label <- label
+  return(sim)
+}
+
+#' Get model names in a Simulation
+#'
+#' @param sim object of class \code{\linkS4class{Simulation}}
+#' @export
+model_names <- function(sim) unlist(lapply(sim@model_refs, function(mref) mref@name))
+

@@ -233,7 +233,8 @@ get_model_indices <- function(sim, subset) {
 #' first change the name (and, potentially, label) of the simulation
 #' and then use \code{\link{save_simulation}}.  If you call
 #' \code{\link{save_simulation}} before changing the name, you will overwrite
-#' the preexisting simulation.
+#' the preexisting simulation.  Use \code{\link{rename}} and
+#' \code{\link{relabel}}.
 #'
 #' @param sim a simulation object
 #' @param subset specifies which models should be selected. See
