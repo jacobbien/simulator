@@ -37,48 +37,39 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
                        method_lty = rep(1, num_methods),
                        method_lwd = rep(1, num_methods),
                        method_pch = rep(NA, num_methods), ...) {
-  if (length(class(object)) == 1) {
-    if (class(object) == "Simulation")
-      evals <- evals(object)
-  }
-  if ("Evals" %in% class(evals)) {
-    evals <- list(evals)
-    class(evals) <- c("listofEvals", "list")
-  }
-  else if (!("listofEvals" %in% class(evals)))
-    stop("Invalid class for evals object.")
-  stopifnot(unlist(lapply(evals,
+  ev_list <- get_evals_list(object)
+  stopifnot(unlist(lapply(ev_list,
                           function(e) metric_name_x %in% e@metric_name)))
-  stopifnot(unlist(lapply(evals,
+  stopifnot(unlist(lapply(ev_list,
                           function(e) metric_name_y %in% e@metric_name)))
-  ev_df <- as.data.frame(evals)
-  method_names <- lapply(evals, function(e) e@method_name)
+  ev_df <- as.data.frame(ev_list)
+  method_names <- lapply(ev_list, function(e) e@method_name)
   if (length(unique(method_names)) != 1)
     stop("All models must have same methods.")
   num_methods <- length(method_names[[1]])
-  if (length(evals) == 1) {
+  if (length(ev_list) == 1) {
     if (missing(main))
-      main <- evals[[1]]@model_label
+      main <- ev_list[[1]]@model_label
     facet_mains <- main
   } else {
     # we have multiple facets
     if (missing(facet_mains))
-      facet_mains <- unlist(lapply(evals, function(e) e@model_label))
+      facet_mains <- unlist(lapply(ev_list, function(e) e@model_label))
   }
   if (missing(xlab))
-    xlab <- evals[[1]]@metric_label[evals[[1]]@metric_name == metric_name_x]
+    xlab <- ev_list[[1]]@metric_label[ev_list[[1]]@metric_name == metric_name_x]
   if (missing(ylab))
-    ylab <- evals[[1]]@metric_label[evals[[1]]@metric_name == metric_name_y]
-  ev_df <- as.data.frame(evals)
+    ylab <- ev_list[[1]]@metric_label[ev_list[[1]]@metric_name == metric_name_y]
+  ev_df <- as.data.frame(ev_list)
   if (missing(xlim)) xlim <- range(ev_df[[metric_name_x]])
   if (missing(ylim)) {
     ylim <- range(ev_df[[metric_name_y]])
     if (include_zero) ylim <- range(0, ylim)
   }
-  nrow <- floor(sqrt(length(evals)))
-  ncol <- ceiling(length(evals) / nrow)
+  nrow <- floor(sqrt(length(ev_list)))
+  ncol <- ceiling(length(ev_list) / nrow)
   if (use_ggplot2) return(ggplot_evals(ev_df, metric_name_x, metric_name_y,
-                                       method_labels = evals[[1]]@method_label,
+                                       method_labels = ev_list[[1]]@method_label,
                                        main = main, facet_mains = facet_mains,
                                        xlab = xlab, ylab = ylab,
                                        xlim = xlim, ylim = ylim,
@@ -92,8 +83,8 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
 
   par(mfrow = c(nrow, ncol))
   palette(options("simulator.color_palette")[[1]])
-  for (i in seq_along(evals)) {
-    ev_df <- as.data.frame(evals[[i]])
+  for (i in seq_along(ev_list)) {
+    ev_df <- as.data.frame(ev_list[[i]])
     plot(0, 0, xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          main = facet_mains[i], type = "n", ...)
     for (r in unique(ev_df[["Draw"]])) {
@@ -105,11 +96,11 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
       }
     }
     if (i == 1 & is.character(legend_location)) {
-      legend(legend_location, legend = evals[[1]]@method_label, col = method_col,
+      legend(legend_location, legend = ev_list[[1]]@method_label, col = method_col,
              pch = method_pch, lty = method_lty, lwd = method_lwd)
     }
   }
-  if (!missing(main) & length(evals) > 1)
+  if (!missing(main) & length(ev_list) > 1)
     title(main, outer = TRUE, line = -1)
   palette("default")
   return()
@@ -143,4 +134,29 @@ ggplot_evals <- function(ev_df, metric_name_x, metric_name_y, method_labels,
     ggplot2::ylim(ylim) +
     ggplot2::xlim(xlim) +
     ggplot2::facet_wrap("Model", nrow = nrow, ncol = ncol)
+}
+
+get_evals_list <- function(object) {
+  # object can be an Evals, list of Evals, listofEvals, or Simulation
+  if (isS4(object)) {
+    if (class(object) == "Simulation") {
+      ev <- evals(object)
+    } else if (class(object) == "Evals")
+      ev <- object
+    else stop("Invalid class for 'object'.")
+    if ("Evals" %in% class(ev)) {
+      ev <- list(ev)
+      class(ev) <- c("listofEvals", "list")
+    }
+    return(ev)
+  }
+  if (length(class(object)) == 2)
+    if (all(class(object) == c("listofEvals", "list")))
+      return(object)
+  if (length(class(object)) == 1) {
+    if (class(object) == "list")
+      class(object) <- c("listofEvals", "list")
+      return(object)
+  }
+  stop("Invalid class for 'object'.")
 }

@@ -34,15 +34,17 @@
 #'        default these are sample mean and estimated standard error); if
 #'        \code{type} is "raw" then shows the raw data as points (with smoother
 #'        overlayed)
-#' @param center_aggregator ignored if \code{type} is "raw".  By default, this is
-#'        mean_aggregator. User can write own object of class
-#'        \code{\linkS4class{Aggregator}}, necessary, for example, when the
+#' @param center_aggregator ignored if \code{type} is "raw".  When NULL (which
+#'        is default), the sample mean aggregator is used.  User can write
+#'        specialized aggregators (see definition of class
+#'        \code{\linkS4class{Aggregator}}) as necessary, for example, when the
 #'        evaluated metric is not scalar-valued.
-#' @param spread_aggregator ignored if \code{type} is "raw".  By default, this is
-#'        se_aggregator. User can write own object of class
-#'        \code{\linkS4class{Aggregator}}, necessary, for example, when the
-#'        evaluated metric is not scalar-valued.  Set \code{spread_aggregator} to
-#'        \code{NULL} to hide error bars.
+#' @param spread_aggregator ignored if \code{type} is "raw".  When NULL (which
+#'        is default), the sample mean aggregator is used.  User can write
+#'        specialized aggregators (see definition of class
+#'        \code{\linkS4class{Aggregator}}) as necessary, for example, when the
+#'        evaluated metric is not scalar-valued. Set \code{spread_aggregator}
+#'        to \code{NA} to hide error bars.
 #' @param use_ggplot2 whether to use \code{ggplot2} (requires installation
 #'        of \code{ggplot2})
 #' @param main title of plot.
@@ -63,8 +65,8 @@
 #' @export
 plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
                          type = c("aggregated", "raw"),
-                         center_aggregator = mean,
-                         spread_aggregator = function(a) sd(a) / sqrt(length(a)),
+                         center_aggregator = NULL,
+                         spread_aggregator = NULL,
                          main,
                          xlab, ylab, xlim, ylim, include_zero = FALSE,
                          legend_location = "topright", errbars = TRUE,
@@ -87,7 +89,8 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
     stop("For now, cannot have multiple models having same value of 'varying'")
   model_names <- lapply(sim@model_refs, function(m) m@name)
   # load evals
-  e <- subset_evals(evals(sim), metric_names = metric_name)
+  #e <- subset_evals(evals(sim), metric_names = metric_name)
+  e <- evals(sim)
   stopifnot(unlist(lapply(e, function(ee) metric_name %in% ee@metric_name)))
   method_names <- lapply(e, function(ee) ee@method_name)
   if (length(unique(method_names)) != 1)
@@ -104,16 +107,31 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
   type <- type[1]
   if (!(type %in% c("aggregated", "raw"))) stop("Unrecognized type.")
   if (type == "aggregated") {
-    df2 <- aggregate(cbind(df[[varying]], df[[metric_name]]),
-                     by = list(df[["Model"]], df[["Method"]]),
-                     center_aggregator)
-    names(df2) <- c("Model", "Method", ".varying", ".center")
-    if (!is.null(spread_aggregator)) {
-      df2[[".spread"]] <- aggregate(df[[metric_name]],
-                                by = list(df[["Model"]], df[["Method"]]),
-                                spread_aggregator)[, 3]
-      df2[[".lower"]] <- df2[[".center"]] - df2[[".spread"]]
-      df2[[".upper"]] <- df2[[".center"]] + df2[[".spread"]]
+    val_varied <- rep(NA, length(e))
+    for (i in seq_along(e)) {
+      imodel <- which(model_names == e[[i]]@model_name)
+      val_varied[i] <- vals[[imodel]]
+    }
+    if (is.null(center_aggregator)) {
+      # create an aggregator that computes the sample mean of
+      # the "metric_name" evals
+      center_aggregator <- make_scalar_aggregator("Mean",
+                                                  metric_name,
+                                                  mean)
+    }
+    if (is.null(spread_aggregator)) {
+      # create an aggregator that computes an estimate of the standard error of
+      # the sample mean of the "metric_name" evals
+      se <- function(a) sd(a) / sqrt(length(a))
+      spread_aggregator <- make_scalar_aggregator("Standard error ",
+                                                  metric_name,
+                                                  se)
+    }
+    center <- aggregate_evals(e, center_aggregator)
+    if (isS4(spread_aggregator)) {
+      spread <- aggregate_evals(e, spread_aggregator)
+      lower <- center - spread
+      upper <- center + spread
     }
   }
   # plotting parameters:
@@ -123,10 +141,10 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
   if (missing(xlim)) xlim <- range(df[[varying]])
   if (missing(ylim)) {
     if (type == "aggregated") {
-      if (is.null(spread_aggregator))
-        ylim <- range(df2[[".center"]])
+      if (isS4(spread_aggregator))
+        ylim <- range(upper, lower)
       else
-        ylim <- range(df2[[".upper"]], df2[[".lower"]])
+        ylim <- range(center)
     }
     else if (type == "raw")
       ylim <- range(df[[metric_name]])
@@ -138,6 +156,19 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
   method_pch <- recycle(method_pch, num_methods)
   if (use_ggplot2) {
     if (type == "aggregated") {
+      df2 <- stats::reshape(as.data.frame(center),
+                            direction = "long",
+                            varying = colnames(center),
+                            v.names = ".center",
+                            idvar = "Model",
+                            ids = rownames(center),
+                            timevar = "Method",
+                            times = colnames(center))
+      df2[[".varying"]] <- rep(val_varied, ncol(center))
+      if (isS4(spread_aggregator)) {
+        df2[[".upper"]] <- as.numeric(upper)
+        df2[[".lower"]] <- as.numeric(lower)
+      }
       g <- ggplot2::ggplot(df2, ggplot2::aes_string(".varying",
                                                     ".center",
                                                     color = "Method")) +
@@ -147,11 +178,12 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
            ggplot2::xlim(xlim) +
            ggplot2::geom_line(ggplot2::aes_string(position = ".center")) +
            ggplot2::geom_point(ggplot2::aes_string(position = ".center"))
-      if (!is.null(spread_aggregator))
+      if (isS4(spread_aggregator)) {
         g <- g + ggplot2::geom_errorbar(ggplot2::aes_string(ymin = ".lower",
                                                             ymax = ".upper",
                                                             width = .1,
                                                             position = ".center"))
+      }
 
     } else if (type == "raw") {
       g <- ggplot2::ggplot(df, ggplot2::aes_string(varying, metric_name)) +
@@ -172,12 +204,11 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
        type = "n", ...)
   if (type == "aggregated") {
     for (m in seq_along(method_names)) {
-      dfm <- df2[df2[["Method"]] == method_names[m], ] # subset by method
-      points(dfm[[".varying"]], dfm[[".center"]], col = method_col[m], pch = 20,
+      points(val_varied, center[, m], col = method_col[m], pch = 20,
              lty = method_lty[m], lwd = method_lwd[m], type = "o")
-      if (!is.null(spread_aggregator)) {
-        segments(x0 = dfm[[".varying"]], y0 = dfm[[".lower"]],
-                 y1 = dfm[[".upper"]], col = method_col[m])
+      if (isS4(spread_aggregator)) {
+        segments(x0 = val_varied, y0 = lower[, m],
+                 y1 = upper[, m], col = method_col[m])
       }
     }
   } else if (type == "raw") {

@@ -24,30 +24,21 @@
 plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
                       facet_mains, ylab, ylim, include_zero = FALSE, angle = 0,
                       ...) {
-  if (length(class(object)) == 1) {
-    if (class(object) == "Simulation")
-      evals <- evals(object)
-  }
-  if ("Evals" %in% class(evals)) {
-    evals <- list(evals)
-    class(evals) <- c("listofEvals", "list")
-  }
-  else if (!("listofEvals" %in% class(evals)))
-    stop("Invalid class for evals object.")
-  stopifnot(unlist(lapply(evals, function(e) metric_name %in% e@metric_name)))
-  if (length(evals) == 1) {
+  ev_list <- get_evals_list(object)
+  stopifnot(unlist(lapply(ev_list, function(e) metric_name %in% e@metric_name)))
+  if (length(ev_list) == 1) {
     if (missing(main))
-      main <- evals[[1]]@model_label
+      main <- ev_list[[1]]@model_label
     facet_mains <- main
   } else {
     # we have multiple facets
     if (missing(facet_mains))
-      facet_mains <- unlist(lapply(evals, function(e) e@model_label))
+      facet_mains <- unlist(lapply(ev_list, function(e) e@model_label))
   }
   if (missing(ylab))
-    ylab <- evals[[1]]@metric_label[evals[[1]]@metric_name == metric_name]
-  evals <- subset_evals(evals, metric_names = metric_name)
-  evals_df <- as.data.frame(evals)
+    ylab <- ev_list[[1]]@metric_label[ev_list[[1]]@metric_name == metric_name]
+  ev_list <- subset_evals(ev_list, metric_names = metric_name)
+  evals_df <- as.data.frame(ev_list)
   if(any(table(evals_df[, c("Model", "Method", "Draw")]) != 1)) {
     stop("plot_eval should only be called on metrics that are scalar-valued.",
          " Plot a vector-valued metric versus another using plot_evals.")
@@ -56,33 +47,33 @@ plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
     ylim <- range(evals_df[[metric_name]])
     if (include_zero) ylim <- range(ylim, 0)
   }
-  method_names <- unique(unlist(lapply(evals, function(e) e@method_name)))
-  method_labels <- unique(unlist(lapply(evals, function(e) e@method_label)))
-  nrow <- floor(sqrt(length(evals)))
-  ncol <- ceiling(length(evals) / nrow)
+  method_names <- unique(unlist(lapply(ev_list, function(e) e@method_name)))
+  method_labels <- unique(unlist(lapply(ev_list, function(e) e@method_label)))
+  nrow <- floor(sqrt(length(ev_list)))
+  ncol <- ceiling(length(ev_list) / nrow)
   if (use_ggplot2) return(ggplot_eval(evals_df, metric_name, method_names,
                                       method_labels, main, facet_mains, ylab,
                                       ylim, nrow, ncol))
   par(mfrow = c(nrow, ncol))
   for (i in seq_along(evals)) {
-    evals_df <- as.data.frame(evals[[i]])
+    evals_df <- as.data.frame(ev_list[[i]])
     if (angle == 0) {
       boxplot(as.formula(paste0(metric_name, "~ Method")), data = evals_df,
-              names = evals[[i]]@method_label, ylab = ylab, xlab = "Method",
+              names = ev_list[[i]]@method_label, ylab = ylab, xlab = "Method",
               main = facet_mains[i], ylim = ylim, ...)
     } else {
       boxplot(as.formula(paste0(metric_name, "~ Method")), data = evals_df,
-              names = evals[[i]]@method_label, xaxt = "n", ylab = ylab,
+              names = ev_list[[i]]@method_label, xaxt = "n", ylab = ylab,
               xlab = "Method",
               main = facet_mains[i], ylim = ylim, ...)
       axis(1, labels=FALSE)
-      text(x =  seq_along(evals[[i]]@method_label),
+      text(x =  seq_along(ev_list[[i]]@method_label),
            y = par("usr")[3] - 0.03 * diff(par("usr"))[3],
            srt = angle,
-           adj = 1, labels = evals[[i]]@method_label, xpd = TRUE)
+           adj = 1, labels = ev_list[[i]]@method_label, xpd = TRUE)
     }
   }
-  if (!missing(main) & length(evals) > 1)
+  if (!missing(main) & length(ev_list) > 1)
     title(main, outer = TRUE, line = -1)
 }
 

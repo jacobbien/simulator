@@ -12,7 +12,7 @@
 #'        Each evals object should just differ by model_name.
 #' @param metric_name the name of a metric to tabulate.  Must be scalar valued.
 #' @param method_names character vector indicating methods to include in table.
-#'        If NULL, then will include all methods found in evals_list.
+#'        If NULL, then will include all methods found in object's evals.
 #' @param caption caption of plot
 #' @param se_format format of the standard error
 #' @param output_type see \code{\link[knitr]{kable}}'s argument format for options.
@@ -31,26 +31,12 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
   if (!requireNamespace("knitr", quietly = TRUE)) {
     stop("To use this function, knitr must be installed.", call. = FALSE)
   }
-  if (length(class(object)) == 1) {
-    if (class(object) == "Simulation")
-      evals_list <- evals(object)
-    if (class(object) == "list") {
-      evals_list <- object
-      class(evals_list) <- c("listofEvals", "list")
-    }
-  }
-  if ("Evals" %in% class(object)) {
-    evals_list <- list(object)
-    class(evals_list) <- c("listofEvals", "list")
-  }
-  else if (!("listofEvals" %in% class(evals_list)))
-    stop("Invalid class for evals object.")
-
-  stopifnot("list" %in% class(evals_list), lapply(evals_list, class) == "Evals")
-  model_labels <- unlist(lapply(evals_list, function(evals) evals@model_label))
-  method_labels <- unique(unlist(lapply(evals_list,
+  ev_list <- get_evals_list(object)
+  stopifnot("list" %in% class(ev_list), lapply(ev_list, class) == "Evals")
+  model_labels <- unlist(lapply(ev_list, function(evals) evals@model_label))
+  method_labels <- unique(unlist(lapply(ev_list,
                                         function(evals) evals@method_label)))
-  meth_names <- unique(unlist(lapply(evals_list,
+  meth_names <- unique(unlist(lapply(ev_list,
                                  function(evals) evals@method_name)))
   metric_label <- NA
   if (is.null(method_names)) {
@@ -65,12 +51,12 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
   tabm <- tabse <- tabn <- matrix(NA,
                                   length(model_labels),
                                   length(method_labels))
-  for (i in seq_along(evals_list)) {
-    if (!(metric_name %in% evals_list[[i]]@metric_name)) {
+  for (i in seq_along(ev_list)) {
+    if (!(metric_name %in% ev_list[[i]]@metric_name)) {
       # metric has not been computed for any methods in this model.
       next
     }
-    ev <- subset_evals(evals_list[[i]], metric_names = metric_name)
+    ev <- subset_evals(ev_list[[i]], metric_names = metric_name)
     for (j in seq_along(method_names)) {
       if (!(method_names[j] %in% ev@method_name)) {
         # method j has not been computed for model i
