@@ -121,27 +121,28 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
   if (!all(unlist(lapply(passed_params[vary_along], is.list))))
       stop("each parameter named in vary_along must be passed (through ...)",
            " as a list.")
-  # vary_along parameters that can be written as a short decimal will not be
-  # digest
-  is_short_decimal <- rep(TRUE, length(vary_along))
+  # vary_along parameters that can be written as a short decimal, an integer,
+  # or a character string will not be digest
+  is_fine_as_is <- rep(TRUE, length(vary_along))
   for (j in seq_along(vary_along)) {
     for (k in seq_along(passed_params[[vary_along[j]]])) {
       val <- passed_params[[vary_along[j]]][[k]]
       if (length(val) != 1) {
-        is_short_decimal[j] <- FALSE
+        is_fine_as_is[j] <- FALSE
         break
       }
+      if (class(val) == "character") next
       if (class(val) == "integer") next
       if (class(val) == "numeric")
         if(abs(round(val, getOption("simulator.ndecimal")) - val) < 1e-12)
           next
-      is_short_decimal[j] <- FALSE
+      is_fine_as_is[j] <- FALSE
     }
   }
-  if (!all(is_short_decimal)) {
+  if (!all(is_fine_as_is)) {
     if (!requireNamespace("digest", quietly = TRUE))
       stop("The package digest must be installed for vary_along to be used",
-           " with non-integer-valued parameters.",
+           " with parameters that are not easily represented as strings.",
            call. = FALSE)
   }
   indices <- lapply(passed_params[vary_along], function(a) seq(length(a)))
@@ -154,7 +155,7 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
     for (j in seq(ncol(ii))) { # jth vary_along parameter
       var <- vary_along[j]
       params_to_pass[[var]] <- passed_params[[var]][[ii[i, j]]]
-      if (is_short_decimal[j]) {
+      if (is_fine_as_is[j]) {
         ext[j] <- paste0(var, "_", params_to_pass[[var]])
       } else {
         # apply hash to this object to get a unique file name
