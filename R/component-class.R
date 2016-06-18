@@ -20,9 +20,9 @@ is_valid_component_name <- function(name, name_of_name,
   }
   if (length(name) > 0) {
     sub_pattern <- paste0("[[:alnum:]]+((_[[:alnum:]]+)*(-[[:alnum:]]+)*",
-                          "(\\.[[:alnum:]]+)*)*")
+                          "(\\.[[:alnum:]]+)*(_-[[:alnum:]]+)*)*")
     # ... of form a or a_b or a-b or a.b (or a-b_c, etc) where a, b, c are
-    # alphanumeric
+    # alphanumeric.  Also, allowed to have a_-b allowing for "param_-1.0"
     if (allow_slash) {
       pattern <- sprintf("^%s(/%s)*$", sub_pattern, sub_pattern)
       # ... of form sub_pattern or sub_pattern/sub_pattern etc
