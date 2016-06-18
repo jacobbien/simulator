@@ -38,11 +38,15 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
                        method_lwd = rep(1, num_methods),
                        method_pch = rep(NA, num_methods), ...) {
   ev_list <- get_evals_list(object)
-  stopifnot(unlist(lapply(ev_list,
-                          function(e) metric_name_x %in% e@metric_name)))
-  stopifnot(unlist(lapply(ev_list,
-                          function(e) metric_name_y %in% e@metric_name)))
-  ev_df <- as.data.frame(ev_list)
+  if (length(ev_list) == 0) stop("Passed object does not have Evals to plot.")
+  if (!any(unlist(lapply(ev_list,
+                         function(e) metric_name_x %in% e@metric_name)))) {
+    stop("Passed object does not have Evals named ", metric_name_x)
+  }
+  if (!any(unlist(lapply(ev_list,
+                         function(e) metric_name_y %in% e@metric_name)))) {
+    stop("Passed object does not have Evals named ", metric_name_y)
+  }
   method_names <- lapply(ev_list, function(e) e@method_name)
   if (length(unique(method_names)) != 1)
     stop("All models must have same methods.")

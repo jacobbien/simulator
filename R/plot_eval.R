@@ -25,7 +25,11 @@ plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
                       facet_mains, ylab, ylim, include_zero = FALSE, angle = 0,
                       ...) {
   ev_list <- get_evals_list(object)
-  stopifnot(unlist(lapply(ev_list, function(e) metric_name %in% e@metric_name)))
+  if (length(ev_list) == 0) stop("Passed object does not have Evals to plot.")
+  if (!any(unlist(lapply(ev_list,
+                         function(e) metric_name %in% e@metric_name)))) {
+    stop("Passed object does not have Evals with this metric name.")
+  }
   if (length(ev_list) == 1) {
     if (missing(main))
       main <- ev_list[[1]]@model_label

@@ -32,6 +32,12 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
     stop("To use this function, knitr must be installed.", call. = FALSE)
   }
   ev_list <- get_evals_list(object)
+  if (length(ev_list) == 0)
+    stop("Passed object does not have Evals to tabulate.")
+  if (!any(unlist(lapply(ev_list,
+                         function(e) metric_name %in% e@metric_name)))) {
+    stop("Passed object does not have Evals with this metric name.")
+  }
   stopifnot("list" %in% class(ev_list), lapply(ev_list, class) == "Evals")
   model_labels <- unlist(lapply(ev_list, function(evals) evals@model_label))
   method_labels <- unique(unlist(lapply(ev_list,
