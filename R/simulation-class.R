@@ -171,7 +171,11 @@ load_simulation <- function(name, dir = ".") {
   files_dir <- file.path(dir, getOption("simulator.files"))
   file <- sprintf("%s/sim-%s.Rdata", files_dir, name)
   env <- new.env()
-  load(file, envir = env)
+  tryCatch(load(file, envir = env),
+           error = function(e)
+             stop("Could not load simulation. Check that 'dir' is a directory",
+                  " with '", getOption("simulator.files"),
+                  "/sim-", name, ".Rdata' in it.", call. = FALSE))
   # this ensures that references can be loaded from working directory where
   # load_simulation was called:
   env$sim@dir <- dir
