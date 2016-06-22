@@ -9,6 +9,10 @@ Depends:
     R (>= 3.2.0)
 Imports:
     methods,
+    graphics,
+    grDevices,
+    stats,
+    utils,
     magrittr
 Suggests:
     digest,
@@ -19,10 +23,10 @@ License: GPL-3
 LazyData: true
 VignetteBuilder: knitr
 Collate:
+    'evals-class.R'
     'output-class.R'
     'component-class.R'
     'model-class.R'
-    'evals-class.R'
     'draws-class.R'
     'reference-classes.R'
     'simulation-class.R'
