@@ -209,8 +209,11 @@ get_model_indices <- function(sim, subset) {
     ii <- rep(TRUE, length(models))
     nams <- names(subset)
     for (i in seq_along(models)) {
+      # for every model i in sim
       for (j in seq_along(subset)) {
+        # for every parameter j mentioned in subset
         if (!(nams[j] %in% names(models[[i]]@params))) {
+          # if model i doesn't have param j in it, exclude model i
           ii[i] <- FALSE
           next
         }
@@ -252,6 +255,6 @@ subset_simulation <- function(sim, subset = NULL, index, methods) {
                  reference = TRUE)
   eref <- evals(sim, subset = subset, index = index, methods = methods,
                  reference = TRUE)
-  new_simulation(name = sim@name, label = sim@label,
+  new_simulation(name = sim@name, label = sim@label, dir = sim@dir,
                  refs = c(mref, dref, oref, eref), save_to_file = FALSE)
 }

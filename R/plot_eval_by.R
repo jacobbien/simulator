@@ -63,13 +63,14 @@
 #' @param ... additional arguments to pass to \code{plot} (only when
 #'        \code{use_ggplot2 = FALSE}).
 #' @export
-plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
+plot_eval_by <- function(sim, metric_name, varying,
                          type = c("aggregated", "raw"),
                          center_aggregator = NULL,
                          spread_aggregator = NULL,
+                         use_ggplot2 = TRUE,
                          main,
                          xlab, ylab, xlim, ylim, include_zero = FALSE,
-                         legend_location = "topright", errbars = TRUE,
+                         legend_location = "topright",
                          method_col = seq(num_methods),
                          method_lty = rep(1, num_methods),
                          method_lwd = rep(1, num_methods),
@@ -86,7 +87,7 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
     stop("For now, 'varying' must be a numeric/integer parameter.")
   if (any(lapply(vals, length) > 1)) stop("'varying' must be a scalar.")
   if (length(unique(vals)) != length(vals))
-    stop("For now, cannot have multiple models having same value of 'varying'")
+    stop("For now, cannot have multiple models having same value of 'varying'. Use subset_simulation.")
   model_names <- lapply(sim@model_refs, function(m) m@name)
   # load evals
   #e <- subset_evals(evals(sim), metric_names = metric_name)
@@ -98,7 +99,7 @@ plot_eval_by <- function(sim, metric_name, varying, use_ggplot2 = TRUE,
   method_names <- method_names[[1]]
   num_methods <- length(method_names)
   method_labels <- e[[1]]@method_label
-  metric_label <- e[[1]]@metric_label
+  metric_label <- e[[1]]@metric_label[e[[1]]@metric_name == metric_name]
   # prepare data.frame that has varying, metric_name, and "Method" as columns
   df <- as.data.frame(e)
   ii <- match(df[["Model"]], model_names)
