@@ -59,7 +59,7 @@ plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
                                       method_labels, main, facet_mains, ylab,
                                       ylim, nrow, ncol))
   par(mfrow = c(nrow, ncol))
-  for (i in seq_along(evals)) {
+  for (i in seq_along(ev_list)) {
     evals_df <- as.data.frame(ev_list[[i]])
     if (angle == 0) {
       boxplot(as.formula(paste0(metric_name, "~ Method")), data = evals_df,
