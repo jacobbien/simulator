@@ -191,6 +191,7 @@ load_simulation <- function(name, dir = ".") {
 #' @param name a short name identifier.  Must be an alphanumeric (but can also
 #'       have - or _ within
 #' @export
+#' @seealso \code{\link{relabel}}
 rename <- function(sim, name) {
   sim@name <- name
   return(sim)
@@ -205,6 +206,7 @@ rename <- function(sim, name) {
 #' @param label a longer, human readable label that can have other characters
 #'        such as spaces, hyphens, etc.
 #' @export
+#' @seealso \code{\link{rename}}
 relabel <- function(sim, label) {
   sim@label <- label
   return(sim)

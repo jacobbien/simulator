@@ -90,7 +90,7 @@ evaluate <- function(object, metrics) {
     metrics <- list(metrics)
   }
   computing_time <- new_metric(name = "time",
-                               label = "Computing time (s)",
+                               label = "Computing time",
                                metric = function(model, out) {
                                  return(as.numeric(out$time[1]))
                                })

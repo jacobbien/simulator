@@ -192,6 +192,10 @@ setMethod("add", signature(sim = "Simulation", ref = "list"),
             ref <- unlist(ref)
             classes <- unlist(lapply(ref, class))
             proper_order <- c("ModelRef", "DrawsRef", "OutputRef", "EvalsRef")
+            if (!all(classes %in% proper_order))
+              stop("Cannot add an object of class ", 
+                   classes[which(!(classes %in% proper_order))[1]],
+                   " to simulation.")
             for (cl in proper_order) {
               ii <- which(classes == cl)
               for (i in ii) {
