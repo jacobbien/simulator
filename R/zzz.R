@@ -2,7 +2,7 @@
   # most of this function is copied from Hadley Wickham's dplyr/zzz.R
   op <- options()
   op.simulator <- list(
-    simulator.verbose = TRUE,
+    simulator.verbose = TRUE, # controls catsim
     simulator.ndecimal = 5, # how long can a decimal be before "digest" called?
     simulator.files = "files", # directory created in user supplied "dir"
     simulator.slave_stdout_stderr_to_master = FALSE, # useful for debugging
