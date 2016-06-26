@@ -52,7 +52,10 @@ setMethod("load", signature(file = "list"), function(file) {
   }
   if (length(file) == 1) return(load(file[[1]]))
   if (all(unlist(lapply(file, class)) == "ModelRef")) {
-    return(lapply(file, load))
+    list_of_loaded_models <- lapply(file, load)
+    class(list_of_loaded_models) <- c("listofModels", "list")
+    # ...so that as.data.frame.listofModels is invoked when passed one of these
+    return(list_of_loaded_models)
   }
   if (all(unlist(lapply(file, class)) == "DrawsRef")) {
     for (i in seq_along(file)) {

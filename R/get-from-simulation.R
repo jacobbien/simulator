@@ -5,25 +5,31 @@ NULL
 #'
 #' Returns either the models themselves or references to them.
 #'
-#' The parameter subset can be one of three types.  (1) The fastest retrieval
-#' of a model uses numerical values indicating the order in which the models
-#' are stored in the simulation object.  This order can be learned by printing
-#' the simulation object.  (2) The next fastest way to retrieve a subset of the
-#' models is to set subset to be a character vector of the model names desired.
-#' (3) Perhaps the most convenient approach is to take subset to be a list
-#' specifying the values of various params in the models.  For example, if
-#' \code{subset = list(n = 100, p = 10)}, then this will return all models
-#' \code{m} for which \code{m$n == 100} and \code{m$p == 10}.  This approach,
-#' unlike the first two approaches, requires loading all models from file.
-#' This may be slow in situations in which there are a lot of models and/or
-#' the models are large and thus slow to load.
+#' There are two main ways to specify a subset of the models.  (1) The easiest
+#' way is by writing a conditional expression involving the parameters and
+#' passing it through \code{...}.  For example, \code{n > 100 & p <= 20}.
+#' Only parameters that are length one and either numeric or character can be
+#' used in these expressions.  (2) The faster way to retrieve a subset of
+#' models is to use the \code{subset} argument.  This can be either a set of
+#' numerical values (specifying which models to load based on the order in
+#' which the models are stored in the simulation object.  This order can be
+#' ascertained by printing the simulation object.) or as a set of a character
+#' vector of the model names desired.
+#'
+#'  While approach (1) is very convenient, it requires loading all models from
+#'  file. This may be slow in situations in which there are a lot of models
+#'  and/or the models are large and thus slow to load.
 #'
 #' @param sim a simulation object
-#' @param subset a vector indicating which models should be returned.  See
-#'        below for details
+#' @param ... logical conditions to specify a subset of models.  Conditions can
+#'        only involve params of model that have length 1 and are of class
+#'        numeric or character.
+#' @param subset a vector of integers indexing the models or a vector of model
+#'        names. To select models based on parameter values, use \code{...}.
+#'        However, using \code{...} is slower than using subset.
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-model <- function(sim, subset = NULL, reference = FALSE) {
+model <- function(sim, ..., subset = NULL, reference = FALSE) {
   ii <- get_model_indices(sim, subset)
   mref <- sim@model_refs[ii]
   obj <- lapply(mref, function(m) {
@@ -31,38 +37,68 @@ model <- function(sim, subset = NULL, reference = FALSE) {
     return(m)
   })
   if (length(obj) == 1) obj <- obj[[1]]
-  if (!reference) obj <- load(obj)
-  return(obj)
+  passed_a_condition <- length(match.call(expand.dots = FALSE)$`...`) != 0
+  if (!passed_a_condition) {
+    if (reference)
+      return(obj)
+    else
+      return(load(obj))
+  }
+  # if a condition was passed, we have to load the models to apply condition
+  obj1 <- load(obj)
+  model_names <- subset_models(obj1, ...)
+  if (length(obj1) == 1) {
+    if (obj1@name %in% model_names) {
+      if (reference) {
+        return(obj)
+      } else {
+      return(obj1)
+      }
+    } else {
+      return(list())
+    }
+  }
+  to_return <- unlist(lapply(mref, function(mm) mm@name %in% model_names))
+  if (reference)
+    obj <- obj[to_return]
+  else
+    obj <- obj1[to_return]
+  if (length(obj) == 1)
+    return(obj[[1]])
+  else
+    return(obj)
 }
 
 #' Get one or more draws from a simulation
 #'
-#' Returns either the draws objects themselves or references to them.
+#' Returns either the draws objects themselves or references to them.  See
+#' \code{\link{model}} function for more information on the \code{...} and
+#' \code{subset} arguments, which are used to specify a subset of the models.
 #'
 #' @param sim a simulation object
-#' @param subset specifies which models' draws should be selected. See
-#'        \code{\link{model}} for details
+#' @param ... logical conditions to specify a subset of models.  Conditions can
+#'        only involve params of model that have length 1 and are of class
+#'        numeric or character.
+#' @param subset a vector of integers indexing the models or a vector of model
+#'        names. To select models based on parameter values, use \code{...}.
+#'        However, using \code{...} is slower than using subset.
 #' @param index a vector of positive integers specifying which draws objects
 #'        are desired. If missing, then all draws' outputs are returned.
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-draws <- function(sim, subset = NULL, index, reference = FALSE) {
+draws <- function(sim, ..., subset = NULL, index, reference = FALSE) {
   if (!missing(index))
     stopifnot(is.numeric(index), index > 0, index == round(index))
   if (length(sim@draws_refs) == 0) return(list())
   dref <- sim@draws_refs
-  if (!missing(subset)) {
-    ii <- get_model_indices(sim, subset)
-    subset_model_names <- unlist(lapply(sim@model_refs,
-                                        function(m) m@name))[ii]
-  }
+  mref <- model(sim, ..., subset = subset, reference = TRUE)
+  if (length(mref) == 1) mref <- list(mref)
+  subset_model_names <- unlist(lapply(mref, function(ref) ref@name))
   obj <- list()
   for (i in seq_along(dref)) {
-    if (!missing(subset)) {
-      if (length(dref[[i]]) == 0) next # no draws are in this model
-      if (!(dref[[i]][[1]]@model_name %in% subset_model_names))
-        next # subset excluded this model
-    }
+    if (length(dref[[i]]) == 0) next # no draws are in this model
+    if (!(dref[[i]][[1]]@model_name %in% subset_model_names))
+      next # subset excluded this model
     # this model's draws should be included (if they match the index)
     obj[[i]] <- dref[[i]]
     keep <- rep(FALSE, length(dref[[i]]))
@@ -92,36 +128,46 @@ draws <- function(sim, subset = NULL, index, reference = FALSE) {
 #' Returns either the output object itself or a reference to it.
 #'
 #' @param sim a simulation object
-#' @param subset specifies which models' outputs should be selected. See
-#'        \code{\link{model}} for details
+#' @param ... logical conditions to specify a subset of models.  Conditions can
+#'        only involve params of model that have length 1 and are of class
+#'        numeric or character.
+#' @param subset a vector of integers indexing the models or a vector of model
+#'        names. To select models based on parameter values, use \code{...}.
+#'        However, using \code{...} is slower than using subset.
 #' @param index a vector of positive integers specifying which draws' objects
 #'        are desired. If missing, then all draws' outputs are returned.
 #' @param methods character vector of method names of interest.  If missing,
 #'        then all methods' outputs are returned
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-output <- function(sim, subset = NULL, index, methods,
+output <- function(sim, ..., subset = NULL, index, methods,
                    reference = FALSE) {
-  outputs_or_evals(sim, sim@output_refs, TRUE, subset, index, methods, reference)
+  outputs_or_evals(sim, sim@output_refs, TRUE, subset, index, methods,
+                   reference, ...)
 }
+
 
 #' Get one or more evals from a simulation
 #'
 #' Returns either the Evals object itself or a reference to it.
 #'
 #' @param sim a simulation object
-#' @param subset specifies which models' evals should be selected. See
-#'        \code{\link{model}} for details
+#' @param ... logical conditions to specify a subset of models.  Conditions can
+#'        only involve params of model that have length 1 and are of class
+#'        numeric or character.
+#' @param subset a vector of integers indexing the models or a vector of model
+#'        names. To select models based on parameter values, use \code{...}.
+#'        However, using \code{...} is slower than using subset.
 #' @param index a vector of positive integers specifying which draws' objects
 #'        are desired. If missing, then all draws' evals are returned.
 #' @param methods character vector of method names of interest.  If missing,
 #'        then all methods' evals are returned
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
-evals <- function(sim, subset = NULL, index, methods,
+evals <- function(sim, ..., subset = NULL, index, methods,
                   reference = FALSE) {
   outputs_or_evals(sim, sim@evals_refs, FALSE, subset, index, methods,
-                   reference)
+                   reference, ...)
 }
 
 #' Internal function used by both outputs and evals
@@ -132,20 +178,17 @@ evals <- function(sim, subset = NULL, index, methods,
 #'        in its own list or not
 #' @keywords internal
 outputs_or_evals <- function(sim, refs, sort_by_method,
-                             subset, index, methods, reference) {
+                             subset, index, methods, reference, ...) {
   if (!missing(index))
     stopifnot(is.numeric(index), index > 0, index == round(index))
   if (length(refs) == 0) return(list())
-  if (!missing(subset)) {
-    ii <- get_model_indices(sim, subset)
-    subset_model_names <- unlist(lapply(sim@model_refs, function(m) m@name))[ii]
-  }
+  mref <- model(sim, ..., subset = subset, reference = TRUE)
+  if (length(mref) == 1) mref <- list(mref)
+  subset_model_names <- unlist(lapply(mref, function(ref) ref@name))
   obj <- list()
   for (i in seq_along(refs)) {
-    if (!missing(subset)) {
-      if (length(refs[[i]]) == 0) next # no outputs are in this model
-      if (!(refs[[i]][[1]]@model_name %in% subset_model_names)) next # subset excluded this model
-    }
+    if (length(refs[[i]]) == 0) next # no outputs are in this model
+    if (!(refs[[i]][[1]]@model_name %in% subset_model_names)) next # subset excluded this model
     # this model's outputs should be included (if they match the index and methods)
     obj[[i]] <- list()
     methods_in_list <- NULL
@@ -204,28 +247,7 @@ get_model_indices <- function(sim, subset) {
     if (!all(subset %in% model_names))
       stop("subset includes an unrecognized model name.")
     ii <- match(subset, model_names)
-  } else if (is.list(subset)) {
-    models <- model(sim)
-    ii <- rep(TRUE, length(models))
-    nams <- names(subset)
-    for (i in seq_along(models)) {
-      # for every model i in sim
-      for (j in seq_along(subset)) {
-        # for every parameter j mentioned in subset
-        if (!(nams[j] %in% names(models[[i]]@params))) {
-          # if model i doesn't have param j in it, exclude model i
-          ii[i] <- FALSE
-          next
-        }
-        if (!isTRUE(all.equal(models[[i]]@params[[nams[j]]], subset[[j]]))) {
-          ii[i] <- FALSE
-          next
-        }
-      }
-    }
-    ii <- which(ii)
-  }
-  else stop("subset is not in a valid format.")
+  } else stop("subset is not in a valid format.")
   return(ii)
 }
 
@@ -240,20 +262,24 @@ get_model_indices <- function(sim, subset) {
 #' \code{\link{relabel}}.
 #'
 #' @param sim a simulation object
-#' @param subset specifies which models should be selected. See
-#'        \code{\link{model}} for details
+#' @param ... logical conditions to specify a subset of models.  Conditions can
+#'        only involve params of model that have length 1 and are of class
+#'        numeric or character.
+#' @param subset a vector of integers indexing the models or a vector of model
+#'        names. To select models based on parameter values, use \code{...}.
+#'        However, using \code{...} is slower than using subset.
 #' @param index a vector of positive integers specifying which draws' objects
 #'        are desired. If missing, then all draws' evals are returned.
 #' @param methods character vector of method names of interest.  If missing,
 #'        then all methods' evals are returned
 #' @export
-subset_simulation <- function(sim, subset = NULL, index, methods) {
+subset_simulation <- function(sim, ..., subset = NULL, index, methods) {
   if (is.null(subset)) subset = seq_along(sim@model_refs)
-  mref <- model(sim, subset = subset, reference = TRUE)
-  dref <- draws(sim, subset = subset, index = index, reference = TRUE)
-  oref <- output(sim, subset = subset, index = index, methods = methods,
+  mref <- model(sim, ..., subset = subset, reference = TRUE)
+  dref <- draws(sim, ..., subset = subset, index = index, reference = TRUE)
+  oref <- output(sim, ..., subset = subset, index = index, methods = methods,
                  reference = TRUE)
-  eref <- evals(sim, subset = subset, index = index, methods = methods,
+  eref <- evals(sim, ..., subset = subset, index = index, methods = methods,
                  reference = TRUE)
   new_simulation(name = sim@name, label = sim@label, dir = sim@dir,
                  refs = c(mref, dref, oref, eref), save_to_file = FALSE)

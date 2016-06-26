@@ -88,3 +88,102 @@ new_model <- function(name, label, params = list(), simulate) {
   new("Model", name = name, label = label, params = params,
       simulate = simulate)
 }
+
+#' Convert a list of Model objects into a data.frame
+#'
+#' Ignores any params that are not length 1 and numeric or character
+#'
+#' @param m model object
+models_as_data.frame <- function(m) {
+  getattr <- function(x, att, element = NULL, fun = function(xx) xx) {
+    # gets x[[i]]@att for each i when element is NULL (fun ignored)
+    # gets fun(x[[i]]@att$element) for each i otherwise
+    if (is.null(element)) {
+      ll <- lapply(x, function(xx) {
+        a <- attr(xx, att)
+        if (is.null(a)) return(NA)
+        return(a)
+      })
+      return(unlist(ll))
+    } else {
+      ll <- lapply(x, function(xx) {
+        a <- fun(attr(xx, att)[[element]])
+        if (is.null(a)) return(NA)
+        return(a)
+      })
+      return(unlist(ll))
+    }
+  }
+  if (!identical(class(m), c("listofModels", "list")))
+    if (length(class(m)) != 1)
+      stop("Must be a list of Models or a listofModels")
+  else if (class(m) == "Model") m <- list(m)
+  else if (class(m) == "list") {
+    if (any(getattr(m, "class") != "Model"))
+      stop("Must be a list of Model objects.")
+  }
+  else
+    stop("Must be a list of Model objects.")
+  df <- data.frame(row.names = seq_along(m))
+  df[["name"]] <- getattr(m, "name")
+  df[["label"]] <- getattr(m, "label")
+  param_names <- unique(unlist(lapply(m, function(mm) names(mm@params))))
+  check_if_fine <- function(param) {
+    if (length(param) == 1)
+      if (is.numeric(param) || is.character(param))
+        return(TRUE)
+    return(FALSE)
+  }
+  for (nam in param_names) {
+    is_fine_as_is <- getattr(m, "params", nam, check_if_fine)
+    if (any(is_fine_as_is))
+      df[is_fine_as_is, nam] <- getattr(m[is_fine_as_is], "params", nam)
+  }
+  df
+}
+
+#' Subset Models
+#'
+#' Given a list of \code{\linkS4class{Model}} objects, returns model names
+#' which meet conditions.  Uses \code{\link{subset}}
+#'
+#' @param m list of \code{\linkS4class{Model}} objects
+#' @param ... logical expression involving parameters of Models.  For now, can
+#' only be parameters that are of length 1 and either of class numeric or
+#' character
+#' @export
+subset_models <- function(m, ...) {
+  df <- models_as_data.frame(m)
+  subset(df, ...)[["name"]]
+}
+
+#' Convert a Model to a data.frame
+#'
+#' Ignores any params that are not length 1 and numeric or character. This is
+#' equivalent to calling \code{as(x, "data.frame")}
+#' @param x object of class \code{\linkS4class{Model}}
+#' @param row.names not used
+#' @param optional not used
+#' @param ... not used
+#' @export
+as.data.frame.Model <- function(x, row.names = NULL, optional = FALSE, ...)
+  as(x, "data.frame")
+
+setAs(from = "Model", to = "data.frame",
+      def = function(from) models_as_data.frame(from))
+
+#' Convert a List of Models to a data.frame
+#'
+#' When \code{\link{load}} generates a list of Models, it assigns this
+#' to be of (S3) class listofModels, inherited from list, so that this function
+#' will be invoked instead of as.data.frame.list, which is defined in base.
+#'
+#' @param x list
+#' @param row.names not used
+#' @param optional not used
+#' @param ... not used
+#' @export
+as.data.frame.listofModels <- function(x, row.names = NULL, optional = FALSE,
+                                       ...) {
+  return(models_as_data.frame(x))
+}

@@ -128,17 +128,13 @@ test_that("get model from sim", {
   expect_error(model(sim, subset = 1.2), "must be")
   expect_error(model(sim, subset = 1.2), "must be")
   expect_error(model(sim, subset = 100), "must be")
-  m1 <- model(sim, 2:3, reference = TRUE); m2 <- mref[2:3]
+  m1 <- model(sim, subset = 2:3, reference = TRUE); m2 <- mref[2:3]
   expect_identical(lapply(m1, function(m) m@name),
                    lapply(m2, function(m) m@name))
   # using expect_equal instead of expect_identical because
   # function environments of [...]@simulate differ
-  expect_equal(model(sim, c(mref[[5]]@name, mref[[2]]@name)),
-                   model(sim, c(5, 2)))
-  expect_equal(model(sim, list(n = 2, p = "a")), model(sim, 2))
-  expect_equal(model(sim, list(n = 3)), model(sim, c(3, 6, 9, 12)))
-  expect_equal(model(sim, list(n = -1)), list())
-  expect_equal(model(sim, list(n = "a")), list())
+  expect_equal(model(sim, subset = c(mref[[5]]@name, mref[[2]]@name)),
+                   model(sim, subset = c(5, 2)))
   unlink(dir, recursive = TRUE)
   })
 
@@ -175,26 +171,25 @@ test_that("get outputs and evals from sim", {
   sim <- add(sim, oref)
   expect_identical(output(sim, subset = 1), list())
   expect_identical(output(sim, subset = 2, index = 4), list())
-  expect_identical(output(sim, subset = 2, index = 3, method = "not_a_method"),
+  expect_identical(output(sim, subset = 2, index = 3, methods = "not_a_method"),
                    list())
-  expect_identical(output(sim, subset = 2, index = 3, method = "his"),
+  expect_identical(output(sim, subset = 2, index = 3, methods = "his"),
                    load(oref[[1]][[6]]))
   dref2 <- simulate_from_model(mref[c(1, 4)], nsim = 1, index = 2)
   oref2 <- run_method(dref2, list(my_method, his_method))
   sim <- add(sim, c(dref2, oref2))
   oo <- list(oref[[2]][c(3, 5)], list(oref2[[1]][[1]]))
-  expect_identical(output(sim, subset = list(n=1), index = 2:3, method = "my"),
+  expect_identical(output(sim, n == 1, index = 2:3, methods = "my"),
                    load(oo))
   oo <- list()
   oo[[1]] <- list(oref[[2]][c(3, 5)], oref[[2]][c(4, 6)])
   oo[[2]] <- list(list(oref2[[1]][[1]]), list(oref2[[1]][[2]]))
-  expect_identical(output(sim, subset = list(n = 1), index = 2:3),
-                   load(oo))
+  expect_identical(output(sim, n == 1, index = 2:3), load(oo))
   oref <- output(sim, reference = TRUE)
   eref <- evaluate(oref, list(l1_error, linf_error))
   sim <- add(sim, eref)
   expect_identical(lapply(eref, unlist), evals(sim, reference = TRUE))
-  expect_identical(unlist(eref[[2]]), evals(sim, subset = list(n = 1, p = "b"),
+  expect_identical(unlist(eref[[2]]), evals(sim, n == 1 & p == "b",
                                     reference = TRUE))
   unlink(dir, recursive = TRUE)
 })
