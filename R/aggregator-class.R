@@ -37,8 +37,7 @@ setClass("Aggregator",
 #'
 #' Creates a new \code{\linkS4class{Aggregator}} object.
 #'
-#' @param label a human readable label that will be a prefix to the Eval's
-#' label
+#' @param label a human readable label
 #' @param aggregate a function with argument \code{ev} that is a list of
 #'        length \code{nsim} with each element itself being a named list. Each
 #'        element of this list corresponds to a metric that has been computed.
@@ -51,11 +50,11 @@ new_aggregator <- function(label, aggregate) {
   new("Aggregator", label = label, aggregate = aggregate)
 }
 
-make_scalar_aggregator <- function(label, metric_name, fun) {
-  new_aggregator(label = label,
+make_scalar_aggregator <- function(label, metric_name, metric_label, fun) {
+  new_aggregator(label = paste(label, metric_label),
                  aggregate = function(ev) {
                    if (!(metric_name %in% names(ev[[1]])))
-                     stop("Metric with name ", metric_name, "not found.")
+                     return(NA)
                    e <- lapply(ev, function(aa) aa[[metric_name]])
                    if (all(lapply(e, length) == 1))
                      return(fun(unlist(e)))

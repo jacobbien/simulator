@@ -24,7 +24,8 @@
 #' apply when use_ggplot2 is FALSE.
 #'
 #' @param sim an object of class \code{\linkS4class{Simulation}}
-#' @param metric_name the name of a metric to plot
+#' @param metric_name the name of a metric to plot (ignored if custom
+#'        aggregator is provided)
 #' @param varying character vector giving the name of a parameter that is
 #'        varied across the models in evals. For now, this parameter must be
 #'        numeric and there cannot be multiple models having the same value
@@ -90,16 +91,19 @@ plot_eval_by <- function(sim, metric_name, varying,
     stop("For now, cannot have multiple models having same value of 'varying'. Use subset_simulation.")
   model_names <- lapply(sim@model_refs, function(m) m@name)
   # load evals
-  #e <- subset_evals(evals(sim), metric_names = metric_name)
   e <- evals(sim)
-  stopifnot(unlist(lapply(e, function(ee) metric_name %in% ee@metric_name)))
+  type <- type[1]
+  if (type == "raw" | is.null(center_aggregator) | is.null(spread_aggregator))
+    if(!all(unlist(lapply(e, function(ee) metric_name %in% ee@metric_name))))
+      stop("'", metric_name, "' is not found in one or more Evals.")
   method_names <- lapply(e, function(ee) ee@method_name)
   if (length(unique(method_names)) != 1)
     stop("All models must have same methods.")
   method_names <- method_names[[1]]
   num_methods <- length(method_names)
   method_labels <- e[[1]]@method_label
-  metric_label <- e[[1]]@metric_label[e[[1]]@metric_name == metric_name]
+  if (type == "raw" | is.null(center_aggregator) | is.null(spread_aggregator))
+    metric_label <- e[[1]]@metric_label[e[[1]]@metric_name == metric_name]
   # prepare data.frame that has varying, metric_name, and "Method" as columns
   df <- as.data.frame(e)
   ii <- match(df[["Model"]], model_names)
@@ -118,14 +122,16 @@ plot_eval_by <- function(sim, metric_name, varying,
       # the "metric_name" evals
       center_aggregator <- make_scalar_aggregator("Mean",
                                                   metric_name,
+                                                  metric_label,
                                                   mean)
     }
     if (is.null(spread_aggregator)) {
       # create an aggregator that computes an estimate of the standard error of
       # the sample mean of the "metric_name" evals
       se <- function(a) sd(a) / sqrt(length(a))
-      spread_aggregator <- make_scalar_aggregator("Standard error ",
+      spread_aggregator <- make_scalar_aggregator("Standard error",
                                                   metric_name,
+                                                  metric_label,
                                                   se)
     }
     center <- aggregate_evals(e, center_aggregator)
@@ -138,7 +144,12 @@ plot_eval_by <- function(sim, metric_name, varying,
   # plotting parameters:
   if (missing(main)) main <- sprintf("Varying %s", varying)
   if (missing(xlab)) xlab <- varying
-  if (missing(ylab)) ylab <- metric_label
+  if (missing(ylab)) {
+    if (type == "raw")
+      ylab <- metric_label
+    else
+      ylab <- center_aggregator@label
+  }
   if (missing(xlim)) xlim <- range(df[[varying]])
   if (missing(ylim)) {
     if (type == "aggregated") {
@@ -182,7 +193,7 @@ plot_eval_by <- function(sim, metric_name, varying,
       if (isS4(spread_aggregator)) {
         g <- g + ggplot2::geom_errorbar(ggplot2::aes_string(ymin = ".lower",
                                                             ymax = ".upper",
-                                                            width = .1,
+                                                            width = 0.1,
                                                             position = ".center"))
       }
 

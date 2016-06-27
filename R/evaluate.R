@@ -273,8 +273,8 @@ subset_evals <- function(evals, method_names = NULL, metric_names = NULL) {
     return(ll)
   }
   if (!is.null(method_names)) {
-    stopifnot(method_names %in% evals@method_name)
     ii <- match(method_names, evals@method_name)
+    ii <- ii[!is.na(ii)]
     evals@method_name <- evals@method_name[ii]
     evals@method_label <- evals@method_label[ii]
     evals@evals <- evals@evals[evals@method_name]
