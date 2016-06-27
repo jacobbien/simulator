@@ -14,6 +14,15 @@
 #' @param method_names character vector indicating methods to include in table.
 #'        If NULL, then will include all methods found in object's evals.
 #' @param caption caption of plot
+#' @param center_aggregator When NULL (which is default), the sample mean
+#'        aggregator is used.  User can write specialized aggregators (see
+#'        definition of class \code{\linkS4class{Aggregator}}) as necessary,
+#'        for example, when the evaluated metric is not scalar-valued.
+#' @param spread_aggregator When NULL (which is default), the sample mean
+#'        aggregator is used.  User can write specialized aggregators (see
+#'        definition of class \code{\linkS4class{Aggregator}}) as necessary,
+#'        for example, when the evaluated metric is not scalar-valued. Set
+#'        \code{spread_aggregator} to \code{NA} to hide error bars.
 #' @param se_format format of the standard error
 #' @param output_type see \code{\link[knitr]{kable}}'s argument format for options.
 #'        Default is "latex" but other options include "html" and "markdown"
@@ -22,6 +31,8 @@
 #' @export
 tabulate_eval <- function(object, metric_name, method_names = NULL,
                           caption = NULL,
+                          center_aggregator = NULL,
+                          spread_aggregator = NULL,
                           se_format = c("Paren", "PlusMinus", "None"),
                           output_type = "latex",
                           format_args = list(nsmall = 0,
@@ -34,17 +45,12 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
   ev_list <- get_evals_list(object)
   if (length(ev_list) == 0)
     stop("Passed object does not have Evals to tabulate.")
-  if (!any(unlist(lapply(ev_list,
-                         function(e) metric_name %in% e@metric_name)))) {
-    stop("Passed object does not have Evals with this metric name.")
-  }
   stopifnot("list" %in% class(ev_list), lapply(ev_list, class) == "Evals")
   model_labels <- unlist(lapply(ev_list, function(evals) evals@model_label))
   method_labels <- unique(unlist(lapply(ev_list,
                                         function(evals) evals@method_label)))
   meth_names <- unique(unlist(lapply(ev_list,
-                                 function(evals) evals@method_name)))
-  metric_label <- NA
+                                     function(evals) evals@method_name)))
   if (is.null(method_names)) {
     method_names <- meth_names
   } else {
@@ -54,35 +60,38 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
       stop("Method with name '", namdiff[1], "' not found in any evals.")
     method_labels <- method_labels[meth_names %in% method_names]
   }
-  tabm <- tabse <- tabn <- matrix(NA,
-                                  length(model_labels),
-                                  length(method_labels))
-  for (i in seq_along(ev_list)) {
-    if (!(metric_name %in% ev_list[[i]]@metric_name)) {
-      # metric has not been computed for any methods in this model.
-      next
-    }
-    ev <- subset_evals(ev_list[[i]], metric_names = metric_name)
-    for (j in seq_along(method_names)) {
-      if (!(method_names[j] %in% ev@method_name)) {
-        # method j has not been computed for model i
-        next
-      }
-      if (is.na(metric_label)) metric_label <- ev@metric_label
-      values <- unlist(ev@evals[[method_names[j]]])
-      if (length(values) != length(ev@evals[[method_names[j]]]))
-        stop("Metric tabulated must be scalar valued.")
-      tabm[i, j] <- mean(values)
-      tabn[i, j] <- length(values)
-      if (se_format[1] != "None")
-        tabse[i, j] <- sd(values) / sqrt(length(values))
-    }
+  e <- subset_evals(ev_list, method_names = method_names)
+  metric_label <- e[[1]]@metric_label[e[[1]]@metric_name == metric_name]
+  if (is.null(center_aggregator)) {
+    # create an aggregator that computes the sample mean of
+    # the "metric_name" evals
+    center_aggregator <- make_scalar_aggregator("Mean",
+                                                metric_name,
+                                                metric_label,
+                                                mean)
   }
-  tabm_str <- do.call("format", c(list(x = tabm), format_args))
+  center_label <- center_aggregator@label
+  if (is.null(spread_aggregator)) {
+    # create an aggregator that computes an estimate of the standard error of
+    # the sample mean of the "metric_name" evals
+    se <- function(a) sd(a) / sqrt(length(a))
+    spread_aggregator <- make_scalar_aggregator("Standard error",
+                                                metric_name,
+                                                metric_label,
+                                                se)
+  }
+  num_sim_aggregator <- new_aggregator("Number", function(ev) length(ev))
+  center <- aggregate_evals(e, center_aggregator)
+  num_sim <- aggregate_evals(e, num_sim_aggregator)
+  if (isS4(spread_aggregator))
+    spread <- aggregate_evals(e, spread_aggregator)
+  tabm_str <- do.call("format", c(list(x = center), format_args))
   if (se_format[1] == "None")
     tab <- tabm_str
   else {
-    tabse_str <- do.call("format", c(list(x = tabse), format_args))
+    if (!isS4(spread_aggregator))
+      stop("se_format must be None if spread_aggregator is NA.")
+    tabse_str <- do.call("format", c(list(x = spread), format_args))
     if (se_format[1] == "Paren")
       tab <- sprintf("%s (%s)", tabm_str, tabse_str)
     else if (se_format[1] == "PlusMinus") {
@@ -94,17 +103,16 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
     }
     else stop("Unrecognized value for se_format.")
   }
-  tab <- matrix(tab, nrow = nrow(tabm))
+  tab <- matrix(tab, nrow = nrow(center))
   rownames(tab) <- model_labels
   colnames(tab) <- method_labels
-  tab[is.na(tabm)] <- na_string
+  tab[is.na(center)] <- na_string
   if (is.null(caption)) {
-    if (is.na(metric_label)) metric_label <- metric_name
-    ndraws <- unique(as.vector(tabn))
+    ndraws <- unique(as.vector(num_sim))
     ndraws <- ndraws[!is.na(ndraws)]
     if (length(ndraws) > 1) ndraws <- "differing numbers of"
     caption <- sprintf("A comparison of %s (averaged over %s replicates).",
-                       metric_label, ndraws)
+                       center_label, ndraws)
   }
   str <- sprintf("generated by simulator on %s.", date())
   if (output_type == "latex") str <- paste("%", str)
