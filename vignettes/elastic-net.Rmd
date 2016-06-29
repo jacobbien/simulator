@@ -1,0 +1,143 @@
+---
+title: "The Elastic Net with the `simulator`"
+author: "Jacob Bien"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The Elastic Net with the Simulator}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+code <- file.path("elastic-net",
+                  c("model_functions.R", 
+                    "method_functions.R",
+                    "eval_functions.R", 
+                    "main.R"))
+code_lastmodified <- max(file.info(code)$mtime)
+sapply(code, read_chunk)
+```
+
+In this vignette, we perform a simulation with the [elastic net](link-to-Zou-Hastie-paper) to demonstrate the use of the `simulator` in the case where one is interested in a sequence of methods that are identical except for a parameter that varies.  The elastic net is the solution $\hat\beta_{\lambda,\alpha}$ to the following convex optimization problem:
+$$
+\min_{\beta\in\mathbb R^p}\frac1{2}\|y-X\beta\|_2^2+\lambda(1-\alpha)\|\beta\|^2_2+\lambda\alpha\|\beta\|_1.
+$$
+
+Here, $\lambda\ge0$ controls the overall amount of regularization whereas $\alpha\in[0,1]$ controls the tradeoff between the [lasso](link-to-Tibs1996) and ridge penalties.  While sometimes one performs a two-dimensional cross-validation over $(\lambda,\alpha)$ pairs, in some simulations one might wish instead to view each fixed $\alpha$ as corresponding to a separate version of the elastic net (each solved along a grid of $\lambda$ values).  Such a view is useful for understanding the effect $\alpha$.
+
+# Main simulation
+
+## Understanding the effect of the elastic net's $\alpha$ parameter
+
+We begin with a simulation showing the best-case performance of the
+elastic net for several values of $\alpha$.
+
+```{r}
+library(simulator)
+```
+
+```{r, echo = FALSE, results = 'hide', warning = FALSE, message = FALSE}
+<<models>>
+<<methods>>
+<<cv>>
+<<metrics>>
+```
+
+```{r, eval = FALSE}
+<<init>>
+<<main>>
+```
+
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+<<init>>
+sim_lastmodified <- file.info(sprintf("files/sim-%s.Rdata",
+                              name_of_simulation))$mtime
+if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
+  <<main>>
+  <<maincv>>
+} else{
+  sim <- load_simulation(name_of_simulation)
+  sim_cv <- load_simulation("elastic-net-cv")
+}
+```
+
+In the above code, we consider a sequence of models in which we vary the correlation `rho` among the features.  For each model, we fit a sequence of elastic net methods (varying the tuning parameter $\alpha$).  For each method, we compute the best-case mean-squared error.  By best-case, we mean $\min_{\lambda\ge0}\frac1{p}\|\hat\beta_{\lambda,\alpha}-\beta\|_2^2$, which imagines we have an oracle-like ability to choose the best $\lambda$ for minimizing the MSE.
+
+We provide below all the code for the problem-specific components.  We use the R package [`glmnet`](https://cran.r-project.org/web/packages/glmnet/index.html) to fit the elastic net.  The most distinctive feature of this particular vignette is how the list of methods `list_of_elastic_nets` was created.  This is shown in the Methods section.
+
+
+```{r, fig.width = 7, fig.height = 5, results = 'hide', warning = FALSE, message = FALSE}
+plot_evals(sim, "nnz", "sqr_err")
+```
+
+The first plot shows the MSE versus sparsity level for each method (parameterized by $\lambda$).  As expected, we see that when $\alpha=1$ (pure ridge regression), there is no sparsity.  We see that the performance of the methods with $\alpha<1$ degrades as the correlation among features increases, especially when a lot of features are included in the fitted model.
+
+It is informative to look at how the height of the minimum of each of the above curves varies with $\rho$.
+
+```{r, fig.width = 7, fig.height = 5, results = 'hide', warning = FALSE, message = FALSE}
+plot_eval_by(sim, "best_sqr_err", varying = "rho", include_zero = TRUE)
+```
+
+We see that when the correlation between features is low, the methods with some $\ell_1$ penalty do better than ridge regression.  However, as the features become increasingly correlated, a pure ridge penalty becomes better.  Of course, none of the methods are doing as well in the high correlation regime (which is reminiscent of the [bet on sparsity principle](lasso.pdf)).
+
+A side note: the simulator automatically records the computing time of each method as an additional metric:
+
+```{r, fig.width = 7, fig.height = 5, results = 'hide', warning = FALSE, message = FALSE}
+plot_eval(sim, "time", include_zero = TRUE)
+```
+
+## Results for Cross-Validated Elastic Net
+
+We might be reluctant to draw conclusions about the methods based on the oracle-like version that we used above (in which each method on each random draw gets to pick the best possible $\lambda$ value).  We might therefore look at the performance of the methods using cross-validation to select $\lambda$.
+
+```{r, eval = FALSE}
+<<maincv>>
+```
+
+Reassuringly, the relative performance of these methods is largely the same (though we see that all methods' MSEs are higher).
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+<<plotscv>>
+```
+
+# Components
+
+The most distinctive component in this vignette is in the Methods section. Rather than directly creating a Method object, we write a *function* that creates a Method object.  This allows us to easily create a sequence of elastic net methods that differ only in their setting of the $\alpha$ parameter.
+
+## Models
+
+```{r, eval = FALSE}
+<<models>>
+```
+
+## Methods
+
+```{r, eval = FALSE}
+<<methods>>
+```
+
+The function `make_elastic_net` takes a value of $\alpha$ and creates a Method object corresponding to the elastic net with that value of $\alpha$.
+
+In the second set of simulations, we studied cross-validated versions of each elastic net method.  To do this, we wrote `list_of_elastic_nets + cv`.  This required writing the following `MethodExtension` object `cv`.  The vignette on the lasso has more about writing method extensions.
+
+```{r, eval = FALSE}
+<<cv>>
+```
+
+
+## Metrics
+
+```{r, eval = FALSE}
+<<metrics>>
+```
+
+
+# Conclusion
+
+To cite the `simulator`, please use
+
+```{r, results='asis'}
+citation("simulator")
+```

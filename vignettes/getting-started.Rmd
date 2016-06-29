@@ -1,0 +1,69 @@
+---
+title: "Getting Started with the Simulator"
+author: "Jacob Bien"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Getting Started with the Simulator}
+  \usepackage[utf8]{inputenc}
+---
+
+This brief vignette describes how to get started with the `simulator`.
+
+## Starting from a template
+
+After installing the package, open R and type.
+```{r}
+library(simulator)
+dir <- "./sims"
+create(dir)
+```
+
+Choose `dir` to be the path of a directory (that does not yet exist) where you want your simulation code and files to be stored.  In practice, `"./sims"` would be a standard choice, where `"."` refers to a directory containing files relevant to your current project.
+
+The `create` command generates a skeleton of a simulation.^[This function was inspired by the `create` function in `devtools`, which creates the skeleton on an R package.]  A look at the newly created directory shows that several files have been created.
+
+```{r, eval=FALSE}
+setwd(dir)
+list.files()
+```
+
+```{r, echo=FALSE}
+list.files(dir)
+```
+
+This is the template of a basic simulation. 
+
+- In `model_functions.R`, write code that defines the models under which you wish to simulate.  
+- In `method_functions.R`, add code for methods that you wish to compare in your simulation (note that by using `source` and `library`, you can keep `method_functions.R` short and to the point, focusing on calling `new_method` rather than putting the actual heart of algorithms in that file).  
+- In `eval_functions.R`, use `new_metric` to define the ways in which your methods will be evaluated. 
+- The file `main.R` contains the main entry point to the simulation.  Running the code in this file determines which models/methods/metrics are computed, etc.  
+- Finally, the file `writeup.Rmd` shows how all results can be presented in as a report.  This document pulls all code from the `.R` files mentioned above, so that as `main.R` and other files develop, the report will remain up to date.  To create an `html` file report, run the following command in R (which requires installing the package `rmarkdown`).
+
+```{r, eval = FALSE}
+rmarkdown::render("writeup.Rmd", "html_document")
+```
+
+Or if one is using RStudio, one can simply press the `Knit HTML` button.
+
+## Typical workflow
+
+On a typical project, one starts by defining a model in `model_functions.R`, one or two methods in `method_functions.R`, and a few metrics in `eval_functions.R`, and then one runs the code in `main.R`.  After looking at some of the results, one might add an additional model or method or metric.  One then returns to `main.R`, adds some additional lines specifying that the additional components should be run as well and looks at some more results.
+
+The simplest way to look at results is by using the plot functions `plot_eval`, `plot_evals` and `plot_evals_by`.  In situations where you wish to investigate results more deeply than just looking at aggregated plots, one can use the functions `model`, `draws`, `output`, and `evals` to get at all objects generated through the course of the simulation.  
+
+## Next steps
+
+The best way to get a sense of how to use the simulator is to look at examples.  There are several vignettes that demonstrate how the simulator can be used to conduct simulations for some of the most famous statistical methods.
+
+1) [Lasso](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/lasso.html) vignette: Explains basics, including the magrittr pipe and making plots and tables. Also demonstrates some more advanced features such as writing method extensions (such as refitting the result of the lasso or performing cross-validation).
+2) [James-Stein](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/js.html) vignette: Shows how to step into specific parts of the simulation for troubleshooting your code.
+3) [Elastic net](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/en.html) vignette: Shows how we can work with a sequence of methods that are identical except for a parameter that varies
+4) [Benjamini-Hochberg](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/fdr.html) vignette: Shows how we can load a preexisting simulation and add more random draws without having to rerun anything.  It also shows how one can have multiple simulation objects that point to overlapping sets of results.
+5) Link to **working with data** vignette
+
+```{r, echo = FALSE}
+# delete all files created in running this vignette 
+unlink(dir, recursive = TRUE)
+```

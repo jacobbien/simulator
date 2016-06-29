@@ -1,0 +1,241 @@
+---
+title: "The Lasso with the Simulator"
+author: "Jacob Bien"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The Lasso with the Simulator}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+code <- file.path("lasso",
+                  c("model_functions.R", 
+                    "method_functions.R",
+                    "eval_functions.R", 
+                    "main.R"))
+code_lastmodified <- max(file.info(code)$mtime)
+sapply(code, read_chunk)
+```
+
+\newcommand{\real}{\mathbb R}
+
+# Overview
+
+In this vignette, we show how the simulator can be used to perform simulations related to the [lasso](http://statweb.stanford.edu/~tibs/lasso/lasso.pdf).
+
+# Betting on Sparsity
+
+In [The Elements of Statistical Learning](http://statweb.stanford.edu/~tibs/ElemStatLearn/), the authors describe a "bet on sparsity" principle that suggests that one should,
+
+> "Use a procedure that does well in sparse problems, since no procedure does well in dense problems."
+
+In support of this idea, they compare the performance of lasso and ridge estimators in sparse and dense situations.  We demonstrate how the `simulator` can be used to perform such a simulation study.
+
+```{r}
+library(simulator)
+```
+
+```{r, echo = FALSE, results = 'hide', warning = FALSE, message = FALSE}
+<<models>>
+<<methods>>
+<<metrics>>
+<<refit>>
+```
+
+```{r, eval = FALSE}
+<<main1>>
+```
+
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+sim_lastmodified <- file.info("files/sim-bet-on-sparsity.Rdata")$mtime
+if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
+  <<main1>>
+} else{
+  sim <- load_simulation("bet-on-sparsity")
+}
+```
+
+Observe that the entire simulation is coded in less than 10 lines of code.
+
+- In the first line, we name the simulation (both in a computer-friendly and human-readable way); this newly created simulation is then piped^[The `simulator` package imports the pipe operator `%>%` from the [magrittr](https://github.com/smbache/magrittr) package.  The pipe passes the output of a function as the first argument of the next function. This means that instead of writing `sim <- simulate_from_model(sim, nsim = 3)` followed by `sim <- run_method(sim, my_method)` followed by `sim <- evaluate(sim, my_metric)`, we can simply write `sim <- sim %>% simulate_from_model(nsim = 3) %>% run_method(my_method) %>% evaluate(my_metric)`.] to `generate_model`, which creates a sequence of sparse linear models where the sparsity level is varied from 1 to 80; 
+
+- this is then piped to `simulate_from_model`, which creates a total of 12 draws from each model (these are created in 4 chunks of size 3, each getting its own random number generator stream so that we will get the same results regardless of whether they are performed in parallel or sequence); 
+
+- the simulation object is then piped to `run_method`, where both the lasso and ridge are performed (in parallel, across 4 cpus) on all 192 instances (192=16*12; 16 models with 12 draws per model); 
+
+- finally, 4 metrics are computed on each method's output across all instances.  
+
+All intermediate results are automatically saved to file, and the simulation object `sim` contains references to all of these saved results.  The functions `model`, `draws`, `output`, and `evals` can be applied to `sim` to return various results created above.  For now, we are interested in looking at the final results of the simulation, which are contained in `evals(sim)`.
+
+The function `plot_eval_by` is designed for situations in which we wish to see how a metric of interest varies with some model parameter.  In the "bet on sparsity" simulation, we might be curious to see how varying the sparsity level of the model affects the best-achievable mean squared error $\min_\lambda\frac1{p}\|\hat\beta_\lambda-\beta\|^2$ of each method.
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+plot_eval_by(sim, "best_sqrerr", varying = "k", main = "Betting on sparsity")
+```
+
+The rationale for the "bet on sparsity" principle is apparent from this plot.  When $k$ is low, we see large gains in performance using the lasso compared to the ridge; when $k$ is large, ridge does better---however, in this regime, neither method is doing particularly well (and in a relative sense, ridge's advantage is only slight).
+
+Rather than looking at just the best MSE of each method, we can also examine how the MSE varies with degrees of freedom (which, unlike $\lambda$, has the same meaning across different methods).  Let's look in particular at two models with very different sparsity levels $k$.
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+subset_simulation(sim, k %in% c(20, 80)) %>% plot_evals("df", "sqrerr")
+```
+
+# The relaxed lasso
+
+Suppose we wish to add the [relaxed lasso](http://stat.ethz.ch/~nicolai/relaxo.pdf) to this comparison.  The relaxed lasso involves fitting a lasso to determine the set of nonzeros and then performing least squares on this selected subset of variables.
+
+```{r, eval = FALSE}
+<<main2>>
+```
+
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+sim_lastmodified <- file.info("files/sim-relaxing-the-lasso.Rdata")$mtime
+if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
+  <<main2>>
+} else{
+  sim2 <- load_simulation("relaxing-the-lasso")
+}
+```
+
+
+We will describe in a later section of this vignette how the `simulator` interprets `lasso + refit` as an extension of the `lasso` method and therefore does not require re-running the lasso but instead takes the already saved output from the lasso method and performs refitting on this output.
+
+Let's check if this is an improvement over the lasso.
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+plot_eval_by(sim2, "best_sqrerr", varying = "k")
+```
+
+It looks like the relaxed lasso does better only for small values of $k$.  We can see this better by looking at a table of the first several models with low true sparsity level $k$.
+
+```{r, results='asis'}
+sim2 %>% 
+  subset_simulation(methods = c("lasso", "lasso_refit"), subset = 1:3) %>%
+  tabulate_eval(metric_name = "best_sqrerr",
+                format_args = list(nsmall = 3, digits = 0),
+                output_type = "markdown")
+```
+
+As the true sparsity level increases, it makes sense that the performance of the relaxed lasso degrades since the lasso can accommodate a larger number of features whereas the relaxed lasso cannot (since least squares suffers greatly when the number of features nears the sample size $n$).  This explanation is confirmed by plotting the MSE versus the number of nonzeros in the fitted model:
+
+```{r, fig.width = 8, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+subset_simulation(sim2, methods = c("lasso", "lasso_refit"), subset = 1:3) %>%
+  plot_evals("nnz", "sqrerr")
+```
+
+However, when the true sparsity level is larger, we see that the relaxation can backfire.
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE}
+subset_simulation(sim2, methods = c("lasso", "lasso_refit"), k == 40) %>%
+  plot_evals("nnz", "sqrerr")
+```
+
+Since it looks like the relaxed lasso is not particularly beneficial in this situation, let's return to our comparison of the lasso and ridge.
+
+# Betting on sparsity (with cross-validation)
+
+The simulation above side-stepped the issue of tuning parameter selection by either looking at curves parameterized by $\lambda$ or by looking at the "best MSE", that is $\min_\lambda MSE(\lambda)$.  In practice, it is common to use cross-validation to select the tuning parameter, so it might be more practically relevant to compare the performance of lasso and ridge when cross-validation is used to select their tuning parameters.
+
+Let's create a new simulation object with the same model and simulated data as before, but with two new methods:
+
+```{r, echo = FALSE, eval = TRUE, results = 'hide'}
+<<cv>>
+```
+
+```{r, eval = FALSE}
+<<main3>>
+```
+
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+sim_lastmodified <- file.info("files/sim-bet-on-sparsity-cv.Rdata")$mtime
+if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
+  <<main3>>
+} else{
+  sim3 <- load_simulation("bet-on-sparsity-cv")
+}
+```
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+plot_eval_by(sim3, "sqrerr", varying = "k", main = "Betting on sparsity")
+```
+
+# A look at the components of the simulations above
+
+The idea of the `simulator` is that one should only have to write problem-specific code when performing simulations.  Everything else---bookkeeping, saving/loading results, parallelization, handling of random number generator streams, plotting, making tables---is taken care of by the `simulator`.  We look now at the problem-specific components that were "plugged in" to the simulator to perform the simulations above.  The components of the `simulator` are organized into models, methods, and metrics, as demonstrated below.  Although not required, to stay organized we recommend having each of these components defined in separate files, named `model_functions.R`, `method_functions.R`, and `eval_functions.R`.
+
+## The model
+
+We simulate from a linear model
+$$
+Y=X\beta + \epsilon
+$$
+where $Y\in\real^n$, $\beta\in\real^p$, and $\epsilon\sim N(0,\sigma^2I_n)$.  We have taken $X$ to have iid $N(0,1)$ entries and treat it as fixed in this simulation.  We define a `Model` object, which specifies the parameters and, most importantly, describes how to simulate data.
+
+```{r, eval = FALSE}
+<<models>>
+```
+
+We will typically put the code above in a file named `model_functions.R`.
+
+## The methods
+
+We compare the lasso and ridge.  Both of these methods depend on tuning parameters, so we compute a sequence of solutions.
+
+```{r, eval = FALSE}
+<<methods>>
+```
+
+Methods can return different items.  However, aspects of the method that will be used downstream in the simulation and compared across methods should be in a common format.  Thus `beta`, `yhat`, and `df` in each case are in the same format.  These will be the items used when evaluating the methods' performances.
+
+We will typically put the code above in a file named `method_functions.R`.
+
+## The metrics
+
+When we compare methods in plots and tables, there are usually a number of "metrics" we use.  An object of class `Metric` specifies how to go from a model's parameters and the output of a method and return some quantity of interest.
+
+```{r, eval = FALSE}
+<<metrics>>
+```
+
+Observe that `out` refers to the list returned by our methods and `model` refers to the `Model` object that is generated by `make_sparse_linear_model`.  The `$` operator can be used to get parameters that are stored in the `Model` object.
+
+We will typically put the code above in a file named `eval_functions.R`.
+
+## Extensions of the methods
+
+In the simulations above, we saw two examples in which we studied methods that were extended versions of other methods.  While the relaxed lasso could have been treated as a completely separate method from the lasso, this would have been wasteful in a comparison to the lasso since it would have required us to fit the lasso twice (once when calling the lasso and once within the relaxed lasso).  Instead, we created what is called an `ExtendedMethod` object, which behaves like a `Method` object, except it allows one to use the output of another method.
+
+If we only care about relaxing the lasso, we might directly create an `ExtendedMethod`.  However, in some situations, we may wish to extend multiple methods in the same fashion.  For example, perhaps we may later wish to "relax" both the lasso and another variable selection procedure, such as SCAD or MCP.  In the spirit of code reusability, we therefore created a `MethodExtension` object called `refit`.  A `MethodExtension` object when added to a `Method` object generates an `ExtendedMethod`.  In our example of the relaxed lasso, we created a `MethodExtension` called `refit` that takes any method's output and performs least squares on the nonzeros.
+
+```{r, eval = FALSE}
+<<refit>>
+```
+
+Having created the `MethodExtension`, we can get the relaxed lasso  `ExtendedMethod` through the simple addition of objects:
+
+```{r}
+lasso + refit
+```
+
+If we had defined a different variable selection procedure, say `mcp`,
+we could just as easily generated its relaxed version, writing no new code:
+```{r, eval = FALSE}
+relaxed_mcp <- mcp + refit
+```
+
+The other example of a method extension in the simulations above was cross-validation.  We wrote this method extension so that it could be used to create extended versions of multiple methods.
+
+
+```{r, eval = FALSE}
+<<cv>>
+```
+
+We will typically put the code above in the file named `method_functions.R`, though if that file is large, we may prefer to have a separate file named, perhaps, `method_extensions_functions.R`.
+
+# Conclusion
+
+This vignette demonstrated some features of the `simulator` such as parallel computing, writing extensions to methods, and making basic plots and tables.  In other vignettes, additional features are demonstrated.  For example, the vignette on the elastic net demonstrates how one can work with a sequence of methods that are identical except for a particular setting (such as $\alpha$ for the elastic net).

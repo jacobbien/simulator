@@ -1,0 +1,233 @@
+---
+title: "James-Stein with the Simulator"
+author: "Jacob Bien"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{James-Stein with the Simulator}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+code <- file.path("james-stein",
+                  c("model_functions.R", 
+                    "method_functions.R",
+                    "eval_functions.R", 
+                    "main.R"))
+sapply(code, read_chunk)
+```
+
+## Background
+
+Suppose we observe $Y\sim N_p(\theta, I_p)$ and wish to estimate $\theta$.  The MLE, $\hat\theta_{MLE}=Y$, would seem like the best estimator for $\theta$.  However, James and Stein showed that 
+$$
+\hat\theta_{JS}=\left(1-\frac{p-2}{\|Y\|^2}\right)Y
+$$
+dominates the MLE when $p>2$ in terms of squared-error loss, $\|\hat\theta - \theta\|^2$.  We can see this in simulation.
+
+## Using the simulator
+
+While this simulation requires so little code that we might just put it all in one file, maintaining the standard simulator file structure is beneficial for consistency across projects.  When I look back at a project from several years ago, it's always helpful to look for the files `main.R`, `model_functions.R`, `method_functions.R`, and `evals_functions.R`.  The file `main.R` contains the code that is actually run to carry out the simulations.  The other three files define the individual ingredients that are needed in the simulation.
+
+### Define the model(s)
+
+In `model_functions.R`, I create a function that will generate the model above with $p$ and $\|\theta\|_2$ as parameters to be passed at the time of simulation.  (Without loss of generality, we take $\theta=\|\theta\|_2 e_1$.)
+
+```{r}
+library(simulator)
+```
+
+```{r}
+<<models>>
+```
+
+### Define the methods
+
+In `method_functions.R`, we create two functions, one for each method:
+
+```{r}
+<<methods>>
+```
+
+### Define the metric(s) of interest
+
+And in `eval_functions.R`, we create a function for the squared-error metric
+```{r}
+<<metrics>>
+```
+
+### The main simulation: putting the components together
+
+Finally, we are ready to write `main.R`.  Let's start by simulating from two models, one in which $p=2$ and one in which $p=6$.
+
+```{r}
+<<main1>>
+```
+
+The output messages inform us about what files have been created.  The `generate_model` call leads to the creation of two models.  Both `theta_norm` and `p` are passed via `generate_model`.  However, our use of `vary_along = "p"` indicates to the simulator that we wish to generate a separate model for each entry in the list `p = list(2, 6)`.
+
+The first two lines of output indicate that these models have been created and saved to file (with directories named based on the names of the corresponding model objects).  Next, the `simulate_from_model` function takes each of these models and simulates 20 random draws from each model.  Recall that objects of class `Model` specify how data is generated from it.  The third and fourth lines of output tells us how long this took and where the files are saved. The `run_method` function takes our two methods of interest (the MLE and the James-Stein estimator) and runs these on each random draw.  Lines 5-8 tell us how long each of these took.  Finally, the function `evaluate` takes our metric (or more generally a list of metrics) of interest and applies these to all outputs (of all methods, over all draws, across all models).  Lines 9-14 report which metrics have been computed.  (Note that a method's timing information is included by default.)
+
+The returned object, `sim1`, is a `Simulation` object.  It contains references to all the saved files that have been generated.  The object `sim1` is itself automatically saved, so if you close and reopen the R session, you would simply type `sim1 <- load_simulation("js-v-mle")` to reload it.
+
+## A look at the results
+
+We are now ready to examine the results of the simulation.
+
+```{r, fig.width=6, fig.height=4}
+plot_eval(sim1, metric_name = "sqrerr")
+```
+
+As expected, the James-Stein estimator does better than the MLE when $p=6$, whereas for $p=2$ they perform the same (as should be the case since they are in fact identical!).  We see that the individual plots' titles come from each model's label.  Likewise, each boxplot is labeled with the corresponding method's label.  And the y-axis is labeled with the label of the metric used.  In the simulator, each label is part of the corresponding simulation component and used when needed.  For example, if instead of a plot we wished to view this as a table, we could do the following:
+
+```{r, results="asis"}
+tabulate_eval(sim1, metric_name = "sqrerr", output_type = "markdown")
+```
+
+If this document were in latex, we would instead use `output_type="latex"`.  Since reporting so many digits is not very meaningful, we may wish to adjust the number of digits shown:
+
+```{r, results="asis"}
+tabulate_eval(sim1, metric_name = "sqrerr", output_type = "markdown",
+              format_args = list(nsmall = 1, digits = 0))
+```
+
+## Demonstration of additional simulator features
+
+### Plotting a metric as a function of a numerical model parameter
+
+Rather than looking at just two models, we might wish to generate a sequence of models, indexed by $p$.
+
+```{r, results="hide"}
+<<main2>>
+```
+
+We could display this with boxplots or a table as before...
+
+```{r, fig.width=6, fig.height=5}
+plot_eval(sim2, metric_name = "sqrerr")
+```
+
+```{r, results="asis"}
+tabulate_eval(sim2, metric_name = "sqrerr", output_type = "markdown",
+              format_args = list(nsmall = 2, digits = 1))
+```
+
+...however, since `p` is a numerical value, it might be more informative to plot `p` on the x-axis.
+
+```{r, fig.width=6, fig.height=4, results="hide"}
+plot_eval_by(sim2, metric_name = "sqrerr", varying = "p")
+```
+
+We can also use base plot functions rather than `ggplot2`:
+
+```{r, fig.width=6, fig.height=5}
+plot_eval_by(sim2, metric_name = "sqrerr", varying = "p", use_ggplot2 = FALSE)
+```
+
+### Easy access to results of simulation
+
+The functions used above have many options allowing, for example, plots and tables to be customized in many ways.  The intention is that most of what one typically wishes to display can be easily done with `simulator` functions. However, in cases where one wishes to work directly with the generated results, one may output the evaluated metrics as a `data.frame`:
+
+```{r}
+df <- as.data.frame(evals(sim2))
+head(df)
+```
+
+One can also extract more specific slices of the evaluated metrics.  For example:
+
+```{r}
+evals(sim2, p == 6, methods = "jse") %>% as.data.frame %>% head
+```
+
+### Varying along more than one parameter
+
+We can also vary models across more than one parameter by passing multiple variable names through `vary_along`.  For example, suppose we wish to vary both the dimension `p` and the norm of the mean vector `theta_norm`.  The following generates a simulation with 30 models, corresponding to all pairs between 3 values of `p` and 10 values of `theta_norm`.  For each of these 30 models, we generate 20 simulations on which we run two methods and then evaluate one metric:
+
+```{r, results="hide"}
+<<main3>>
+```
+
+Having run all of these simulations, we can make plots that vary $\|\theta\|_2$ for fixed values of $p$.  To do so, we use the `subset_simulation` function, that allows us to select (out of all 30 models) those ones meeting a certain criterion such as $p$ having a certain value. (Although not relevant here, we are also able to subset simulations by `index` and by `method`.)
+
+```{r, fig.width=6, fig.height=4, results="hide"}
+subset_simulation(sim3, p == 11) %>% 
+  plot_eval_by(metric_name = "sqrerr", varying = "theta_norm", main = "p = 11")
+```
+
+We see that the MLE's risk is constant whereas the James-Stein risk does depend on $\|\theta\|_2$ with the greatest improvement occurring when $\|\theta\|_2$ is small.
+
+Suppose we wish to look at a different "slice" of the simulation such as when $p=1$.
+
+```{r, fig.width=6, fig.height=4, results="hide"}
+subset_simulation(sim3, p == 1) %>% 
+  plot_eval_by(metric_name = "sqrerr", varying = "theta_norm", main = "p = 1")
+```
+
+Clearly, something strange is happening here.  To investigate, we start by looking at the raw squared-error values (whereas by default `plot_eval_by` shows the sample mean over the random draws).
+
+```{r, fig.width=6, fig.height=4, results="hide"}
+subset_simulation(sim3, p == 1) %>% 
+  plot_eval_by(metric_name = "sqrerr", varying = "theta_norm", 
+               type = "raw", main = "p = 1")
+```
+
+We notice a huge outlier at two values of `theta_norm`.  Let's use this as an opportunity to show how debugging works with the `simulator` (certainly a common task when writing simulations!).
+
+### Examining earlier stages of a simulation
+
+Let's start by looking at the outlier when `theta_norm` is 0.  Let's check that $\theta$ is a scalar (because $p=1$) and that it is equal to zero:
+```{r}
+m <- model(sim3, p == 1 & theta_norm == 0)
+m
+```
+
+When we print the model object `m`, we see some basic information about it, including a reminder of what parameters are included.[^1]  While we can use `m@params$theta`, we can write more simply:
+
+[^1]: Observe that this model's name is `r m@name`.  This name was created by `generate_model`.  The first part of the name, `norm/`, came from us when we defined `make_normal_model` to have that name.  The next two parts were added by `generate_model` because we were using `vary_along=c("p", "theta_norm")`.  If a parameter named `param` is in `vary_along`, then the name of the created model will append something of the form `param_X`.   When `param` is integer-valued or a double rounded to several decimal places then `X` will simply be this value.  For example, since `p` is integer-valued, we see that `p_1` has been appended to `norm/`.  When `param` is of some other type, `X` is a hashed version of the value of `param` (using `sha1` from the package [`digest`](https://cran.rstudio.com/web/packages/digest/index.html)).  This allows us to assign the model to a unique (with high probability) file name for each distinct value of `param` even if it is of some complicated type such as a matrix or a list.
+
+
+```{r}
+m$theta
+```
+
+As expected, $\theta$ is a scalar equal to 0.
+
+Now, let's examine the $Y$ values that were drawn:
+
+```{r}
+d <- draws(sim3, p == 1 & theta_norm == 0)
+d
+d@draws[1:4] # this is a list, one per draw of Y.  Look at first 4 elements.
+summary(unlist(d@draws))
+```
+
+Nothing unusual looking yet.  Let's look directly at the squared errors that were computed to find which simulation realization is the problematic one.  We'll restrict ourselves to the James-Stein estimator in this case:
+
+```{r}
+e <- evals(sim3, p == 1 & theta_norm == 0, methods = "jse")
+e
+df <- as.data.frame(e)
+summary(df$sqrerr)
+df[which.max(df$sqrerr), ]
+```
+
+We see that it is simulation draw `r df[which.max(df$sqrerr),]$Draw` that is the culprit, having a squared error of `r df[which.max(df$sqrerr),]$sqrerr`.  Let's look at what the James-Stein output was in this realization.
+
+```{r}
+o <- output(sim3, p == 1 & theta_norm == 0, methods = "jse")
+o@out$r1.14
+```
+It was very negative.  How did this come about?  Let's look at $Y$ in this case:
+```{r}
+d@draws$r1.14
+```
+
+This was relatively close to zero so that when we computed
+
+```{r}
+1-(m$p - 2)/d@draws$r1.14^2
+```
+
+we get something quite large.  Of course, when $p=1$, the James-Stein estimator does not perform shrinkage but rather it inflates $Y$, something that no one would expect to be a good idea!  Now that we have investigated these outliers, we are confident that they do not reflect a coding error; rather, they are a "real" portrayal of the performance of the James-Stein estimator's performance in this situation.

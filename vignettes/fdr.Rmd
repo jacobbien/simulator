@@ -1,0 +1,222 @@
+---
+title: "Benjamini-Hochberg Procedure with the Simulator"
+author: "Jacob Bien"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Benjamini-Hochberg Procedure with the Simulator}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+code <- file.path("false-discovery-rate",
+                  c("model_functions.R", 
+                    "method_functions.R",
+                    "eval_functions.R", 
+                    "main.R"))
+code_lastmodified <- max(file.info(code)$mtime)
+sapply(code, read_chunk)
+```
+
+Suppose we wish to test $n$ hypotheses, $H_1,\ldots, H_n$, and we have a p-value $\hat p_i$ for each hypothesis $H_i$.  That is,
+
+$$
+\mathbb{P}_{H_i}(\hat p_i\le \alpha) = \alpha.
+$$
+
+[Benjamini and Hochberg (1995)](http://www.jstor.org/stable/2346101) design a procedure (for when these p-values are independent) that controls what they call the *false discovery rate* (FDR), which is the expected proportion of the rejected tests that should not have been rejected:
+
+$$
+\mathbb{E}_{\{H_i:i\in S\}}\left[\frac{\sum_{i\in S}1\{H_i\text{ rejected}\}}{\max[1,\sum_{i=1}^n1\{H_i\text{ rejected}\}]}\right].
+$$
+
+Given a desired FDR $q$, the BH procedure finds a data-adaptive threshold level $\hat p(q)$ and rejects all $H_i$ for which $\hat p_i\le \hat p(q)$.  The threshold level is given by comparing the sorted p-values $\hat p_{(1)}\le \cdots \le \hat p_{(n)}$ to a line of slope $q/n$ and identifying the largest p-value that is below this line.  That is, $\hat p(q)=\hat p_{(\hat i)}$ where
+$$
+\hat i = \max\{i: \hat p_i \le q i / n\}.
+$$
+
+In this simulation, we verify that the BH procedure works, and we investigate the effect that correlation has on the FDR control.
+
+# Main simulation
+
+In the Models section below, we show the code for `make_correlated_pvalues`, a function that generates a model object given parameters $n$ (the number of hypotheses), $\pi_0$ (the fraction of hypotheses that are null), and $\rho$ (the correlation between any pair of test statistics).  In the simulation below, we fix $n=100$ and vary $\pi_0$ and $\rho$.
+
+```{r}
+library(simulator)
+```
+
+```{r, echo = FALSE, results = 'hide', warning = FALSE, message = FALSE}
+<<models>>
+<<methods>>
+<<metrics>>
+```
+
+```{r, eval = FALSE}
+<<init>>
+<<main>>
+```
+
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+<<init>>
+sim_lastmodified <- file.info(sprintf("files/sim-%s.Rdata",
+                              name_of_simulation))$mtime
+if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
+  <<main>>
+  <<main2>>
+} else{
+  sim <- load_simulation(name_of_simulation) %>% subset_simulation(index = 1:4)
+}
+```
+
+The variable `bh_methods` is defined in the Methods section below and corresponds to the BH procedure for four different values of $q$.
+
+We begin by looking at the results when $\rho=0$ (i.e., independent tests).
+
+```{r, results = 'asis'}
+sim %>% 
+  subset_simulation(rho == 0) %>% 
+  tabulate_eval(metric_name = "fdp", output_type = "html", 
+                format_args = list(digits = 0, nsmall = 2))
+```
+
+It appears that the BH procedure does control the FDR at each stated $q$ value.  However, we also see that when $\pi_0$ is less than 1, it tends to be more conservative.  Indeed, Benjamini and Hochberg show that the FDR of BH does not exceed $\pi_0q$.
+
+# Adding to a simulation
+
+We might like to increase the number of simulations.  
+
+Suppose we return to this simulation several days later and wish to double the number of random draws used.  In the above code, we had 200 draws, which were simulated in 4 chunks of 50 draws each.  The simulator allows us to add to a simulation without requiring us to re-run parts of the simulation that have already been run.  
+
+If we had closed the R session without saving the image[^]:
+for the sake of reproducibility, I like to always start with a fresh workspace, so I can be sure that my functions aren't calling a global variable that I have forgotten about), we can open a new one in the directory that has the `files` directory in it.  We start by loading `sim`, which is the Simulation object (containing all the necessary pointers to saved files).  Loading `sim` is fast because it only loads the file locations, not the files themselves.
+
+```{r, eval = FALSE}
+sim <- load_simulation("fdr")
+```
+
+We do so by simply adding 4 more chunks, with `index=5:8`.  Each distinct value of `index` corresponds to a separate [random number generator stream](http://www.iro.umontreal.ca/~lecuyer/myftp/papers/streams00.pdf).  This is convenient because it means that we do not have to rely on the state of the RNG after completing one chunk to start the next one.
+
+
+```{r, eval = FALSE}
+<<main2>>
+```
+
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+sim <- load_simulation("fdr") # load the one with index = 1:8
+```
+
+We can look again at the table.
+
+```{r, results = 'asis'}
+sim %>% 
+  subset_simulation(rho == 0) %>% 
+  tabulate_eval(metric_name = "fdp", output_type = "html", 
+                format_args = list(digits = 0, nsmall = 2))
+```
+
+
+
+## Some plots
+
+The FDR is the average of the false discovery proportion (FDP).  We can look at these raw values (400 for each method-model pair).
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+sim %>% 
+  subset_simulation(rho == 0) %>% 
+plot_eval(metric_name = "fdp")
+```
+
+When $\pi_0=1$, we see that the FDP is either 0 or 1.  This is because if we make any number of discoveries, then they will all be false (but if we do not make any discoveries, we have FDP=0).
+
+We now investigate the effect of $\rho$, the correlation between the test statistics. We now fix $\pi_0=0.8$ and look at how the plots vary with $\rho$.
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+sim %>% 
+  subset_simulation(pi0 == 0.8) %>% 
+plot_eval(metric_name = "fdp", varying = "rho")
+```
+
+Since $\rho$ is numeric, it might be more informative to look at the FDR as a function of $\rho$.
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+sim %>% 
+  subset_simulation(pi0 == 0.8) %>% 
+plot_eval_by(metric_name = "fdp", varying = "rho")
+```
+
+We see that the procedure becomes more conservative as the dependence increases, but still does control FDR (which was shown for positive dependence in [Benjamini and Yekutieli, 2001](https://projecteuclid.org/euclid.aos/1013699998)). Looking at $\pi_0=1$, we see for negative $\rho$ some indication of anti-conservativeness.
+
+```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
+sim %>% 
+  subset_simulation(pi0 == 1) %>% 
+plot_eval_by(metric_name = "fdp", varying = "rho")
+```
+
+# Creating a simulation based on a preexisting one
+
+To investigate this particular question in greater depth, we might create a new simulation object based on the previous one.  We'd like to increase the number of random draws for this particular setting, but don't care about doing so for the others.
+
+```{r, eval = FALSE}
+<<main3>>
+```
+
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+sim_lastmodified <- file.info(sprintf("files/sim-%s.Rdata",
+                              "negdep"))$mtime
+if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
+  <<main3>>
+} else{
+  sim2 <- load_simulation("negdep")
+}
+```
+
+Remaking the table (on the basis of 1000 random draws), the anti-conservativeness appears to persist in the $q=0.05$ case.
+
+```{r, results = 'asis'}
+tabulate_eval(sim2, metric_name = "fdp", output_type = "html", 
+                format_args = list(digits = 0, nsmall = 2))
+```
+
+Observe that at this point, `sim` and `sim2` are two separate simulation objects that refer to some common simulation results.  For example, their `Model` and `Draws` objects are the same.
+
+```{r}
+m <- model(sim, pi0 == 1 & rho == -0.01)
+m2 <- model(sim2)
+all.equal(m, m2)
+d <- draws(sim, pi0 == 1 & rho == -0.01)
+d2 <- draws(sim2, index = 1:8)
+all.equal(d, d2)
+```
+
+When `model` and `draws` (and likewise `output` and `evals`) are called on a simulation object, they load the appropriate files referenced by the `Simulation` object.  The models `m` and `m2` are identical (and likewise for `d` and `d2`) because both `Simulation` objects refer to the same saved files.  Thus, having multiple simulation objects does not lead to copies of the (potentially large) results files being made.  Instead, only the references themselves are duplicated.
+
+# Components
+
+## Models
+
+```{r, eval = FALSE}
+<<models>>
+```
+
+## Methods
+
+```{r, eval = FALSE}
+<<methods>>
+```
+
+## Metrics
+
+```{r, eval = FALSE}
+<<metrics>>
+```
+
+
+# Conclusion
+
+To cite the `simulator`, please use
+
+```{r, results='asis'}
+citation("simulator")
+```
