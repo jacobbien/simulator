@@ -23,6 +23,8 @@ Suggests:
 License: GPL-3
 LazyData: true
 VignetteBuilder: knitr
+URL: http://github.com/jacobbien/simulator
+BugReports: http://github.com/jacobbien/simulator/issues
 Collate:
     'evals-class.R'
     'output-class.R'
