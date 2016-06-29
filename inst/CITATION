@@ -2,4 +2,5 @@ bibentry(bibtype = "article",
          title = "The {simulator}: An Engine to Streamline Simulations",
          author = person("Jacob", "Bien"),
          year = {2016},
+         url = "http://faculty.bscb.cornell.edu/~bien/simulator.pdf",
          journal = "Submitted")

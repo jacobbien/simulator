@@ -1,7 +1,7 @@
 Package: simulator
 Title: An Engine for Running Simulations
-Version: 0.0.0.9000
-Date: 2016
+Version: 0.1.0
+Date: 2016-06-27
 Authors@R: person("Jacob", "Bien", email = "jbien@cornell.edu", role = c("aut", "cre"))
 Description: A framework for performing simulations such as those common in
     methodological statistics papers.
@@ -18,6 +18,7 @@ Suggests:
     digest,
     ggplot2,
     knitr,
+    rmarkdown,
     testthat
 License: GPL-3
 LazyData: true
