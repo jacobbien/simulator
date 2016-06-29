@@ -185,7 +185,7 @@ run_method_single <- function(method, model, draws_list) {
     arguments <- c(list(model = model, draw = draws_list$draws@draws[[rid]]),
                    method@settings[settings_args])
     time <- system.time({temp <- do.call(method@method, arguments)})
-    if (class(temp) != "list") temp <- list(out = temp)
+    if (!is.list(temp)) temp <- list(out = temp)
     out[[rid]] <- temp
     out[[rid]]$time <- time
   }
@@ -227,7 +227,7 @@ run_extendedmethod_single <- function(extmethod, model, draws,
                                        out = base_output_list$output@out[[rid]],
                                        base_method = extmethod@base_method)
       })
-    if (class(temp) != "list") temp <- list(out = temp)
+    if (!is.list(temp)) temp <- list(out = temp)
     out[[rid]] <- temp
     # add together the times from running base_method and the extension
     out[[rid]]$time <- time + base_output_list$output@out[[rid]]$time
