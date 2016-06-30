@@ -6,6 +6,7 @@ output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Benjamini-Hochberg Procedure with the Simulator}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteDepends{mvtnorm}
   \usepackage[utf8]{inputenc}
 ---
 

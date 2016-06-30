@@ -6,6 +6,7 @@ output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{The Lasso with the Simulator}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteDepends{glmnet}
   \usepackage[utf8]{inputenc}
 ---
 

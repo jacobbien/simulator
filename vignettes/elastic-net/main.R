@@ -19,7 +19,7 @@ sim <- new_simulation(name_of_simulation, "Elastic Nets") %>%
                  vary_along = "rho") %>%
   simulate_from_model(nsim = 3, index = 1:4) %>%
   run_method(list_of_elastic_nets,
-             parallel = list(socket_names = 4, libraries = "glmnet")) %>%
+             parallel = list(socket_names = 2, libraries = "glmnet")) %>%
   evaluate(list(sqr_err, nnz, best_sqr_err))
 
 ## @knitr maincv
@@ -28,7 +28,7 @@ sim_cv <- sim %>% subset_simulation(methods = "") %>%
   rename("elastic-net-cv") %>%
   relabel("Elastic Nets with CV") %>%
   run_method(list_of_elastic_nets + cv,
-             parallel = list(socket_names = 4, libraries = "glmnet")) %>%
+             parallel = list(socket_names = 2, libraries = "glmnet")) %>%
   evaluate(list(sqr_err, nnz))
 
 ## @knitr plots

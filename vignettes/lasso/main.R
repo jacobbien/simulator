@@ -7,7 +7,7 @@ sim <- new_simulation("bet-on-sparsity", "Bet on sparsity") %>%
                  vary_along = "k") %>%
   simulate_from_model(nsim = 3, index = 1:4) %>%
   run_method(list(lasso, ridge),
-             parallel = list(socket_names = 4, libraries = "glmnet")) %>%
+             parallel = list(socket_names = 2, libraries = "glmnet")) %>%
   evaluate(list(sqrerr, nnz, df, best_sqrerr))
 
 ## @knitr main2

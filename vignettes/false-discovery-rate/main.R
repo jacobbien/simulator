@@ -20,14 +20,14 @@ sim <- new_simulation(name = name_of_simulation,
                  rho = list(-0.01, 0, 0.1, 0.9),
                  vary_along = c("pi0", "rho")) %>%
   simulate_from_model(nsim = 50, index = 1:4) %>%
-  run_method(bh_methods, parallel = list(socket_names = 4)) %>%
+  run_method(bh_methods, parallel = list(socket_names = 2)) %>%
   evaluate(list(fdp, nd))
 
 ## @knitr main2
 
 sim <- sim %>%
   simulate_from_model(nsim = 50, index = 5:8) %>%
-  run_method(bh_methods, parallel = list(socket_names = 4)) %>%
+  run_method(bh_methods, parallel = list(socket_names = 2)) %>%
   evaluate(list(fdp, nd))
 
 ## @knitr main3
