@@ -33,7 +33,7 @@ model <- function(sim, ..., subset = NULL, reference = FALSE) {
   ii <- get_model_indices(sim, subset)
   mref <- sim@model_refs[ii]
   obj <- lapply(mref, function(m) {
-    m@dir <- normalizePath(file.path(sim@dir, m@dir))
+    m@dir <- normalizePath(file.path(sim@dir, m@dir), winslash = "/")
     return(m)
   })
   if (length(obj) == 1) obj <- obj[[1]]
@@ -112,7 +112,8 @@ draws <- function(sim, ..., subset = NULL, index, reference = FALSE) {
       }
       # each object's dir should no longer be relative to sim's dir
       obj[[i]][[j]]@dir <- normalizePath(file.path(sim@dir,
-                                                   obj[[i]][[j]]@dir))
+                                                   obj[[i]][[j]]@dir),
+                                         winslash = "/")
     }
     if (!missing(index)) obj[[i]] <- obj[[i]][keep]
   }
@@ -207,7 +208,8 @@ outputs_or_evals <- function(sim, refs, sort_by_method,
       }
       # made it through the the index and method screen; add to obj[[i]]
       # first, each object's dir should no longer be relative to sim's dir
-      refs[[i]][[o]]@dir <- normalizePath(file.path(sim@dir, refs[[i]][[o]]@dir))
+      refs[[i]][[o]]@dir <- normalizePath(file.path(sim@dir, refs[[i]][[o]]@dir),
+                                          winslash = "/")
       if (sort_by_method) {
         # organize ObjectRefs by method_name
         o_method_name <- refs[[i]][[o]]@method_name

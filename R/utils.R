@@ -37,8 +37,10 @@ catsim <- function(...) {
 #' @param base_path the base path
 #' @param path a specific path
 get_relative_path <- function(base_path, path) {
-  b <- strsplit(normalizePath(base_path, mustWork = FALSE), split = "/")[[1]]
-  p <- strsplit(normalizePath(path, mustWork = FALSE), split = "/")[[1]]
+  b <- strsplit(normalizePath(base_path, mustWork = FALSE, winslash = "/"),
+                split = "/")[[1]]
+  p <- strsplit(normalizePath(path, mustWork = FALSE, winslash = "/"),
+                split = "/")[[1]]
   len <- min(length(b), length(p))
   ncommon <- max(which(b[1:len] == p[1:len]))
   str <- rep("..", length(b) - ncommon)

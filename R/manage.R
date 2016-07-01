@@ -115,7 +115,8 @@ get_files_not_in_simulations <- function(dir, out_loc = "out") {
   con <- get_contents(dir, out_loc = out_loc)
   sims <- sapply(con$sim_names, load_simulation, dir = dir)
   path <- file.path(dir, options("simulator.files"))
-  files <- normalizePath(file.path(path, list.files(path, recursive = TRUE)))
+  files <- normalizePath(file.path(path, list.files(path, recursive = TRUE)),
+                         winslash = "/")
   in_sims <- rep(FALSE, length(files))
   for (sim in sims) {
     for (mref in model(sim, reference = TRUE)) {
