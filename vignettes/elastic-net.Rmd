@@ -67,7 +67,7 @@ if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
 
 In the above code, we consider a sequence of models in which we vary the correlation `rho` among the features.  For each model, we fit a sequence of elastic net methods (varying the tuning parameter $\alpha$).  For each method, we compute the best-case mean-squared error.  By best-case, we mean $\min_{\lambda\ge0}\frac1{p}\|\hat\beta_{\lambda,\alpha}-\beta\|_2^2$, which imagines we have an oracle-like ability to choose the best $\lambda$ for minimizing the MSE.
 
-We provide below all the code for the problem-specific components.  We use the R package [`glmnet`](https://cran.r-project.org/web/packages/glmnet/index.html) to fit the elastic net.  The most distinctive feature of this particular vignette is how the list of methods `list_of_elastic_nets` was created.  This is shown in the Methods section.
+We provide below all the code for the problem-specific components.  We use the R package [`glmnet`](https://cran.r-project.org/package=glmnet) to fit the elastic net.  The most distinctive feature of this particular vignette is how the list of methods `list_of_elastic_nets` was created.  This is shown in the Methods section.
 
 
 ```{r, fig.width = 7, fig.height = 5, results = 'hide', warning = FALSE, message = FALSE}

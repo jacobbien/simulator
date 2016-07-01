@@ -8,7 +8,7 @@ The simulator is an R package that streamlines the process of performing simulat
 Installation
 ------------
 
-The easiest way to install the simulator is by using the [devtools](https://cran.r-project.org/web/packages/devtools/index.html) R package (if not already installed, open R and type `install.packages("devtools")`). To install simulator, type
+The easiest way to install the simulator is by using the [devtools](https://cran.r-project.org/package=devtools) R package (if not already installed, open R and type `install.packages("devtools")`). To install simulator, type
 
 ``` r
 devtools::install_github("jacobbien/simulator")
