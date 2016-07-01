@@ -32,8 +32,10 @@ test_that("get_relative_path works", {
   expect_identical(get_relative_path(sub, temp), "../..")
   expect_identical(get_relative_path(sub, sub2), "../sub2")
   unlink(dir, recursive = TRUE)
-
-  expect_identical(get_relative_path("../..", "."), "tests/testthat")
-  expect_identical(get_relative_path("../..", ".."), "tests")
+  wd <- strsplit(getwd(), split = "/")[[1]]
+  lwd <- length(wd)
+  expect_identical(get_relative_path("../..", "."),
+                   file.path(wd[lwd - 1], wd[lwd]))
+  expect_identical(get_relative_path("../..", ".."), wd[lwd - 1])
   expect_identical(get_relative_path("..", "../.."), "..")
 })
