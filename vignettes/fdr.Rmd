@@ -42,7 +42,7 @@ In this simulation, we verify that the BH procedure works, and we investigate th
 
 # Main simulation
 
-In the Models section below, we show the code for `make_correlated_pvalues`, a function that generates a model object given parameters $n$ (the number of hypotheses), $\pi_0$ (the fraction of hypotheses that are null), and $\rho$ (the correlation between any pair of test statistics).  In the simulation below, we fix $n=100$ and vary $\pi_0$ and $\rho$.
+In the Models section below, we show the code for `make_correlated_pvalues`, a function that generates a model object given parameters $n$ (the number of hypotheses), $\pi_0$ (the fraction of hypotheses that are null), and $\rho$ (the correlation between any pair of test statistics).  In the simulation below, we fix $n=20$ and vary $\pi_0$ and $\rho$.
 
 ```{r}
 library(simulator)
@@ -66,9 +66,8 @@ sim_lastmodified <- file.info(sprintf("files/sim-%s.Rdata",
 if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
   <<main>>
   <<main2>>
-} else{
-  sim <- load_simulation(name_of_simulation) %>% subset_simulation(index = 1:4)
 }
+sim <- load_simulation(name_of_simulation) %>% subset_simulation(index = 1:4)
 ```
 
 The variable `bh_methods` is defined in the Methods section below and corresponds to the BH procedure for four different values of $q$.
@@ -88,7 +87,7 @@ It appears that the BH procedure does control the FDR at each stated $q$ value. 
 
 We might like to increase the number of simulations.  
 
-Suppose we return to this simulation several days later and wish to double the number of random draws used.  In the above code, we had 200 draws, which were simulated in 4 chunks of 50 draws each.  The simulator allows us to add to a simulation without requiring us to re-run parts of the simulation that have already been run.  
+Suppose we return to this simulation several days later and wish to double the number of random draws used.  In the above code, we had 100 draws, which were simulated in 4 chunks of 25 draws each.  The simulator allows us to add to a simulation without requiring us to re-run parts of the simulation that have already been run.  
 
 If we had closed the R session without saving the image[^]:
 for the sake of reproducibility, I like to always start with a fresh workspace, so I can be sure that my functions aren't calling a global variable that I have forgotten about), we can open a new one in the directory that has the `files` directory in it.  We start by loading `sim`, which is the Simulation object (containing all the necessary pointers to saved files).  Loading `sim` is fast because it only loads the file locations, not the files themselves.
@@ -121,7 +120,7 @@ sim %>%
 
 ## Some plots
 
-The FDR is the average of the false discovery proportion (FDP).  We can look at these raw values (400 for each method-model pair).
+The FDR is the average of the false discovery proportion (FDP).  We can look at these raw values (200 for each method-model pair).
 
 ```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
 sim %>% 
@@ -147,7 +146,7 @@ sim %>%
 plot_eval_by(metric_name = "fdp", varying = "rho")
 ```
 
-We see that the procedure becomes more conservative as the dependence increases, but still does control FDR (which was shown for positive dependence in [Benjamini and Yekutieli, 2001](https://projecteuclid.org/euclid.aos/1013699998)). Looking at $\pi_0=1$, we see for negative $\rho$ some indication of anti-conservativeness.
+We see that the procedure becomes more conservative as the dependence increases, but still does control FDR (which was shown for positive dependence in [Benjamini and Yekutieli, 2001](https://projecteuclid.org/euclid.aos/1013699998)). Looking at $\pi_0=1$, we would like to check whether for negative $\rho$ the procedure is anti-conservative.
 
 ```{r, fig.width = 6, fig.height = 4, results = 'hide', warning = FALSE, message = FALSE}
 sim %>% 
@@ -173,7 +172,7 @@ if (is.na(sim_lastmodified) || code_lastmodified > sim_lastmodified) {
 }
 ```
 
-Remaking the table (on the basis of 1000 random draws), the anti-conservativeness appears to persist in the $q=0.05$ case.
+We remake the table (on the basis of 500 random draws) to check for anti-conservativeness.
 
 ```{r, results = 'asis'}
 tabulate_eval(sim2, metric_name = "fdp", output_type = "html", 
