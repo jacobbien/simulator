@@ -29,6 +29,21 @@
 #' @param format_args arguments to pass to the function \code{\link{format}}
 #' @param na_string what to write in table in place of NA
 #' @export
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model,
+#'                   n = list(10, 20, 30),
+#'                   vary_along = "n") %>%
+#'    simulate_from_model(nsim = 50, index = 1:3) %>%
+#'    run_method(my_example_method) %>%
+#'    evaluate(my_example_loss)
+#'    # then we could plot this
+#'    tabulate_eval(sim, "myloss")
+#'  }
 tabulate_eval <- function(object, metric_name, method_names = NULL,
                           caption = NULL,
                           center_aggregator = NULL,

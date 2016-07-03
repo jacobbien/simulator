@@ -50,10 +50,12 @@ generated should be saved on the slaves (i.e., locally) or on the master.
 }
 \examples{
 \dontrun{
- mref <- generate_model(".", make_my_model)
- dref1 <- simulate_from_model(mref, nsim = 50, index = 1:2)
- dref2 <- simulate_from_model(mref, nsim = 50, index = 3:5,
- parallel = list(socket_names = 3))
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir()) \%>\%
+   generate_model(make_my_example_model, n = 20) \%>\%
+   simulate_from_model(nsim = 50, index = 1:3,
+     parallel = list(socket_names = 3))
  }
 }
 \seealso{

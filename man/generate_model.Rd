@@ -61,26 +61,16 @@ other information such as the function \code{make_model} itself and the date
 when \code{model} was created.
 }
 \examples{
-\dontrun{
- make_my_model <- function(n = 10) {
-    # this function returns an object of class Model
-    params <- list(n = n, mu = rnorm(n))
-    simulate <- function(mu, n, nsim) {
-      # define function here that returns a list of length nsim
-      y <- list()
-      for (i in seq(nsim))  y[[i]] <- mu + rnorm(n)
-      return(y)
-    }
-    return(new_model(name = "fm", label = "My First Model",
-               params = params, simulate = simulate))
- }
- generate_model(object = ".", make_my_model)
- generate_model(object = ".", make_my_model, n = 20)
- generate_model(object = ".", make_my_model, n = as.list(c(10, 20, 30)),
-                vary_along = "n")
- }
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir())
+ sim <- generate_model(sim, make_my_example_model, n = 20)
+ sim <- generate_model(sim, make_my_example_model,
+                       n = list(10, 20, 30),
+                       vary_along = "n")
 }
 \seealso{
-\code{\link{simulate_from_model}} \code{\link{run_method}}
+\code{\link{new_model}} \code{\link{simulate_from_model}}
+\code{\link{run_method}}
 }
 

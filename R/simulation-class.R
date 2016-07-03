@@ -126,7 +126,11 @@ setMethod("show", "Simulation", function(object) {
 #'        Default is TRUE. If TRUE, then this simulation can be loaded
 #'        in a new R session using \code{dir} and \code{name}.
 #' @export
-#' @seealso \code{\link{add}} \code{\link{load_simulation}} \code{\link{save_simulation}}
+#' @seealso \code{\link{load_simulation}} \code{\link{save_simulation}}
+#' @examples
+#' sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir())
 new_simulation <- function(name, label, dir = ".", refs = list(),
                            save_to_file = TRUE) {
   sim <- new("Simulation", name = name, label = label, dir = dir)
@@ -167,6 +171,12 @@ save_simulation <- function(sim) {
 #' @param dir directory that contains "files" directory for this simulation
 #' @export
 #' @seealso \code{\link{new_simulation}} \code{\link{save_simulation}}
+#' @examples
+#' sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir())
+#' rm(sim)
+#' sim <- load_simulation("normal-example", dir = tempdir())
 load_simulation <- function(name, dir = ".") {
   files_dir <- file.path(dir, getOption("simulator.files"))
   file <- sprintf("%s/sim-%s.Rdata", files_dir, name)

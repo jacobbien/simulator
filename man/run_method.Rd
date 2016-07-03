@@ -53,6 +53,18 @@ because each \code{ExtendedMethod} object depends on the output of its base
 method.  Furthermore, before an \code{ExtendedMethod} is called, the RNG
 state is restored to what it was after the base method had been called.
 }
+\examples{
+\dontrun{
+ # suppose previously we had run the following:
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir()) \%>\%
+   generate_model(make_my_example_model, n = 20) \%>\%
+   simulate_from_model(nsim = 50, index = 1:3)
+   # then we could add
+   sim <- run_method(sim, my_example_method)
+ }
+}
 \seealso{
 \code{\link{generate_model}} \code{\link{simulate_from_model}}
 }

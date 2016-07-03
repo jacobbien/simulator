@@ -49,26 +49,16 @@ NULL
 #' @param seed an integer seed for the random number generator.
 #' @param vary_along character vector with all elements contained in names(...)
 #'        See description for more details.
-#' @seealso \code{\link{simulate_from_model}} \code{\link{run_method}}
+#' @seealso \code{\link{new_model}} \code{\link{simulate_from_model}}
+#' \code{\link{run_method}}
 #' @examples
-#' \dontrun{
-#'  make_my_model <- function(n = 10) {
-#'     # this function returns an object of class Model
-#'     params <- list(n = n, mu = rnorm(n))
-#'     simulate <- function(mu, n, nsim) {
-#'       # define function here that returns a list of length nsim
-#'       y <- list()
-#'       for (i in seq(nsim))  y[[i]] <- mu + rnorm(n)
-#'       return(y)
-#'     }
-#'     return(new_model(name = "fm", label = "My First Model",
-#'                params = params, simulate = simulate))
-#'  }
-#'  generate_model(object = ".", make_my_model)
-#'  generate_model(object = ".", make_my_model, n = 20)
-#'  generate_model(object = ".", make_my_model, n = as.list(c(10, 20, 30)),
-#'                 vary_along = "n")
-#'  }
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir())
+#'  sim <- generate_model(sim, make_my_example_model, n = 20)
+#'  sim <- generate_model(sim, make_my_example_model,
+#'                        n = list(10, 20, 30),
+#'                        vary_along = "n")
 generate_model <- function(object = ".", make_model, ..., seed = 123,
                            vary_along = NULL) {
   stopifnot(length(object) == 1)
@@ -228,6 +218,8 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
 #'
 #' Depending on \code{more_info}, either returns \code{\linkS4class{Model}} object
 #' or a list containing \code{\linkS4class{Model}} object and other information.
+#' If simulation object is available, it is easier to use the function
+#' \code{\link{model}} to load the model.
 #'
 #' @export
 #' @param dir the directory passed to \code{\link{generate_model}})
@@ -236,13 +228,7 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
 #'        state of RNG after calling \code{\link{generate_model}}
 #' @param simulator.files if NULL, then \code{getOption("simulator.files")}
 #'        will be used.
-#' @seealso \code{\link{generate_model}} \code{\link{load_draws}}
-#' @examples
-#' \dontrun{
-#' # see example ?generate_model for make_my_model definition
-#' generate_model(make_my_model, dir = ".")
-#' load_model(dir = ".", model_name = "fm")
-#' }
+#' @seealso \code{\link{generate_model}} \code{\link{model}}
 load_model <- function(dir, model_name, more_info = FALSE,
                        simulator.files = NULL) {
   md <- get_model_dir_and_file(dir, model_name,

@@ -38,9 +38,11 @@ After \code{\link{run_method}} has been called, this function can
 be used to load one or more of the saved \code{\linkS4class{Output}} object(s).
 If multiple indices are provided, these will be combined
 into a new single \code{\linkS4class{Output}} object.
+If simulation object is available, it is easier to use the function
+\code{\link{output}} to load it.
 }
 \seealso{
-\code{\link{run_method}} \code{\link{load_model}} \code{\link{load_draws}}
+\code{\link{run_method}} \code{\link{output}}
 }
 \keyword{internal}
 

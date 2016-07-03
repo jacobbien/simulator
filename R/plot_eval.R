@@ -21,6 +21,21 @@
 #' @param ... additional arguments to pass to \code{boxplot} (only when
 #'        \code{use_ggplot2 = FALSE}).
 #' @export
+#' @seealso \code{\link{plot_evals}} \code{\link{plot_eval_by}}
+#' \code{\link{tabulate_eval}}
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model, n = 20) %>%
+#'    simulate_from_model(nsim = 50, index = 1:3) %>%
+#'    run_method(my_example_method) %>%
+#'    evaluate(my_example_loss)
+#'    # then we could plot this
+#'    plot_eval(sim, "myloss") # "myloss" is my_example_loss@name
+#'  }
 plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
                       facet_mains, ylab, ylim, include_zero = FALSE, angle = 0,
                       ...) {
@@ -89,7 +104,7 @@ ggplot_eval <- function(evals_df, metric_name, method_name, method_label,
     stop("To use this function, ggplot2 must be installed.", call. = FALSE)
   }
   if (missing(main)) main <- NULL
-  if (length(unique(evals_df$Model)) == 1) {
+  if (length(unique(evals_df[["Model"]])) == 1) {
     return(ggplot2::ggplot(evals_df, ggplot2::aes_string("Method", metric_name)) +
              ggplot2::geom_boxplot() +
              ggplot2::labs(x = "Method", y = ylab, title = main) +

@@ -44,7 +44,12 @@ while "files" is the default, the name of this directory is from
 getOption("simulator.files"), which is the value of
 getOption("simulator.files") when the model was created.
 }
+\examples{
+sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir())
+}
 \seealso{
-\code{\link{add}} \code{\link{load_simulation}} \code{\link{save_simulation}}
+\code{\link{load_simulation}} \code{\link{save_simulation}}
 }
 

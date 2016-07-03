@@ -23,18 +23,12 @@ will be used.}
 \description{
 After \code{\link{simulate_from_model}} has been called, this function can
 be used to load one or more of the saved \code{\linkS4class{Draws}} object(s)
-(along with RNG information).  If multiple indices are provided, these will be combined
-into a new single \code{\linkS4class{Draws}} object.
-}
-\examples{
-\dontrun{
-# see example ?generate_model for make_my_model definition
- mref <- generate_model(make_my_model, dir = ".")
- dref <- simulate_from_model(mref, nsim = 50, index = 1:2)
- load(dref) # loads Draws object with 100 entries
-}
+(along with RNG information).  If multiple indices are provided, these will
+be combined into a new single \code{\linkS4class{Draws}} object.
+If simulation object is available, it is easier to use the function
+\code{\link{draws}} to load it.
 }
 \seealso{
-\code{\link{simulate_from_model}} \code{\link{load_model}}
+\code{\link{simulate_from_model}} \code{\link{draws}}
 }
 

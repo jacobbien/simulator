@@ -3,6 +3,9 @@ NULL
 
 check_metric <- function(object) {
   errors <- check_component(object)
+  name_is_alphanumeric <- grepl("^[[:alnum:]]+$", object@name)
+  if (!name_is_alphanumeric)
+    errors <- c(errors, "metric name must be alphanumeric.")
   if (length(errors) == 1)
     if(errors == TRUE) errors <- character()
     args <- names(formals(object@metric))

@@ -43,10 +43,12 @@ NULL
 #' @seealso \code{\link{load_draws}} \code{\link{generate_model}} \code{\link{run_method}}
 #' @examples
 #' \dontrun{
-#'  mref <- generate_model(".", make_my_model)
-#'  dref1 <- simulate_from_model(mref, nsim = 50, index = 1:2)
-#'  dref2 <- simulate_from_model(mref, nsim = 50, index = 3:5,
-#'  parallel = list(socket_names = 3))
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model, n = 20) %>%
+#'    simulate_from_model(nsim = 50, index = 1:3,
+#'      parallel = list(socket_names = 3))
 #'  }
 simulate_from_model <- function(object, nsim,
                                 index = 1, parallel = NULL) {
@@ -165,9 +167,10 @@ simulate_from_model_single <- function(model, nsim, index, seed) {
 #'
 #' After \code{\link{simulate_from_model}} has been called, this function can
 #' be used to load one or more of the saved \code{\linkS4class{Draws}} object(s)
-#' (along with RNG information).  If multiple indices are provided, these will be combined
-#' into a new single \code{\linkS4class{Draws}} object.
-#'
+#' (along with RNG information).  If multiple indices are provided, these will
+#' be combined into a new single \code{\linkS4class{Draws}} object.
+#' If simulation object is available, it is easier to use the function
+#' \code{\link{draws}} to load it.
 #' @export
 #' @param dir the directory passed to \code{\link{generate_model}})
 #' @param model_name the Model object's \code{name} attribute
@@ -176,14 +179,7 @@ simulate_from_model_single <- function(model, nsim, index, seed) {
 #'        state of RNG after calling \code{\link{generate_model}}
 #' @param simulator.files if NULL, then \code{getOption("simulator.files")}
 #'        will be used.
-#' @seealso \code{\link{simulate_from_model}} \code{\link{load_model}}
-#' @examples
-#' \dontrun{
-#' # see example ?generate_model for make_my_model definition
-#'  mref <- generate_model(make_my_model, dir = ".")
-#'  dref <- simulate_from_model(mref, nsim = 50, index = 1:2)
-#'  load(dref) # loads Draws object with 100 entries
-#' }
+#' @seealso \code{\link{simulate_from_model}} \code{\link{draws}}
 load_draws <- function(dir, model_name, index, more_info = FALSE,
                        simulator.files = NULL) {
   md <- get_model_dir_and_file(dir, model_name,

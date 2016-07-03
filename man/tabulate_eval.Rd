@@ -51,4 +51,20 @@ standard error is shown (or not shown) is controlled by \code{se_format}.
 Uses \code{knitr}'s function \code{kable} to put table in various formats,
 including latex, html, markdown, etc.
 }
+\examples{
+\dontrun{
+ # suppose previously we had run the following:
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir()) \%>\%
+   generate_model(make_my_example_model,
+                  n = list(10, 20, 30),
+                  vary_along = "n") \%>\%
+   simulate_from_model(nsim = 50, index = 1:3) \%>\%
+   run_method(my_example_method) \%>\%
+   evaluate(my_example_loss)
+   # then we could plot this
+   tabulate_eval(sim, "myloss")
+ }
+}
 

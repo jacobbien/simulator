@@ -20,8 +20,6 @@
 #'        as a character vector.
 #' @param out_loc (optional) a length-1 character vector that gives location
 #'        (relative to model's path) that method outputs are stored.
-#' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
-#' \code{\link{run_method}}
 evaluate_internal <- function(metrics, dir = ".", model_name, index, method_names,
                        out_loc = "out") {
   # make sure metrics is a list of Metric objects
@@ -81,6 +79,18 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 #'        \code{\linkS4class{Metric}} object.
 #' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
 #' \code{\link{run_method}}
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model, n = 20) %>%
+#'    simulate_from_model(nsim = 50, index = 1:3) %>%
+#'    run_method(my_example_method)
+#'    # then we could add
+#'    sim <- evaluate(sim, my_example_loss)
+#'  }
 evaluate <- function(object, metrics) {
   # make sure metrics is a list of Metric objects
   if (class(metrics) == "list") {
@@ -90,7 +100,7 @@ evaluate <- function(object, metrics) {
     metrics <- list(metrics)
   }
   computing_time <- new_metric(name = "time",
-                               label = "Computing time",
+                               label = "Computing time (sec)",
                                metric = function(model, out) {
                                  return(as.numeric(out$time[1]))
                                })

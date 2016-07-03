@@ -25,15 +25,10 @@ other information if desired).
 \details{
 Depending on \code{more_info}, either returns \code{\linkS4class{Model}} object
 or a list containing \code{\linkS4class{Model}} object and other information.
-}
-\examples{
-\dontrun{
-# see example ?generate_model for make_my_model definition
-generate_model(make_my_model, dir = ".")
-load_model(dir = ".", model_name = "fm")
-}
+If simulation object is available, it is easier to use the function
+\code{\link{model}} to load the model.
 }
 \seealso{
-\code{\link{generate_model}} \code{\link{load_draws}}
+\code{\link{generate_model}} \code{\link{model}}
 }
 

@@ -38,4 +38,22 @@ is passed explicitly}
 \description{
 If evals is a \code{listofEvals}, then each model will be its own plot.
 }
+\examples{
+\dontrun{
+ # suppose previously we had run the following:
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir()) \%>\%
+   generate_model(make_my_example_model, n = 20) \%>\%
+   simulate_from_model(nsim = 50, index = 1:3) \%>\%
+   run_method(my_example_method) \%>\%
+   evaluate(my_example_loss)
+   # then we could plot this
+   plot_eval(sim, "myloss") # "my-loss" is my_example_loss@name
+ }
+}
+\seealso{
+\code{\link{plot_evals}} \code{\link{plot_eval_by}}
+\code{\link{tabulate_eval}}
+}
 

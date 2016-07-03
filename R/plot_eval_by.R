@@ -64,6 +64,21 @@
 #' @param ... additional arguments to pass to \code{plot} (only when
 #'        \code{use_ggplot2 = FALSE}).
 #' @export
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model,
+#'                   n = list(10, 20, 30),
+#'                   vary_along = "n") %>%
+#'    simulate_from_model(nsim = 50, index = 1:3) %>%
+#'    run_method(my_example_method) %>%
+#'    evaluate(my_example_loss)
+#'    # then we could plot this
+#'    plot_eval_by(sim, "myloss", varying = "n", include_zero = TRUE)
+#'  }
 plot_eval_by <- function(sim, metric_name, varying,
                          type = c("aggregated", "raw"),
                          center_aggregator = NULL,

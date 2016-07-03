@@ -45,6 +45,17 @@ NULL
 #'        and (optionally) \code{libraries} and \code{save_locally}
 #'        (see Details for more information)
 #' @seealso \code{\link{generate_model}} \code{\link{simulate_from_model}}
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model, n = 20) %>%
+#'    simulate_from_model(nsim = 50, index = 1:3)
+#'    # then we could add
+#'    sim <- run_method(sim, my_example_method)
+#'  }
 run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
   if (class(methods) == "list") {
     classes <- unlist(lapply(methods, class))
@@ -266,6 +277,8 @@ save_output_to_file <- function(out_dir, dir, out_loc, output, info) {
 #' be used to load one or more of the saved \code{\linkS4class{Output}} object(s).
 #' If multiple indices are provided, these will be combined
 #' into a new single \code{\linkS4class{Output}} object.
+#' If simulation object is available, it is easier to use the function
+#' \code{\link{output}} to load it.
 #'
 #' @export
 #' @param dir the directory passed to \code{\link{generate_model}})
@@ -280,7 +293,7 @@ save_output_to_file <- function(out_dir, dir, out_loc, output, info) {
 #'        state of RNG after calling \code{\link{simulate_from_model}}
 #' @param simulator.files if NULL, then \code{getOption("simulator.files")}
 #'        will be used.
-#' @seealso \code{\link{run_method}} \code{\link{load_model}} \code{\link{load_draws}}
+#' @seealso \code{\link{run_method}} \code{\link{output}}
 load_outputs <- function(dir, model_name, index, method_name, out_names = NULL,
                          out_loc = "out", more_info = FALSE,
                          simulator.files = NULL) {
