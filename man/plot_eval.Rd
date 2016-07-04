@@ -49,7 +49,7 @@ If evals is a \code{listofEvals}, then each model will be its own plot.
    run_method(my_example_method) \%>\%
    evaluate(my_example_loss)
    # then we could plot this
-   plot_eval(sim, "myloss") # "my-loss" is my_example_loss@name
+   plot_eval(sim, "myloss") # "myloss" is my_example_loss@name
  }
 }
 \seealso{

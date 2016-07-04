@@ -11,7 +11,7 @@ NULL
 #' @importFrom grDevices palette
 #' @importFrom graphics axis boxplot legend lines par plot points segments text
 #' title
-#' @importFrom stats as.formula loess predict sd
+#' @importFrom stats as.formula loess predict sd rnorm
 #' @importFrom utils installed.packages
 #' @importFrom parallel makePSOCKcluster clusterExport parLapplyLB stopCluster
 #' clusterExport clusterEvalQ
