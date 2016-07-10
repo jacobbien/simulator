@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 
 # The Simulator
 
-The simulator is an R package that streamlines the process of performing simulations by creating a common infrastructure that can be easily used and reused across projects.  This [paper](http://faculty.bscb.cornell.edu/~bien/simulator.pdf) discusses the simulator in greater depth.
+The simulator is an R package that streamlines the process of performing simulations by creating a common infrastructure that can be easily used and reused across projects.  The paper [The Simulator: An Engine to Streamline Simulations](http://arxiv.org/abs/1607.00021) discusses the simulator in greater depth.
 
 ## Installation
 
