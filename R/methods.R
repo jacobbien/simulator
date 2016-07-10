@@ -53,8 +53,8 @@ NULL
 #'                        dir = tempdir()) %>%
 #'    generate_model(make_my_example_model, n = 20) %>%
 #'    simulate_from_model(nsim = 50, index = 1:3)
-#'    # then we could add
-#'    sim <- run_method(sim, my_example_method)
+#'  # then we could add
+#'  sim <- run_method(sim, my_example_method)
 #'  }
 run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
   if (class(methods) == "list") {

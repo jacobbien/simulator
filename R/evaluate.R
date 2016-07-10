@@ -88,8 +88,8 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 #'    generate_model(make_my_example_model, n = 20) %>%
 #'    simulate_from_model(nsim = 50, index = 1:3) %>%
 #'    run_method(my_example_method)
-#'    # then we could add
-#'    sim <- evaluate(sim, my_example_loss)
+#'  # then we could add
+#'  sim <- evaluate(sim, my_example_loss)
 #'  }
 evaluate <- function(object, metrics) {
   # make sure metrics is a list of Metric objects
