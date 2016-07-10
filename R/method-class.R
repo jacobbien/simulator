@@ -50,3 +50,13 @@ setClass("Method", representation(settings = "list", method = "function"),
 new_method <- function(name, label, method, settings = list()) {
   new("Method", name = name, label = label, settings = settings, method = method)
 }
+
+setMethod("show", "Method", function(object) {
+  validObject(object)
+  callNextMethod()
+  catsim(" (Add @method to end of this object to see function.)",
+         fill = TRUE)
+  if (length(object@settings) > 0)
+    catsim(" (Add @settings to end of this object to see list of settings.)",
+           fill = TRUE)
+})

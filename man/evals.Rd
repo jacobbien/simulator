@@ -28,4 +28,25 @@ then all methods' evals are returned}
 \description{
 Returns either the Evals object itself or a reference to it.
 }
+\examples{
+\dontrun{
+ # suppose previously we had run the following:
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir()) \%>\%
+   generate_model(make_my_example_model, n = 20) \%>\%
+   simulate_from_model(nsim = 50, index = 1:3) \%>\%
+   run_method(my_example_method) \%>\%
+   evaluate(my_example_loss)
+ # then we could get the metric evaluated on the method's output:
+ e <- evals(sim)
+ # we can export it as a data.frame
+ as.data.frame(e)
+ # or we can get at a particular draw-method-metric triplet
+ e@evals$`my-method`$r1.1$myloss
+ }
+}
+\seealso{
+\code{\link{as.data.frame}}
+}
 

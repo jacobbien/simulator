@@ -74,4 +74,6 @@ setMethod("show", "Output", function(object) {
   cat(paste0(" method_label: ", object@method_label), fill = TRUE)
   cat(paste0(" out: ", paste(names(object@out[[1]]), collapse = ", ")),
       fill = TRUE)
+  catsim(" (Add @out to end of this object to see what method(s) returned.)",
+         fill = TRUE)
 })

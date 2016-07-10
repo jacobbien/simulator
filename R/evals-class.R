@@ -88,6 +88,8 @@ setMethod("show", "Evals", function(object) {
       fill = TRUE)
   cat(paste0(" metric_label(s): ", paste(object@metric_label, collapse = ", ")),
       fill = TRUE)
+  catsim(" (Add @evals to end of this object or use as.data.frame to see more.)",
+         fill = TRUE)
 })
 
 #' Convert an Evals to a data.frame

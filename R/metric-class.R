@@ -57,3 +57,10 @@ setClass("Metric", representation(metric = "function"),
 new_metric <- function(name, label, metric) {
   new("Metric", name = name, label = label, metric = metric)
 }
+
+setMethod("show", "Metric", function(object) {
+  validObject(object)
+  callNextMethod()
+  catsim(" (Add @metric to end of this object to see function.)",
+         fill = TRUE)
+})

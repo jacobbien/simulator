@@ -27,4 +27,17 @@ Returns either the draws objects themselves or references to them.  See
 \code{\link{model}} function for more information on the \code{...} and
 \code{subset} arguments, which are used to specify a subset of the models.
 }
+\examples{
+\dontrun{
+ # suppose previously we had run the following:
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir()) \%>\%
+   generate_model(make_my_example_model, n = 20) \%>\%
+   simulate_from_model(nsim = 50, index = 1:3)
+ # then we could get the simulated draws as follows:
+ d <- draws(sim)
+ d@draws$r1.1 # first random draw
+ }
+}
 

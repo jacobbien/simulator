@@ -52,3 +52,9 @@ check_draws <- function(object) {
 setClass("Draws", representation(index = "numeric", draws = "list"),
          contains = "Component", validity = check_draws)
 
+setMethod("show", "Draws", function(object) {
+  validObject(object)
+  callNextMethod()
+  catsim(" (Add @draws to end of this object to see what was simulated.)",
+         fill = TRUE)
+  })

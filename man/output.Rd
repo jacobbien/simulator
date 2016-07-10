@@ -28,4 +28,18 @@ then all methods' outputs are returned}
 \description{
 Returns either the output object itself or a reference to it.
 }
+\examples{
+\dontrun{
+ # suppose previously we had run the following:
+ sim <- new_simulation(name = "normal-example",
+                       label = "Normal Mean Estimation",
+                       dir = tempdir()) \%>\%
+   generate_model(make_my_example_model, n = 20) \%>\%
+   simulate_from_model(nsim = 50, index = 1:3) \%>\%
+   run_method(my_example_method)
+ # then we could get the method's output as follows:
+ o <- output(sim)
+ o@out$r1.1 # first random draw's output
+ }
+}
 

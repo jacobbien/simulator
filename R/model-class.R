@@ -60,6 +60,10 @@ setMethod("show", "Model", function(object) {
           nams[length(nams)],
           fill = TRUE)
     }
+    catsim(" (Add @params to end of this object to see parameters.)",
+           fill = TRUE)
+    catsim(" (Add @simulate to end of this object to see how data is simulated.)",
+           fill = TRUE)
   }
 })
 

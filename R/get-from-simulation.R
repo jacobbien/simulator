@@ -86,6 +86,18 @@ model <- function(sim, ..., subset = NULL, reference = FALSE) {
 #'        are desired. If missing, then all draws' outputs are returned.
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model, n = 20) %>%
+#'    simulate_from_model(nsim = 50, index = 1:3)
+#'  # then we could get the simulated draws as follows:
+#'  d <- draws(sim)
+#'  d@draws$r1.1 # first random draw
+#'  }
 draws <- function(sim, ..., subset = NULL, index, reference = FALSE) {
   if (!missing(index))
     stopifnot(is.numeric(index), index > 0, index == round(index))
@@ -141,6 +153,19 @@ draws <- function(sim, ..., subset = NULL, index, reference = FALSE) {
 #'        then all methods' outputs are returned
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model, n = 20) %>%
+#'    simulate_from_model(nsim = 50, index = 1:3) %>%
+#'    run_method(my_example_method)
+#'  # then we could get the method's output as follows:
+#'  o <- output(sim)
+#'  o@out$r1.1 # first random draw's output
+#'  }
 output <- function(sim, ..., subset = NULL, index, methods,
                    reference = FALSE) {
   outputs_or_evals(sim, sim@output_refs, TRUE, subset, index, methods,
@@ -165,6 +190,24 @@ output <- function(sim, ..., subset = NULL, index, methods,
 #'        then all methods' evals are returned
 #' @param reference whether to return the ModelRef or the Model object itself
 #' @export
+#' @seealso \code{\link{as.data.frame}}
+#' @examples
+#' \dontrun{
+#'  # suppose previously we had run the following:
+#'  sim <- new_simulation(name = "normal-example",
+#'                        label = "Normal Mean Estimation",
+#'                        dir = tempdir()) %>%
+#'    generate_model(make_my_example_model, n = 20) %>%
+#'    simulate_from_model(nsim = 50, index = 1:3) %>%
+#'    run_method(my_example_method) %>%
+#'    evaluate(my_example_loss)
+#'  # then we could get the metric evaluated on the method's output:
+#'  e <- evals(sim)
+#'  # we can export it as a data.frame
+#'  as.data.frame(e)
+#'  # or we can get at a particular draw-method-metric triplet
+#'  e@evals$`my-method`$r1.1$myloss
+#'  }
 evals <- function(sim, ..., subset = NULL, index, methods,
                   reference = FALSE) {
   outputs_or_evals(sim, sim@evals_refs, FALSE, subset, index, methods,
