@@ -5,7 +5,7 @@ sim <- new_simulation("bet-on-sparsity", "Bet on sparsity") %>%
   generate_model(make_sparse_linear_model, n = 200, p = 500, snr = 2,
                  k = as.list(seq(5, 80, by = 5)),
                  vary_along = "k") %>%
-  simulate_from_model(nsim = 3, index = 1:4) %>%
+  simulate_from_model(nsim = 2, index = 1:2) %>%
   run_method(list(lasso, ridge),
              parallel = list(socket_names = 2, libraries = "glmnet")) %>%
   evaluate(list(sqrerr, nnz, df, best_sqrerr))
