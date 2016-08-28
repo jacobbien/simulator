@@ -223,6 +223,8 @@ plot_eval_by <- function(sim, metric_name, varying,
            ggplot2::stat_smooth(ggplot2::aes_string(color = "Method",
                                                     group = "Method"))
     }
+    if (is.null(legend_location))
+      g <- g + ggplot2::theme(legend.position = "none")
     return(g)
   }
   # rest of function is for use_ggplot = FALSE case

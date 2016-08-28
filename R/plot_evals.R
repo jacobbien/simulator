@@ -77,7 +77,8 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
                                        main = main, facet_mains = facet_mains,
                                        xlab = xlab, ylab = ylab,
                                        xlim = xlim, ylim = ylim,
-                                       nrow = nrow, ncol = ncol))
+                                       nrow = nrow, ncol = ncol,
+                                       legend_location = legend_location))
   stopifnot(length(method_col) == num_methods)
   stopifnot(length(method_lty) %in% c(1, num_methods))
   if (length(method_lty) == 1) method_lty <- rep(method_lty, num_methods)
@@ -113,31 +114,40 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
 
 ggplot_evals <- function(ev_df, metric_name_x, metric_name_y, method_labels,
                          main, facet_mains, xlab, ylab, xlim, ylim,
-                         nrow, ncol) {
+                         nrow, ncol, legend_location) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("To use this function, ggplot2 must be installed.", call. = FALSE)
   }
   if (missing(main)) main <- NULL
   if (length(unique(ev_df$Model)) == 1) {
-    return(ggplot2::ggplot(ev_df, ggplot2::aes_string(metric_name_x,
-                                                         metric_name_y)) +
-             ggplot2::geom_line(ggplot2::aes_string(color = "Method",
-                                         group = "interaction(Method,Draw)")) +
-             ggplot2::labs(x = xlab, y = ylab, title = main) +
-             ggplot2::scale_colour_discrete(labels = method_labels) +
-             ggplot2::ylim(ylim) +
-             ggplot2::xlim(xlim))
+    g <- ggplot2::ggplot(ev_df,
+                         ggplot2::aes_string(metric_name_x, metric_name_y)) +
+      ggplot2::geom_line(ggplot2::aes_string(
+        color = "Method",
+        group = "interaction(Method,Draw)")) +
+      ggplot2::labs(x = xlab, y = ylab, title = main) +
+      ggplot2::scale_colour_discrete(labels = method_labels) +
+      ggplot2::ylim(ylim) +
+      ggplot2::xlim(xlim)
+    if (is.null(legend_location))
+      g <- g + ggplot2::theme(legend.position = "none")
+    return(g)
   }
   # display multiple facets...
   levels(ev_df[["Model"]]) <- facet_mains
-  ggplot2::ggplot(ev_df, ggplot2::aes_string(metric_name_x, metric_name_y)) +
-    ggplot2::geom_line(ggplot2::aes_string(color = "Method",
-                                        group = "interaction(Method,Draw)")) +
+  g <- ggplot2::ggplot(ev_df,
+                       ggplot2::aes_string(metric_name_x, metric_name_y)) +
+    ggplot2::geom_line(ggplot2::aes_string(
+      color = "Method",
+      group = "interaction(Method,Draw)")) +
     ggplot2::labs(x = xlab, y = ylab, title = main) +
     ggplot2::scale_colour_discrete(labels = method_labels) +
     ggplot2::ylim(ylim) +
     ggplot2::xlim(xlim) +
     ggplot2::facet_wrap("Model", nrow = nrow, ncol = ncol)
+  if (is.null(legend_location))
+    g <- g + ggplot2::theme(legend.position = "none")
+  return(g)
 }
 
 get_evals_list <- function(object) {
