@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit this file -->
 The Simulator
 =============
 
@@ -8,7 +8,13 @@ The simulator is an R package that streamlines the process of performing simulat
 Installation
 ------------
 
-The easiest way to install the simulator is by using the [devtools](https://cran.r-project.org/package=devtools) R package (if not already installed, open R and type `install.packages("devtools")`). To install simulator, type
+The `simulator` is on CRAN and can be installed from within R by typing
+
+``` r
+install.packages("simulator")
+```
+
+The most up-to-date version of the simulator is on this github page and can be installed using the [devtools](https://cran.r-project.org/package=devtools) R package (if not already installed, open R and type `install.packages("devtools")`). To install simulator, type
 
 ``` r
 devtools::install_github("jacobbien/simulator")
