@@ -10,7 +10,6 @@ make_sparse_linear_model <- function(n, p, k, snr) {
             params = list(x = x, beta = beta, mu = mu, sigma = sigma, n = n,
                           p = p, k = k),
             simulate = function(mu, sigma, nsim) {
-              y <- mu + sigma * matrix(rnorm(nsim * n), n, nsim)
-              return(split(y, col(y))) # make each col its own list element
+              return(lapply(1:nsim, function(i) mu + sigma * rnorm(n)))
             })
 }
