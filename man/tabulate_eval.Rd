@@ -20,7 +20,8 @@ Each evals object should just differ by model_name.}
 \item{method_names}{character vector indicating methods to include in table.
 If NULL, then will include all methods found in object's evals.}
 
-\item{caption}{caption of plot}
+\item{caption}{caption of plot. If NULL, then default caption used; if FALSE
+then no caption (and returns tabular without table).}
 
 \item{center_aggregator}{When NULL (which is default), the sample mean
 aggregator is used.  User can write specialized aggregators (see
