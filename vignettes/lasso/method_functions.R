@@ -93,12 +93,12 @@ cv <- new_method_extension("cv", "cross validated",
                              for (i in seq_along(ii)) {
                                train <- model
                                train@params$x <- model@params$x[-ii[[i]], ]
-                               train@params$n <- model@params$x[-ii[[i]], ]
+                               train@params$n <- nrow(train@params$x)
                                train_draw <- draw[-ii[[i]]]
 
                                test <- model
                                test@params$x <- model@params$x[ii[[i]], ]
-                               test@params$n <- model@params$x[ii[[i]], ]
+                               test@params$n <- nrow(test@params$x)
                                test_draw <- draw[ii[[i]]]
                                fit <- base_method@method(model = train,
                                                          draw = train_draw,
