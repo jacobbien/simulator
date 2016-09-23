@@ -22,8 +22,8 @@ check_aggregator <- function(object) {
 #'
 #' An object of class \code{Aggregator} consists of a label and a function
 #' \code{aggregate} that has a single argument \code{ev} that is a list of
-#' length \code{nsim}.  This list consists of the evaluated values of a single
-#' metric on a single method for a single model.
+#' length equal to the number of draws.  This list consists of the evaluated
+#' values of a single metric on a single method for a single model.
 #'
 #' @slot label a human readable label that will be a prefix to the Eval's label
 #' @slot aggregate a function with argument \code{ev} that is a list of
@@ -38,13 +38,13 @@ setClass("Aggregator",
 #' Creates a new \code{\linkS4class{Aggregator}} object.
 #'
 #' @param label a human readable label
-#' @param aggregate a function with argument \code{ev} that is a list of
-#'        length \code{nsim} with each element itself being a named list. Each
-#'        element of this list corresponds to a metric that has been computed.
-#'        In particular, given an \code{\linkS4class{Evals}} object \code{o},
-#'        \code{aggregate} takes as input \code{o@@evals[[method_name]]} (which
-#'        is a list of the kind just described).
-#'        The function aggregate should return a scalar.
+#' @param aggregate a function with argument \code{ev} that is a list of length
+#'   equal to the number of draws with each element itself being a named list.
+#'   Each element of this list corresponds to a metric that has been computed.
+#'   In particular, given an \code{\linkS4class{Evals}} object \code{o},
+#'   \code{aggregate} takes as input \code{o@@evals[[method_name]]} (which is a
+#'   list of the kind just described). The function aggregate should return a
+#'   scalar.
 #' @export
 new_aggregator <- function(label, aggregate) {
   new("Aggregator", label = label, aggregate = aggregate)
