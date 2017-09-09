@@ -203,8 +203,8 @@ plot_eval_by <- function(sim, metric_name, varying,
            ggplot2::scale_colour_discrete(labels = method_labels) +
            ggplot2::ylim(ylim) +
            ggplot2::xlim(xlim) +
-           ggplot2::geom_line(ggplot2::aes_string(position = ".center")) +
-           ggplot2::geom_point(ggplot2::aes_string(position = ".center"))
+           ggplot2::geom_line() +
+           ggplot2::geom_point()
       if (isS4(spread_aggregator)) {
         g <- g + ggplot2::geom_errorbar(ggplot2::aes_string(ymin = ".lower",
                                                             ymax = ".upper",
