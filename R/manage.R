@@ -50,7 +50,9 @@ get_contents <- function(dir = ".", out_loc = "out") {
     }
   }
   return(list(sim_names = sim_names, mem = mem, objects = objects,
-              nfiles = length(files)))
+              nfiles = length(files),
+              out_files = file.path(path, files[out_files]),
+              evals_files = file.path(path, files[evals_files])))
 }
 
 
