@@ -1,7 +1,11 @@
 
-#' Make a boxplot of a metric for each method
+#' Plot a metric's value for each method
 #'
-#' If evals is a \code{listofEvals}, then each model will be its own plot.
+#' When the evaluted metric is scalar-valued, this functions makes a boxplot of
+#' this metric for each method.  When the metric is vector-valued, this function
+#' makes a curve with this metric on the y-axis, with one curve for each method
+#' (the x-axis is the corresponding entry of that metric's vector). If evals is
+#' a \code{listofEvals}, then each model will be its own plot.
 #'
 #' @param object an object of class \code{\linkS4class{Simulation}},
 #'        \code{\linkS4class{Evals}}, or \code{listofEvals}
@@ -59,8 +63,9 @@ plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
   ev_list <- subset_evals(ev_list, metric_names = metric_name)
   evals_df <- as.data.frame(ev_list)
   if(any(table(evals_df[, c("Model", "Method", "Draw")]) != 1)) {
-    stop("plot_eval should only be called on metrics that are scalar-valued.",
-         " Plot a vector-valued metric versus another using plot_evals.")
+    return(plot_evals(object, metric_name_x = NULL, metric_name_y = metric_name,
+               use_ggplot2 = use_ggplot2, main = main, facet_mains = facet_mains,
+               ylab = ylab, ylim = ylim, include_zero = include_zero))
   }
   if (missing(ylim)) {
     ylim <- range(evals_df[[metric_name]])

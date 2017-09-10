@@ -1,11 +1,15 @@
 
 #' Plot one metric versus another for each method
 #'
+#' This function is used when both evaluated metrics are vector-valued, so a
+#' curve is plotted, parametrized by the two metrics.  To plot a single metric
+#' that is vector-valued, pass NULL for metric_name_x. This behaves similarly
+#' to \code{plot(runif(5))}, in which the x-axis variable is simply \code{1:5}.
 #' If evals is a \code{listofEvals}, then each model will be its own plot.
 #'
 #' @param object an object of class \code{\linkS4class{Simulation}},
 #'        \code{\linkS4class{Evals}}, or \code{listofEvals}
-#' @param metric_name_x the name of metric to plot on x axis
+#' @param metric_name_x the name of metric to plot on x axis (or NULL)
 #' @param metric_name_y the name of metric to plot on y axis
 #' @param use_ggplot2 whether to use \code{ggplot2} (requires installation
 #'        of \code{ggplot2})
@@ -38,14 +42,30 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
                        method_lwd = rep(1, num_methods),
                        method_pch = rep(NA, num_methods), ...) {
   ev_list <- get_evals_list(object)
+  if (!any(unlist(lapply(ev_list,
+                         function(e) metric_name_y %in% e@metric_name)))) {
+    stop("Passed object does not have Evals named ", metric_name_y)
+  }
+  if (is.null(metric_name_x)) {
+    # add a "pseudo" eval for the x-axis like how graphics::plot puts "Index"
+    metric_name_x <- options("simulator.plot_evals.index.name")[[1]]
+    lab <- options("simulator.plot_evals.index.label")[[1]]
+    for (m in seq_along(ev_list)) {
+      ev_list[[m]]@metric_name <- c(ev_list[[m]]@metric_name, metric_name_x)
+      ev_list[[m]]@metric_label <- c(ev_list[[m]]@metric_label, lab)
+      for(meth in names(ev_list[[m]]@evals)) {
+        for (rid in names(ev_list[[m]]@evals[[meth]])) {
+          # the length of this pseudo eval should match that to be on y-axis
+          len <- length(ev_list[[m]]@evals[[meth]][[rid]][[metric_name_y]])
+          ev_list[[m]]@evals[[meth]][[rid]][[metric_name_x]] <- seq(len)
+        }
+      }
+    }
+  }
   if (length(ev_list) == 0) stop("Passed object does not have Evals to plot.")
   if (!any(unlist(lapply(ev_list,
                          function(e) metric_name_x %in% e@metric_name)))) {
     stop("Passed object does not have Evals named ", metric_name_x)
-  }
-  if (!any(unlist(lapply(ev_list,
-                         function(e) metric_name_y %in% e@metric_name)))) {
-    stop("Passed object does not have Evals named ", metric_name_y)
   }
   method_names <- lapply(ev_list, function(e) e@method_name)
   if (length(unique(method_names)) != 1)

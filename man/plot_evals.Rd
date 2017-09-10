@@ -14,7 +14,7 @@ plot_evals(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE, main,
 \item{object}{an object of class \code{\linkS4class{Simulation}},
 \code{\linkS4class{Evals}}, or \code{listofEvals}}
 
-\item{metric_name_x}{the name of metric to plot on x axis}
+\item{metric_name_x}{the name of metric to plot on x axis (or NULL)}
 
 \item{metric_name_y}{the name of metric to plot on y axis}
 
@@ -54,6 +54,10 @@ points, only lines are drawn)}
 \code{use_ggplot2 = FALSE}).}
 }
 \description{
+This function is used when both evaluated metrics are vector-valued, so a
+curve is plotted, parametrized by the two metrics.  To plot a single metric
+that is vector-valued, pass NULL for metric_name_x. This behaves similarly
+to \code{plot(runif(5))}, in which the x-axis variable is simply \code{1:5}.
 If evals is a \code{listofEvals}, then each model will be its own plot.
 }
 
