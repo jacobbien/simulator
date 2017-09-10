@@ -9,13 +9,13 @@ new_aggregator(label, aggregate)
 \arguments{
 \item{label}{a human readable label}
 
-\item{aggregate}{a function with argument \code{ev} that is a list of
-length \code{nsim} with each element itself being a named list. Each
-element of this list corresponds to a metric that has been computed.
+\item{aggregate}{a function with argument \code{ev} that is a list of length
+equal to the number of draws with each element itself being a named list.
+Each element of this list corresponds to a metric that has been computed.
 In particular, given an \code{\linkS4class{Evals}} object \code{o},
-\code{aggregate} takes as input \code{o@evals[[method_name]]} (which
-is a list of the kind just described).
-The function aggregate should return a scalar.}
+\code{aggregate} takes as input \code{o@evals[[method_name]]} (which is a
+list of the kind just described). The function aggregate should return a
+scalar.}
 }
 \description{
 Creates a new \code{\linkS4class{Aggregator}} object.
