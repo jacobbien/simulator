@@ -8,7 +8,7 @@ tabulate_eval(object, metric_name, method_names = NULL, caption = NULL,
   center_aggregator = NULL, spread_aggregator = NULL,
   se_format = c("Paren", "PlusMinus", "None"), output_type = "latex",
   format_args = list(nsmall = 0, digits = NULL, scientific = FALSE),
-  na_string = "--")
+  na_string = "--", bold = c("None", "Smallest", "Largest"))
 }
 \arguments{
 \item{object}{an object of class \code{\linkS4class{Simulation}},
@@ -42,6 +42,8 @@ Default is "latex" but other options include "html" and "markdown"}
 \item{format_args}{arguments to pass to the function \code{\link{format}}}
 
 \item{na_string}{what to write in table in place of NA}
+
+\item{bold}{puts in bold the value that is smallest/largest for each model}
 }
 \description{
 Each row of the table corresponds to a different model and each column
@@ -68,4 +70,3 @@ including latex, html, markdown, etc.
    tabulate_eval(sim, "myloss")
  }
 }
-

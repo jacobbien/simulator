@@ -29,6 +29,7 @@
 #'        Default is "latex" but other options include "html" and "markdown"
 #' @param format_args arguments to pass to the function \code{\link{format}}
 #' @param na_string what to write in table in place of NA
+#' @param bold puts in bold the value that is smallest/largest for each model
 #' @export
 #' @examples
 #' \dontrun{
@@ -54,7 +55,8 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
                           format_args = list(nsmall = 0,
                                              digits = NULL,
                                              scientific = FALSE),
-                          na_string = "--") {
+                          na_string = "--",
+                          bold = c("None", "Smallest", "Largest")) {
   if (!requireNamespace("knitr", quietly = TRUE)) {
     stop("To use this function, knitr must be installed.", call. = FALSE)
   }
@@ -102,6 +104,16 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
   if (isS4(spread_aggregator))
     spread <- aggregate_evals(e, spread_aggregator)
   tabm_str <- do.call("format", c(list(x = center), format_args))
+  bold <- bold[1]
+  if (bold != "None") {
+    if (bold == "Smallest")
+      ii <- apply(center, 1, which.min)
+    else if (bold == "Largest")
+      ii <- apply(center, 1, which.max)
+    else stop("Not a recognized argument for bold.")
+    ii <- cbind(seq_along(ii), ii)
+    tabm_str[ii] <- add_bold(tabm_str[ii], output_type)
+  }
   if (se_format[1] == "None")
     tab <- tabm_str
   else {
@@ -140,4 +152,20 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
   else str <- ""
   catsim(str, sep = "\n")
   knitr::kable(tab, format = output_type, caption = caption, escape = FALSE)
+}
+
+#' Make a string bold in a certain format
+#'
+#' For example, in latex it would take "2" and output "{\\bf 2}"; in html
+#' it would output "<b>2</b>".
+#'
+#' @param str string or strings (character) to make bold
+#' @param output_type output type (see knitr::kable's format)
+add_bold <- function(str, output_type) {
+  if (output_type == "latex")
+    return(paste0("{\\bf ", str, "}"))
+  if (output_type == "html")
+    return(paste0("<b>", str, "</b>"))
+  # do the markdown double asterisk as default
+  return(paste0("**", str, "**"))
 }
