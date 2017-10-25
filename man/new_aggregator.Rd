@@ -20,4 +20,3 @@ scalar.}
 \description{
 Creates a new \code{\linkS4class{Aggregator}} object.
 }
-

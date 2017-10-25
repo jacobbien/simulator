@@ -11,4 +11,3 @@ ggplot_eval(evals_df, metric_name, method_name, method_label, main, facet_mains,
 Make a boxplot of a metric for each method using ggplot2
 }
 \keyword{internal}
-

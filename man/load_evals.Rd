@@ -42,4 +42,3 @@ a list of \code{\linkS4class{Evals}} objects will be returned.
 \code{\link{load_model}} \code{\link{load_draws}}
          \code{\link{as.data.frame.Evals}}
 }
-

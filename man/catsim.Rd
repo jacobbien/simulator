@@ -13,4 +13,3 @@ catsim(...)
 For internal use.  This calls \code{\link{cat}} only when
 \code{getOption("simulator.verbose")}.
 }
-

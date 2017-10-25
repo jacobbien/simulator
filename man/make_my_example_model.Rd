@@ -17,4 +17,3 @@ This function is used in the examples.  It returns a
 \seealso{
 \code{\link{my_example_method}} \code{\link{my_example_loss}}
 }
-

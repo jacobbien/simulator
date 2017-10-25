@@ -3,10 +3,10 @@
 \docType{methods}
 \name{add}
 \alias{add}
-\alias{add,Simulation,DrawsRef-method}
-\alias{add,Simulation,EvalsRef-method}
 \alias{add,Simulation,ModelRef-method}
+\alias{add,Simulation,DrawsRef-method}
 \alias{add,Simulation,OutputRef-method}
+\alias{add,Simulation,EvalsRef-method}
 \alias{add,Simulation,list-method}
 \title{Add a reference to a simulation}
 \usage{
@@ -43,4 +43,3 @@ One can also pass a list of such objects.
 The modified simulation object is saved to file if \code{update_saved} is
 TRUE.
 }
-

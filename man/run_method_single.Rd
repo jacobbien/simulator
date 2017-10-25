@@ -19,4 +19,3 @@ This is an internal function.  Users should call the wrapper function.
 \code{\link{run_method}}. Here "single" refers to a single index-method
 pair.
 }
-

@@ -37,4 +37,3 @@ This is an internal function. The function_to_do is done in parallel
 and its output is saved either on slave (locally) or on master.
 }
 \keyword{internal}
-

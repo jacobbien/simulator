@@ -7,4 +7,3 @@
 This is not magrittr's pipe (actually it is)
 }
 \keyword{internal}
-

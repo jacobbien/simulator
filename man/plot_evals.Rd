@@ -60,4 +60,3 @@ that is vector-valued, pass NULL for metric_name_x. This behaves similarly
 to \code{plot(runif(5))}, in which the x-axis variable is simply \code{1:5}.
 If evals is a \code{listofEvals}, then each model will be its own plot.
 }
-

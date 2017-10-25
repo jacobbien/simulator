@@ -111,4 +111,3 @@ apply when use_ggplot2 is FALSE.
    plot_eval_by(sim, "myloss", varying = "n", include_zero = TRUE)
  }
 }
-

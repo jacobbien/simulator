@@ -19,4 +19,3 @@ in its own list or not}
 Internal function used by both outputs and evals
 }
 \keyword{internal}
-

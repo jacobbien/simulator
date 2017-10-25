@@ -18,4 +18,3 @@ such as spaces, hyphens, etc.}
 \description{
 Creates a new \code{\linkS4class{Metric}} object.
 }
-

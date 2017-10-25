@@ -14,4 +14,3 @@ get_model_indices(sim, subset)
 \description{
 See \code{\link{model}} for information about the various formats of subset.
 }
-

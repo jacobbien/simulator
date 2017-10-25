@@ -17,4 +17,3 @@ the same Model and Draws objects.  Usually this is just "out"}
 \description{
 Returns a simulation object containing references to all files in directory
 }
-

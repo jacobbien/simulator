@@ -21,4 +21,3 @@ being extended}
 \description{
 Creates a new \code{\linkS4class{ExtendedMethod}} object.
 }
-

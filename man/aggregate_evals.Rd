@@ -14,4 +14,3 @@ aggregate_evals(evals_list, aggregator)
 \description{
 Returns a num_models by num_methods matrix
 }
-

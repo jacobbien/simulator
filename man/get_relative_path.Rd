@@ -15,4 +15,3 @@ get_relative_path(base_path, path)
 Given a base path and a specific path, returns a string str such that
 file.path(base_path, str) is the same location as path.
 }
-

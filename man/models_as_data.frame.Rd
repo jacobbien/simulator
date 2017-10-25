@@ -12,4 +12,3 @@ models_as_data.frame(m)
 \description{
 Ignores any params that are not length 1 and numeric or character
 }
-

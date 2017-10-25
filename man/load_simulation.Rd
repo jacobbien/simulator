@@ -28,4 +28,3 @@ sim <- load_simulation("normal-example", dir = tempdir())
 \seealso{
 \code{\link{new_simulation}} \code{\link{save_simulation}}
 }
-

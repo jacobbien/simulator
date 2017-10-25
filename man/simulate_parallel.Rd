@@ -40,4 +40,3 @@ This is an internal function. Draws are done in chunks labeled
 by indices and of size determined by nsim. Users should call the wrapper
 function \code{\link{simulate_from_model}}.
 }
-

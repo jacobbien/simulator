@@ -15,4 +15,3 @@
 \description{
 Get element of \code{\linkS4class{Model}}'s \code{params} list
 }
-

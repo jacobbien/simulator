@@ -19,4 +19,3 @@ Although not checked, it is assumed that this is only called on a list
 of DrawsRef objects all coming from same model.
 }
 \keyword{internal}
-

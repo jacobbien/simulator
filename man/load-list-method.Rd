@@ -13,4 +13,3 @@
 \description{
 Load a list of reference objects
 }
-

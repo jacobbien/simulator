@@ -19,4 +19,3 @@
 Ignores any params that are not length 1 and numeric or character. This is
 equivalent to calling \code{as(x, "data.frame")}
 }
-

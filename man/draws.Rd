@@ -40,4 +40,3 @@ Returns either the draws objects themselves or references to them.  See
  d@draws$r1.1 # first random draw
  }
 }
-

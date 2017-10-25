@@ -48,4 +48,3 @@ parallel functionality has not been developed for the evaluation component.
 \code{\link{generate_model}} \code{\link{simulate_from_model}}
 \code{\link{run_method}}
 }
-

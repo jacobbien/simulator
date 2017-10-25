@@ -60,4 +60,3 @@ a \code{listofEvals}, then each model will be its own plot.
 \code{\link{plot_evals}} \code{\link{plot_eval_by}}
 \code{\link{tabulate_eval}}
 }
-

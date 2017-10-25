@@ -17,4 +17,3 @@ character}
 Given a list of \code{\linkS4class{Model}} objects, returns model names
 which meet conditions.  Uses \code{\link{subset}}
 }
-

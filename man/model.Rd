@@ -38,4 +38,3 @@ While approach (1) is very convenient, it requires loading all models from
  file. This may be slow in situations in which there are a lot of models
  and/or the models are large and thus slow to load.
 }
-

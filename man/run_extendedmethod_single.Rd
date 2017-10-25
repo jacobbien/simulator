@@ -22,4 +22,3 @@ This is an internal function.  Users should call the wrapper function.
 index-ExtendedMethod
 pair.
 }
-

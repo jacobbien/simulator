@@ -22,4 +22,3 @@ apology.
 \seealso{
 \code{\link{new_simulation}} \code{\link{load_simulation}}
 }
-

@@ -63,4 +63,4 @@ Collate:
     'plot_evals.R'
     'tables.R'
     'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

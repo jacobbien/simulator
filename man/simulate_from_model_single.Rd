@@ -19,4 +19,3 @@ simulate_from_model_single(model, nsim, index, seed)
 This is an internal function.  Users should call the wrapper function
 \code{\link{simulate_from_model}}.
 }
-

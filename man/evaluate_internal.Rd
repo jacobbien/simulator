@@ -36,4 +36,3 @@ file (at dir/model_name/<out_loc>/r<index>_<method_name>_evals.Rdata. Since
 evaluating metrics is usually (in statistical methodological papers) fast,
 parallel functionality has not been developed for the evaluation component.
 }
-

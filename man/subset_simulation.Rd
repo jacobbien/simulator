@@ -32,4 +32,3 @@ and then use \code{\link{save_simulation}}.  If you call
 the preexisting simulation.  Use \code{\link{rename}} and
 \code{\link{relabel}}.
 }
-

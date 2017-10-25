@@ -45,4 +45,3 @@ If simulation object is available, it is easier to use the function
 \code{\link{run_method}} \code{\link{output}}
 }
 \keyword{internal}
-

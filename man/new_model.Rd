@@ -36,4 +36,3 @@ make_my_example_model <- function(n) {
             })
 }
 }
-

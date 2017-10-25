@@ -12,4 +12,3 @@ model_names(sim)
 \description{
 Get model names in a Simulation
 }
-

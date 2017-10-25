@@ -42,4 +42,3 @@ Returns either the output object itself or a reference to it.
  o@out$r1.1 # first random draw's output
  }
 }
-

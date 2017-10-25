@@ -23,4 +23,3 @@ Creates an object of class \code{MethodExtension}, which when added to a
 \details{
 This class inherits from the \code{\linkS4class{Component}} class.
 }
-

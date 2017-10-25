@@ -49,4 +49,3 @@ Returns either the Evals object itself or a reference to it.
 \seealso{
 \code{\link{as.data.frame}}
 }
-

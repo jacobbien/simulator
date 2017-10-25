@@ -31,4 +31,3 @@ If simulation object is available, it is easier to use the function
 \seealso{
 \code{\link{simulate_from_model}} \code{\link{draws}}
 }
-

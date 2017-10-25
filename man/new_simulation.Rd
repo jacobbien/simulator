@@ -52,4 +52,3 @@ sim <- new_simulation(name = "normal-example",
 \seealso{
 \code{\link{load_simulation}} \code{\link{save_simulation}}
 }
-

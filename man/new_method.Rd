@@ -22,4 +22,3 @@ identical methods).}
 \description{
 Creates a new \code{\linkS4class{Method}} object.
 }
-

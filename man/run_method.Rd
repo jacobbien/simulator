@@ -68,4 +68,3 @@ state is restored to what it was after the base method had been called.
 \seealso{
 \code{\link{generate_model}} \code{\link{simulate_from_model}}
 }
-

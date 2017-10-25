@@ -44,4 +44,3 @@ and by index.  Users should call the wrapper function
 \code{\link{run_method}}.
 }
 \keyword{internal}
-

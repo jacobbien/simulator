@@ -42,7 +42,7 @@ as \code{ri.j} where \code{i} is the \code{index} and \code{j} ranges
 from \code{1} to \code{nsim}.  Element \code{out$ri.j} is output of
 metric \code{metric_name} on random draw \code{ri.j}.}
 }}
+
 \seealso{
 \code{\link{evaluate}} \code{\link{as.data.frame.Evals}}
 }
-

@@ -21,4 +21,3 @@ When \code{\link{load}} generates a list of Evals, it assigns this
 to be of (S3) class listofEvals, inherited from list, so that this function
 will be invoked instead of as.data.frame.list, which is defined in base.
 }
-

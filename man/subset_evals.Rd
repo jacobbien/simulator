@@ -18,4 +18,3 @@ subset_evals(evals, method_names = NULL, metric_names = NULL)
 If \code{method_names} is \code{NULL}, then subsetting is not done over
 methods.  Likewise for \code{metric_names}.
 }
-

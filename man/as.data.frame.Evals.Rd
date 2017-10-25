@@ -18,4 +18,3 @@
 \description{
 This is equivalent to calling \code{as(x, "data.frame")}
 }
-

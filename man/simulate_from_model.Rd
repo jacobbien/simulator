@@ -61,4 +61,3 @@ generated should be saved on the slaves (i.e., locally) or on the master.
 \seealso{
 \code{\link{load_draws}} \code{\link{generate_model}} \code{\link{run_method}}
 }
-

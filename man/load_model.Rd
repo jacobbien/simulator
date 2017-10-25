@@ -31,4 +31,3 @@ If simulation object is available, it is easier to use the function
 \seealso{
 \code{\link{generate_model}} \code{\link{model}}
 }
-

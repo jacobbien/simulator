@@ -76,4 +76,3 @@ when \code{model} was created.
 \code{\link{new_model}} \code{\link{simulate_from_model}}
 \code{\link{run_method}}
 }
-

@@ -16,4 +16,3 @@ the sample mean of the data.
 \code{\link{make_my_example_model}} \code{\link{my_example_loss}}
 }
 \keyword{datasets}
-

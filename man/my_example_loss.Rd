@@ -16,4 +16,3 @@ squared error loss.
 \code{\link{make_my_example_model}} \code{\link{my_example_loss}}
 }
 \keyword{datasets}
-

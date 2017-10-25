@@ -21,4 +21,3 @@ This is an internal function.  Users should call the wrapper function
 thus a single method, though not necessarily a single index).
 The metrics provided are run and saved together in a file.
 }
-

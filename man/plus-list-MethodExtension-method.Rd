@@ -15,4 +15,3 @@
 \description{
 Create a list of ExtendedMethod from a list of Methods and a MethodExtension
 }
-

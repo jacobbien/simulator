@@ -10,4 +10,3 @@ load_libraries_on_cluster(cl, libs)
 Load necessary libraries on a cluster
 }
 \keyword{internal}
-

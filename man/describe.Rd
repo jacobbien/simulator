@@ -12,4 +12,3 @@ describe(dir = ".")
 \description{
 Describe the contents of a simulator directory
 }
-

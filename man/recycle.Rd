@@ -14,4 +14,3 @@ recycle(x, length)
 \description{
 Recycles elements to create vector of desired length
 }
-

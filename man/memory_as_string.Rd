@@ -12,4 +12,3 @@ memory_as_string(memory_in_bytes)
 \description{
 Write memory in human readable way
 }
-
