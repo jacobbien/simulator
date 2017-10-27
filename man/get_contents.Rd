@@ -15,5 +15,16 @@ useful for staying organized when multiple simulations are based on
 the same Model and Draws objects.  Usually this is just "out"}
 }
 \description{
-Get the contents of a simulator directory
+This function gives detailed information about what is being stored in the
+"files" directory.  In particular, it gives the complete paths for all the
+draws, outputs, and evals files.  This can be useful in situations in which
+the draws or outputs files are no longer needed and take up a lot of memory.
+In such a case a user could delete these files with a command such as
+\code{system(paste(c("rm", contents$out_files), collapse = " "))}.
+That said, one must be cautious in deleting these files since the
+simulator generally assumes that earlier stages' files will be available
+and so deleting these may cause errors.  However, if one is essentially
+finished with a simulation and evaluated metrics have been computed and if
+the methods' raw outputs are taking up a lot of disk space, then one might
+consider deleting the out_files (and/or the draws_files).
 }
