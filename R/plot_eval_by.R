@@ -233,7 +233,7 @@ plot_eval_by <- function(sim, metric_name, varying,
        type = "n", ...)
   if (type == "aggregated") {
     for (m in seq_along(method_names)) {
-      points(val_varied, center[, m], col = method_col[m], pch = 20,
+      points(val_varied, center[, m], col = method_col[m], pch = method_pch[m],
              lty = method_lty[m], lwd = method_lwd[m], type = "o")
       if (isS4(spread_aggregator)) {
         segments(x0 = val_varied, y0 = lower[, m],
