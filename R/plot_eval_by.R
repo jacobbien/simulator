@@ -208,8 +208,7 @@ plot_eval_by <- function(sim, metric_name, varying,
       if (isS4(spread_aggregator)) {
         g <- g + ggplot2::geom_errorbar(ggplot2::aes_string(ymin = ".lower",
                                                             ymax = ".upper",
-                                                            width = 0.1,
-                                                            position = ".center"))
+                                                            width = 0.1))
       }
 
     } else if (type == "raw") {

@@ -65,11 +65,6 @@ NULL
 generate_model <- function(object = ".", make_model, ..., seed = 123,
                            vary_along = NULL) {
   stopifnot(length(object) == 1)
-  make_model_args <- names(formals(make_model))
-  illegal_arguments <- c("seed", "object", "vary_along")
-  if (any(illegal_arguments %in% make_model_args))
-    stop(sprintf("Function 'make_model' cannot have an argument named '%s'.",
-         illegal_arguments[illegal_arguments %in% make_model_args][1]))
   if (class(object) == "Simulation")
     dir <- object@dir
   else if (class(object) == "character")
@@ -87,6 +82,11 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
     else
       return(invisible(mrefs))
   } else stopifnot(class(make_model) == "function")
+  make_model_args <- names(formals(make_model))
+  illegal_arguments <- c("seed", "object", "vary_along")
+  if (any(illegal_arguments %in% make_model_args))
+    stop(sprintf("Function 'make_model' cannot have an argument named '%s'.",
+                 illegal_arguments[illegal_arguments %in% make_model_args][1]))
   dir <- remove_slash(dir)
   stopifnot(file.info(dir)$isdir)
   passed_params <- as.list(match.call(expand.dots = FALSE)$`...`)
