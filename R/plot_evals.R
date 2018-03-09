@@ -106,7 +106,8 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
   if (length(method_lwd) == 1) method_lwd <- rep(method_lwd, num_methods)
   stopifnot(length(method_pch) == num_methods)
 
-  par(mfrow = c(nrow, ncol))
+  if (nrow != 1 | ncol != 1)
+    par(mfrow = c(nrow, ncol))
   palette(options("simulator.color_palette")[[1]])
   for (i in seq_along(ev_list)) {
     ev_df <- as.data.frame(ev_list[[i]])

@@ -78,7 +78,9 @@ plot_eval <- function(object, metric_name, use_ggplot2 = TRUE, main,
   if (use_ggplot2) return(ggplot_eval(evals_df, metric_name, method_names,
                                       method_labels, main, facet_mains, ylab,
                                       ylim, nrow, ncol))
-  par(mfrow = c(nrow, ncol))
+  if (nrow != 1 | ncol != 1)
+    par(mfrow = c(nrow, ncol))
+
   for (i in seq_along(ev_list)) {
     evals_df <- as.data.frame(ev_list[[i]])
     if (angle == 0) {
