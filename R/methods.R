@@ -191,15 +191,41 @@ run_method_single <- function(method, model, draws_list) {
   out <- list()
   settings_args <- intersect(names(formals(method@method)),
                              names(method@settings))
-  for (rid in names(draws_list$draws@draws)) {
-    out[[rid]] <- list()
-    arguments <- c(list(model = model, draw = draws_list$draws@draws[[rid]]),
-                   method@settings[settings_args])
-    time <- system.time({temp <- do.call(method@method, arguments)})
-    if (!is.list(temp)) temp <- list(out = temp)
-    out[[rid]] <- temp
-    out[[rid]]$time <- time
-  }
+  tryCatch({
+    for (rid in names(draws_list$draws@draws)) {
+      out[[rid]] <- list()
+      arguments <- c(list(model = model, draw = draws_list$draws@draws[[rid]]),
+                     method@settings[settings_args])
+      # record state of RNG temporarily to help user debug in case of error
+      cur_seed <- .Random.seed
+      time <- system.time({temp <- do.call(method@method, arguments)})
+      if (!is.list(temp)) temp <- list(out = temp)
+      out[[rid]] <- temp
+      out[[rid]]$time <- time
+    }
+  }, error = function(e) {
+    msg <- sprintf("\n  Method: %s\n  Model: %s\n  index: %s (draw %s)",
+                   method@label, model@label, draws_list$draws@index, rid)
+    msg <- sprintf("%s\n  error message: %s", msg, e$message)
+    code1 <- sprintf("m <- model(sim, subset = \"%s\")\n", model@name)
+    code2 <- sprintf("d <- draws(sim, subset = \"%s\", index = %s)\n",
+                     model@name, draws_list$draws@index)
+    code3 <- sprintf(".Random.seed <<- as.integer(c(%s))\n",
+                     paste(cur_seed, collapse = ", "))
+    code4 <- sprintf(paste0("met@method(model = m, draw = d$%s)"), rid)
+    hint <- sprintf(paste0("The following code can be used to recreate the ",
+                           "error, where 'met' is the method object (i.e. met@name ",
+                           "== \"%s\") and 'sim' is your simulation object:\n\n",
+                           code1,
+                           code2,
+                           code3,
+                           code4),
+                    method@name)
+    note <- paste0("Note: The .Random.seed line is only needed if your method",
+                   " is randomized. This will reproduce the exact behavior that led to the error.")
+    e$message <- paste0(msg, "\n\nHint: ", hint, "\n\n", note)
+    stop(e)
+  })
   output <- new("Output",
                 model_name = model@name,
                 index = draws_list$draws@index,
