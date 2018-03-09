@@ -19,8 +19,8 @@
 #'        aggregator is used.  User can write specialized aggregators (see
 #'        definition of class \code{\linkS4class{Aggregator}}) as necessary,
 #'        for example, when the evaluated metric is not scalar-valued.
-#' @param spread_aggregator When NULL (which is default), the sample mean
-#'        aggregator is used.  User can write specialized aggregators (see
+#' @param spread_aggregator When NULL (which is default), the standard error 
+#'        of the sample mean is used.  User can write specialized aggregators (see
 #'        definition of class \code{\linkS4class{Aggregator}}) as necessary,
 #'        for example, when the evaluated metric is not scalar-valued. Set
 #'        \code{spread_aggregator} to \code{NA} to hide error bars.
@@ -87,6 +87,12 @@ tabulate_eval <- function(object, metric_name, method_names = NULL,
                                                 metric_name,
                                                 metric_label,
                                                 mean)
+  } else {
+    # user is supplying a custom center_aggregator
+    if (is.null(spread_aggregator)) 
+      warning("A custom spread_aggregator should ",
+              "be used when a custom center_aggregator is being used. ",
+              "Another option is simply to take spread_aggregator = NA.")
   }
   center_label <- center_aggregator@label
   if (is.null(spread_aggregator)) {

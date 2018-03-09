@@ -8,7 +8,7 @@
 An object of class \code{Aggregator} consists of a label and a function
 \code{aggregate} that has a single argument \code{ev} that is a list of
 length equal to the number of draws.  This list consists of the evaluated
-values of a single metric on a single method for a single model.
+values of all metrics on a single method for a single model.
 }
 \section{Slots}{
 
