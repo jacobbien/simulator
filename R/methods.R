@@ -212,7 +212,7 @@ run_method_single <- function(method, model, draws_list) {
                      model@name, draws_list$draws@index)
     code3 <- sprintf(".Random.seed <<- as.integer(c(%s))\n",
                      paste(cur_seed, collapse = ", "))
-    code4 <- sprintf(paste0("met@method(model = m, draw = d$%s)"), rid)
+    code4 <- sprintf(paste0("met@method(model = m, draw = d@draws$%s)"), rid)
     hint <- sprintf(paste0("The following code can be used to recreate the ",
                            "error, where 'met' is the method object (i.e. met@name ",
                            "== \"%s\") and 'sim' is your simulation object:\n\n",
