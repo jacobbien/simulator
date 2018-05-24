@@ -149,7 +149,8 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
       var <- vary_along[j]
       params_to_pass[[var]] <- passed_params[[var]][[ii[i, j]]]
       if (is_fine_as_is[j]) {
-        ext[j] <- paste0(var, "_", params_to_pass[[var]])
+        ext[j] <- sprintf("%s_%s", var,
+                          format(params_to_pass[[var]], scientific = FALSE))
       } else {
         # apply hash to this object to get a unique file name
         # this means that if we later decide to add some more combinations,
