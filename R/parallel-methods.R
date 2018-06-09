@@ -97,10 +97,10 @@ run_extmethod_parallel <- function(my_extmethods, dir, model_name, index,
     draws_list <- load_draws(dir, model_name, index, more_info = TRUE)
     tryCatch({
       base_out_list <- load_outputs(dir, model_name, index,
-                                    extmethod@base_method@name,
+                                    extmethod@base_method[[1]]@name,
                                     more_info = TRUE)},
       error = function(e) stop("Could not find output of method \"",
-                               extmethod@base_method@label,
+                               extmethod@base_method[[1]]@label,
                                "\" for index ", index, ".", call. = FALSE))
     out_list <- run_extendedmethod_single(extmethod, model, draws_list$draws,
                                           base_out_list)

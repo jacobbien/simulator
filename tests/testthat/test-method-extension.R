@@ -32,7 +32,12 @@ refit <- new_method_extension(name = "refit", label = "refitted",
                                 list(fit = fit)
                               })
 
-
+mult_by_2 <- new_method_extension(name = "multby2", label = "doubled",
+                                  method_extension = function(model, draw, out,
+                                                              base_method) {
+                                    out$fit <- 2 * out$fit
+                                    list(fit = out$fit)
+                                  })
 
 mse <- new_metric("mse", "MSE", metric = function(model, out) {
   colSums(as.matrix((model$mu - out$fit)^2))
@@ -48,8 +53,20 @@ test_that("extend a method", {
   expect_error(run_method(sim, list(soft + refit)), "Could not find output of method")
   sim <- run_method(sim, soft)
   sim <- run_method(sim, soft + refit)
-  #sim <- run_method(sim, list(soft, soft + refit))
+  sim <- run_method(sim, soft + mult_by_2)
+  sim <- run_method(sim, soft + refit + mult_by_2)
+  sim <- run_method(sim,
+                    list(soft, soft + refit, soft + refit + mult_by_2))
   sim <- evaluate(sim, mse)
+ expect_identical(list(soft, soft + refit) + mult_by_2,
+                  list(soft + mult_by_2, soft + refit + mult_by_2))
+  # we also want to make sure that these extended methods can be run in
+  # parallel without error...
+  skip_on_cran() # http://r-pkgs.had.co.nz/tests.html says risky to
+  # test parallel code on CRAN
+  sim <- run_method(sim,
+                    list(soft, soft + refit, soft + refit + mult_by_2),
+                    parallel = list(socket_names = 2))
   unlink(dir, recursive = TRUE)
 })
 

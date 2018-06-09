@@ -8,7 +8,8 @@
 \S4method{+}{list,MethodExtension}(e1, e2)
 }
 \arguments{
-\item{e1}{a list of objects of class \code{\linkS4class{Method}}}
+\item{e1}{a list of objects of class \code{\linkS4class{Method}} or of class
+\code{\linkS4class{ExtendedMethod}}}
 
 \item{e2}{an object of class \code{\linkS4class{MethodExtension}}}
 }

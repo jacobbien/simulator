@@ -8,7 +8,11 @@
 An object of class \code{ExtendedMethod} is like a
 \code{\linkS4class{Method}} except it uses the output of another method in
  addition to the \code{\linkS4class{Model}} and
- \code{\linkS4class{Draws}}.
+ \code{\linkS4class{Draws}}.  We can also form chains of
+ \code{ExtendedMethod}'s, in which one \code{ExtendedMethod} is taken to be
+ the "\code{base_method}" of a subsequent \code{ExtendedMethod}.  This means
+ that the latter \code{ExtendedMethod} would use the output of the former
+ \code{ExtendedMethod}.
 }
 \details{
 While one can create an \code{\linkS4class{ExtendedMethod}} from scratch,
@@ -21,6 +25,13 @@ be the lasso with tuning parameter chosen by cross-validation.  The advantage
 is that if we have several methods, we only have to write the
 cross-validation \code{MethodExtension} object once.
 
+For an example in which one has a chain of \code{ExtendedMethod}'s, consider
+the lasso example in which we have a \code{MethodExtension} called, say,
+\code{refit}, which takes the nonzeros from the lasso's output and
+performs least squares on these selected variables.  Let \code{cv} be another
+\code{MethodExtension}.  Then, \code{refitted_lasso = lasso + refit} is
+an \code{ExtendedMethod} and \code{refitted_lasso + cv} is as well.
+
 This class inherits from the \code{\linkS4class{Component}} class.
 }
 \section{Slots}{
@@ -31,8 +42,9 @@ This class inherits from the \code{\linkS4class{Component}} class.
 \item{\code{label}}{a longer, human readable label that can have other characters
 such as spaces, hyphens, etc.}
 
-\item{\code{base_method}}{the object of class \code{\linkS4class{Method}} that is
-being extended}
+\item{\code{base_method}}{a list of length 1 containing the object of class
+\code{\linkS4class{Method}} or \code{\linkS4class{ExtendedMethod}}
+that is being extended}
 
 \item{\code{extended_method}}{a function with arguments "model", "draw", "out", and
 "base_method".}

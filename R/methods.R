@@ -131,10 +131,10 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
           # ExtendedMethod
           tryCatch({
             base_out_list <- load_outputs(dir, model_name, index[i],
-                                          methods[[m]]@base_method@name,
+                                          methods[[m]]@base_method[[1]]@name,
                                           more_info = TRUE)},
             error = function(e) stop("Could not find output of method \"",
-                                     methods[[m]]@base_method@label,
+                                     methods[[m]]@base_method[[1]]@label,
                                      "\" for index ", index[i], ".",
                                       call. = FALSE))
 
@@ -262,7 +262,7 @@ run_extendedmethod_single <- function(extmethod, model, draws,
       temp <- extmethod@extended_method(model = model,
                                        draw = draws@draws[[rid]],
                                        out = base_output_list$output@out[[rid]],
-                                       base_method = extmethod@base_method)
+                                       base_method = extmethod@base_method[[1]])
       })
     if (!is.list(temp)) temp <- list(out = temp)
     out[[rid]] <- temp

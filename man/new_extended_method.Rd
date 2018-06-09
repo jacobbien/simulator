@@ -12,8 +12,8 @@ new_extended_method(name, label, base_method, extended_method)
 \item{label}{a longer, human readable label that can have other characters
 such as spaces, hyphens, etc.}
 
-\item{base_method}{the object of class \code{\linkS4class{Method}} that is
-being extended}
+\item{base_method}{the object of class \code{\linkS4class{Method}} or
+of class \code{\linkS4class{Method}} that is being extended}
 
 \item{extended_method}{a function with arguments "model", "draw", "out", and
 "base_method".}
