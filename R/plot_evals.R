@@ -116,6 +116,12 @@ plot_evals <- function(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
     for (r in unique(ev_df[["Draw"]])) {
       for (m in seq_along(method_names[[1]])) {
         ii <- ev_df[["Method"]] == method_names[[1]][m] & ev_df[["Draw"]] == r
+        if (sum(ii) == 1 & is.na(method_pch[m])) {
+          # there's only a single point, so a line won't show... so override
+          # the choice of NA so this method's evals will be visible
+          method_pch[m] <- 1
+          method_lwd[m] <- NA
+        }
         points(ev_df[ii, metric_name_x], ev_df[ii, metric_name_y],
                col = method_col[m], lty = method_lty[m],
                lwd = method_lwd[m], pch = method_pch[m], type = "o")
@@ -144,6 +150,9 @@ ggplot_evals <- function(ev_df, metric_name_x, metric_name_y, method_labels,
     g <- ggplot2::ggplot(ev_df,
                          ggplot2::aes_string(metric_name_x, metric_name_y)) +
       ggplot2::geom_line(ggplot2::aes_string(
+        color = "Method",
+        group = "interaction(Method,Draw)")) +
+      ggplot2::geom_point(ggplot2::aes_string(
         color = "Method",
         group = "interaction(Method,Draw)")) +
       ggplot2::labs(x = xlab, y = ylab, title = main) +
