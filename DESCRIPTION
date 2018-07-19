@@ -2,7 +2,7 @@ Package: simulator
 Title: An Engine for Running Simulations
 Version: 0.2.2
 Date: 2016-07-11
-Authors@R: person("Jacob", "Bien", email = "jbien@cornell.edu", role = c("aut", "cre"))
+Authors@R: person("Jacob", "Bien", email = "jbien@usc.edu", role = c("aut", "cre"))
 Description: A framework for performing simulations such as those common in
     methodological statistics papers.  The design principles of this package
     are described in greater depth in Bien, J. (2016) "The simulator: An Engine
