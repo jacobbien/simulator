@@ -4,8 +4,8 @@
 \alias{run_extmethod_parallel}
 \title{Run one or more extended methods on simulated data.}
 \usage{
-run_extmethod_parallel(my_extmethods, dir, model_name, index, out_dir, out_loc,
-  socket_names, libraries, save_locally = TRUE)
+run_extmethod_parallel(my_extmethods, dir, model_name, index, out_dir,
+  out_loc, socket_names, libraries, save_locally = TRUE)
 }
 \arguments{
 \item{my_extmethods}{list of extended methods to be run in parallel}

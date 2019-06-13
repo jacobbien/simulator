@@ -4,7 +4,8 @@
 \alias{as.data.frame.Evals}
 \title{Convert an Evals to a data.frame}
 \usage{
-\method{as.data.frame}{Evals}(x, row.names = NULL, optional = FALSE, ...)
+\method{as.data.frame}{Evals}(x, row.names = NULL, optional = FALSE,
+  ...)
 }
 \arguments{
 \item{x}{object of class \code{\linkS4class{Evals}}}

@@ -4,8 +4,8 @@
 \alias{plot_eval}
 \title{Plot a metric's value for each method}
 \usage{
-plot_eval(object, metric_name, use_ggplot2 = TRUE, main, facet_mains, ylab,
-  ylim, include_zero = FALSE, angle = 0, ...)
+plot_eval(object, metric_name, use_ggplot2 = TRUE, main, facet_mains,
+  ylab, ylim, include_zero = FALSE, angle = 0, ...)
 }
 \arguments{
 \item{object}{an object of class \code{\linkS4class{Simulation}},

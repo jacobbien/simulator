@@ -4,7 +4,8 @@
 \alias{as.data.frame.Model}
 \title{Convert a Model to a data.frame}
 \usage{
-\method{as.data.frame}{Model}(x, row.names = NULL, optional = FALSE, ...)
+\method{as.data.frame}{Model}(x, row.names = NULL, optional = FALSE,
+  ...)
 }
 \arguments{
 \item{x}{object of class \code{\linkS4class{Model}}}

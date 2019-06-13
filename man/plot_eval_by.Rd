@@ -5,11 +5,12 @@
 \title{Plot a metric across multiple values of a model parameter}
 \usage{
 plot_eval_by(sim, metric_name, varying, type = c("aggregated", "raw"),
-  center_aggregator = NULL, spread_aggregator = NULL, use_ggplot2 = TRUE,
-  main, xlab, ylab, xlim, ylim, include_zero = FALSE,
-  legend_location = "topright", method_col = seq(num_methods),
-  method_lty = rep(1, num_methods), method_lwd = rep(1, num_methods),
-  method_pch = rep(1, num_methods), ...)
+  center_aggregator = NULL, spread_aggregator = NULL,
+  use_ggplot2 = TRUE, main, xlab, ylab, xlim, ylim,
+  include_zero = FALSE, legend_location = "topright",
+  method_col = seq(num_methods), method_lty = rep(1, num_methods),
+  method_lwd = rep(1, num_methods), method_pch = rep(1, num_methods),
+  ...)
 }
 \arguments{
 \item{sim}{an object of class \code{\linkS4class{Simulation}}}

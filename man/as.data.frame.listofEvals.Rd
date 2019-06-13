@@ -4,8 +4,8 @@
 \alias{as.data.frame.listofEvals}
 \title{Convert a list of Evals to a data.frame}
 \usage{
-\method{as.data.frame}{listofEvals}(x, row.names = NULL, optional = FALSE,
-  ...)
+\method{as.data.frame}{listofEvals}(x, row.names = NULL,
+  optional = FALSE, ...)
 }
 \arguments{
 \item{x}{a listofEvals object}

@@ -4,8 +4,8 @@
 \alias{outputs_or_evals}
 \title{Internal function used by both outputs and evals}
 \usage{
-outputs_or_evals(sim, refs, sort_by_method, subset, index, methods, reference,
-  ...)
+outputs_or_evals(sim, refs, sort_by_method, subset, index, methods,
+  reference, ...)
 }
 \arguments{
 \item{sim}{simulation object}
