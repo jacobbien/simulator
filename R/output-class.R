@@ -13,7 +13,7 @@ is_valid_rij_list <- function(out, index) {
   }
   if (!all(unlist(lapply(out, is.list))))
     errors <- c(errors, "out$ri.j should be a list.")
-  nams <- lapply(out, function(r) sort(names(r)))
+  nams <- lapply(out, function(r) names(r))
   if (!all(unlist(lapply(nams, function(nam) identical(nam, nams[[1]])))))
     errors <- c(errors, "all out$ri.j must have same elements.")
 }

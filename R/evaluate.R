@@ -158,20 +158,23 @@ evaluate_single <- function(metrics, model, output, draws = NULL) {
   }
   stopifnot(class(model) == "Model")
   stopifnot(class(output) == "Output")
-  ev <- list()
+  ev <- vector("list", length(output@out))
+  names(ev) <- names(output@out)
   metric_names <- unlist(lapply(metrics, function(m) m@name))
   metric_labels <- unlist(lapply(metrics, function(m) m@label))
-  for (rid in names(output@out)) {
-    ev[[rid]] <- list()
+  for (id in seq_along(ev)) {
+    ev[[id]] <- list()
     for (m in seq_along(metrics)) {
       mname <- metric_names[m]
-      if ("draw" %in% names(formals(metrics[[m]]@metric)))
-        ev[[rid]][[mname]] <- metrics[[m]]@metric(model = model,
-                                                  out = output@out[[rid]],
-                                                  draw = draws@draws[[rid]])
-      else
-        ev[[rid]][[mname]] <- metrics[[m]]@metric(model = model,
-                                                  out = output@out[[rid]])
+      if (any(names(formals(metrics[[m]]@metric)) == "draw")) {
+          ev[[id]][[mname]] <- metrics[[m]]@metric(model = model,
+                                                 out = output@out[[id]],
+                                                 draw = draws@draws[[id]])
+      }
+      else {
+        ev[[id]][[mname]] <- metrics[[m]]@metric(model = model,
+                                                 out = output@out[[id]])
+      }
     }
   }
   evals <- list()

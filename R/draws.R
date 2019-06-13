@@ -142,9 +142,9 @@ simulate_from_model_single <- function(model, nsim, index, seed) {
   RNGkind("L'Ecuyer-CMRG")
   .Random.seed <<- seed
   args <- setdiff(names(formals(model@simulate)), "nsim")
-  time <- system.time({
-    sims1 <- do.call(model@simulate, c(model@params[args], nsim = nsim))
-  })
+  start_time <- proc.time()
+  sims1 <- do.call(model@simulate, c(model@params[args], nsim = nsim))
+  time <- proc.time() - start_time
   if (length(sims1) != nsim)
     stop("model's simulate function must return list of length nsim.")
   rng <- list(rng_seed = seed, rng_end_seed = .Random.seed)

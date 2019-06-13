@@ -188,22 +188,31 @@ run_method_single <- function(method, model, draws_list) {
   # this makes it so the order in which methods and indices are run will
   # not change things (note: only relevant for methods that require RNG)
   stopifnot(length(draws_list$draws@index) == 1)
-  out <- list()
   settings_args <- intersect(names(formals(method@method)),
                              names(method@settings))
+  # record state of RNG temporarily to help user debug in case of error
+  arguments <- c(list(model = model), method@settings[settings_args])
+  draws <- draws_list$draws@draws
+  out <- vector("list", length(draws))
+  names(out) <- names(draws)
   tryCatch({
-    for (rid in names(draws_list$draws@draws)) {
-      out[[rid]] <- list()
-      arguments <- c(list(model = model, draw = draws_list$draws@draws[[rid]]),
-                     method@settings[settings_args])
-      # record state of RNG temporarily to help user debug in case of error
+    temp_is_list <- NA
+    for (id in seq_along(draws)) {
+      arguments$draw = draws[[id]]
       cur_seed <- .Random.seed
-      time <- system.time({temp <- do.call(method@method, arguments)})
-      if (!is.list(temp)) temp <- list(out = temp)
-      out[[rid]] <- temp
-      out[[rid]]$time <- time
+      start_time <- proc.time()
+      temp <- do.call(method@method, arguments)
+      end_time <- proc.time()
+      if (is.na(temp_is_list)) temp_is_list <- is.list(temp)
+      if (temp_is_list) {
+        out[[id]] <- c(temp, list(time = end_time - start_time))
+      }
+      else {
+        out[[id]] <- list(out = temp, time = end_time - start_time)
+      }
     }
   }, error = function(e) {
+    rid <- names(draws_list$draws@draws)[id]
     msg <- sprintf("\n  Method: %s\n  Model: %s\n  index: %s (draw %s)",
                    method@label, model@label, draws_list$draws@index, rid)
     msg <- sprintf("%s\n  error message: %s", msg, e$message)
