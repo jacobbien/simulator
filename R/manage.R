@@ -29,6 +29,19 @@ get_contents <- function(dir = ".", out_loc = "out") {
   dir_name <- dirname(files)
   file_name <- basename(files)
 
+  # make order of index files 1, 2, 3, ..., 10 rather than 1, 10, ..., 2
+  r <- regexec("^r([[:digit:]]*)(_?.*).Rdata$", file_name)
+  matches <- regmatches(file_name, r)
+  imatches <- which(unlist(lapply(matches, length)) == 3)
+  matches <- matches[imatches]
+  matches <- matrix(unlist(matches), nrow = 3)[2:3, ]
+  new_names <- sprintf("r%08d%s.Rdata", # pad index with zeros temporarily
+                       as.numeric(matches[1, ]), matches[2, ])
+  ord <- order(new_names)
+  file_name[imatches] <- file_name[imatches][ord]
+  files[imatches] <- files[imatches][ord]
+  dir_name[imatches] <- dir_name[imatches][ord]
+
   # find simulation files
   sim_files <- which(dir_name == ".")
   sim_names <- gsub("^sim-(.*).Rdata$", "\\1", files[sim_files])
