@@ -11,12 +11,6 @@ simulator in greater depth.
 
 ## Installation
 
-The `simulator` is on CRAN and can be installed from within R by typing
-
-``` r
-install.packages("simulator")
-```
-
 The most up-to-date version of the simulator is on this github page and
 can be installed using the
 [devtools](https://cran.r-project.org/package=devtools) R package (if
