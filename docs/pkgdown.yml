@@ -1,0 +1,11 @@
+pandoc: 2.19.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  elastic-net: elastic-net.html
+  fdr: fdr.html
+  james-stein: james-stein.html
+  lasso: lasso.html
+  simulator: simulator.html
+last_built: 2023-02-02T03:13Z
+
