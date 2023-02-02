@@ -4,8 +4,17 @@
 \alias{run_method_parallel}
 \title{Run one or more methods on simulated data.}
 \usage{
-run_method_parallel(my_methods, dir, model_name, index, out_dir, out_loc,
-  socket_names, libraries, save_locally = TRUE)
+run_method_parallel(
+  my_methods,
+  dir,
+  model_name,
+  index,
+  out_dir,
+  out_loc,
+  socket_names,
+  libraries,
+  save_locally = TRUE
+)
 }
 \arguments{
 \item{my_methods}{list of methods to be run in parallel}

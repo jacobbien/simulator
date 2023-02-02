@@ -1,13 +1,12 @@
 Package: simulator
 Title: An Engine for Running Simulations
-Version: 0.2.3
-Date: 2019-06-12
+Version: 0.2.4
+Date: 2023-02-01
 Authors@R: person("Jacob", "Bien", email = "jbien@usc.edu", role = c("aut", "cre"))
 Description: A framework for performing simulations such as those common in
     methodological statistics papers.  The design principles of this package
     are described in greater depth in Bien, J. (2016) "The simulator: An Engine
-    to Streamline Simulations," which is available at
-    <http://arxiv.org/abs/1607.00021>.
+    to Streamline Simulations," which is available at <arXiv:1607.00021>.
 Depends:
     R (>= 3.5.0)
 Imports:
@@ -28,8 +27,8 @@ Suggests:
 License: GPL-3
 LazyData: true
 VignetteBuilder: knitr
-URL: http://github.com/jacobbien/simulator
-BugReports: http://github.com/jacobbien/simulator/issues
+URL: https://github.com/jacobbien/simulator
+BugReports: https://github.com/jacobbien/simulator/issues
 Encoding: UTF-8
 Collate:
     'evals-class.R'
@@ -64,4 +63,4 @@ Collate:
     'plot_evals.R'
     'tables.R'
     'zzz.R'
-RoxygenNote: 6.1.1
+RoxygenNote: 7.2.3

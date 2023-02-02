@@ -65,23 +65,23 @@ NULL
 generate_model <- function(object = ".", make_model, ..., seed = 123,
                            vary_along = NULL) {
   stopifnot(length(object) == 1)
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     dir <- object@dir
-  else if (class(object) == "character")
+  else if (is(object, "character"))
     dir <- object
   else stop("object must be of class 'character' or 'Simulation'.")
-  if (class(make_model) == "list") {
+  if (is(make_model, "list")) {
     mrefs <- lapply(make_model,
                     function(mm) {
                       generate_model(object = dir, make_model = mm,
                                      seed = seed, vary_along = vary_along,
                                      ...)
                     })
-    if (class(object) == "Simulation")
+    if (is(object, "Simulation"))
       return(invisible(add(object, mrefs)))
     else
       return(invisible(mrefs))
-  } else stopifnot(class(make_model) == "function")
+  } else stopifnot(is(make_model, "function"))
   make_model_args <- names(formals(make_model))
   illegal_arguments <- c("seed", "object", "vary_along")
   if (any(illegal_arguments %in% make_model_args))
@@ -102,7 +102,7 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
   }
   if (is.null(vary_along)) {
     mref <- generate_model_single(make_model, dir, seed, passed_params)
-    if (class(object) == "Simulation")
+    if (is(object, "Simulation"))
       return(invisible(add(object, mref)))
     else
       return(invisible(mref))
@@ -124,9 +124,9 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
         is_fine_as_is[j] <- FALSE
         break
       }
-      if (class(val) == "character") next
-      if (class(val) == "integer") next
-      if (class(val) == "numeric")
+      if (is(val, "character")) next
+      if (is(val, "integer")) next
+      if (is(val, "numeric"))
         if(abs(round(val, getOption("simulator.ndecimal")) - val) < 1e-12)
           next
       is_fine_as_is[j] <- FALSE
@@ -166,7 +166,7 @@ generate_model <- function(object = ".", make_model, ..., seed = 123,
   model_labels <- unlist(lapply(mref, function(m) m@label))
   if (length(unique(model_labels)) < length(model_labels))
     warning("Labels are not unique across models.  This can lead to confusion.")
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     return(invisible(add(object, mref)))
   if (length(mref) == 1) mref <- mref[[1]]
   invisible(mref)
@@ -183,7 +183,7 @@ generate_model_single <- function(make_model, dir, seed, params_to_pass,
     model <- make_model()
   else
     model <- do.call(make_model, params_to_pass)
-  if (class(model) != "Model")
+  if (!is(model, "Model"))
     stop("make_model must return an object of class Model.")
   # if any passed parameters are added to model@params by make_model, make sure
   # they match the values passed (to avoid a potentially hard to find bug)

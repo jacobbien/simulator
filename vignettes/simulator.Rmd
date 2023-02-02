@@ -1,7 +1,5 @@
 ---
 title: "Getting Started with the Simulator"
-author: "Jacob Bien"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,7 +20,7 @@ create(dir)
 
 Choose `dir` to be the path of a directory (that does not yet exist) where you want your simulation code and files to be stored.  In practice, `"./sims"` would be a standard choice, where `"."` refers to a directory containing files relevant to your current project.
 
-The `create` command generates a skeleton of a simulation.^[This function was inspired by the `create` function in `devtools`, which creates the skeleton on an R package.]  A look at the newly created directory shows that several files have been created.
+The `create` command generates a skeleton of a simulation.^[This function was inspired by the `create` function in `devtools`, which creates the skeleton of an R package.]  A look at the newly created directory shows that several files have been created.
 
 ```{r, eval=FALSE}
 setwd(dir)
@@ -57,11 +55,10 @@ The simplest way to look at results is by using the plot functions `plot_eval`, 
 
 The best way to get a sense of how to use the simulator is to look at examples.  There are several vignettes that demonstrate how the simulator can be used to conduct simulations for some of the most famous statistical methods.
 
-1) [Lasso](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/lasso.html) vignette: Explains basics, including the magrittr pipe and making plots and tables. Also demonstrates some more advanced features such as writing method extensions (such as refitting the result of the lasso or performing cross-validation).
-2) [James-Stein](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/js.html) vignette: Shows how to step into specific parts of the simulation for troubleshooting your code.
-3) [Elastic net](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/en.html) vignette: Shows how we can work with a sequence of methods that are identical except for a parameter that varies
-4) [Benjamini-Hochberg](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/fdr.html) vignette: Shows how we can load a preexisting simulation and add more random draws without having to rerun anything.  It also shows how one can have multiple simulation objects that point to overlapping sets of results.
-5) Link to **working with data** vignette
+1) [Lasso](lasso.html) vignette: Explains basics, including the magrittr pipe and making plots and tables. Also demonstrates some more advanced features such as writing method extensions (such as refitting the result of the lasso or performing cross-validation).
+2) [James-Stein](js.html) vignette: Shows how to step into specific parts of the simulation for troubleshooting your code.
+3) [Elastic net](en.html) vignette: Shows how we can work with a sequence of methods that are identical except for a parameter that varies
+4) [Benjamini-Hochberg](fdr.html) vignette: Shows how we can load a preexisting simulation and add more random draws without having to rerun anything.  It also shows how one can have multiple simulation objects that point to overlapping sets of results.
 
 ```{r, echo = FALSE}
 # delete all files created in running this vignette 

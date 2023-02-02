@@ -133,8 +133,8 @@ models_as_data.frame <- function(m) {
   if (!identical(class(m), c("listofModels", "list")))
     if (length(class(m)) != 1)
       stop("Must be a list of Models or a listofModels")
-  else if (class(m) == "Model") m <- list(m)
-  else if (class(m) == "list") {
+  else if (is(m, "Model")) m <- list(m)
+  else if (is(m, "list")) {
     if (any(getattr(m, "class") != "Model"))
       stop("Must be a list of Model objects.")
   }

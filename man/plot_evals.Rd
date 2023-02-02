@@ -4,11 +4,25 @@
 \alias{plot_evals}
 \title{Plot one metric versus another for each method}
 \usage{
-plot_evals(object, metric_name_x, metric_name_y, use_ggplot2 = TRUE,
-  main, facet_mains, xlab, ylab, xlim, ylim, include_zero = FALSE,
-  legend_location = "topright", method_col = seq(num_methods),
-  method_lty = rep(1, num_methods), method_lwd = rep(1, num_methods),
-  method_pch = rep(NA, num_methods), ...)
+plot_evals(
+  object,
+  metric_name_x,
+  metric_name_y,
+  use_ggplot2 = TRUE,
+  main,
+  facet_mains,
+  xlab,
+  ylab,
+  xlim,
+  ylim,
+  include_zero = FALSE,
+  legend_location = "topright",
+  method_col = seq(num_methods),
+  method_lty = rep(1, num_methods),
+  method_lwd = rep(1, num_methods),
+  method_pch = rep(NA, num_methods),
+  ...
+)
 }
 \arguments{
 \item{object}{an object of class \code{\linkS4class{Simulation}},

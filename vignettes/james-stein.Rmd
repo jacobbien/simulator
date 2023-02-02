@@ -1,7 +1,5 @@
 ---
 title: "James-Stein with the Simulator"
-author: "Jacob Bien"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{James-Stein with the Simulator}
@@ -90,7 +88,7 @@ If this document were in latex, we would instead use `output_type="latex"`.  Sin
 
 ```{r, results="asis"}
 tabulate_eval(sim1, metric_name = "sqrerr", output_type = "markdown",
-              format_args = list(nsmall = 1, digits = 0))
+              format_args = list(nsmall = 1, digits = 1))
 ```
 
 ## Demonstration of additional simulator features

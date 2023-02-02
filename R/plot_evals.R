@@ -183,9 +183,9 @@ ggplot_evals <- function(ev_df, metric_name_x, metric_name_y, method_labels,
 get_evals_list <- function(object) {
   # object can be an Evals, list of Evals, listofEvals, or Simulation
   if (isS4(object)) {
-    if (class(object) == "Simulation") {
+    if (is(object, "Simulation")) {
       ev <- evals(object)
-    } else if (class(object) == "Evals")
+    } else if (is(object, "Evals"))
       ev <- object
     else stop("Invalid class for 'object'.")
     if ("Evals" %in% class(ev)) {
@@ -198,7 +198,7 @@ get_evals_list <- function(object) {
     if (all(class(object) == c("listofEvals", "list")))
       return(object)
   if (length(class(object)) == 1) {
-    if (class(object) == "list")
+    if (is(object, "list"))
       class(object) <- c("listofEvals", "list")
       return(object)
   }

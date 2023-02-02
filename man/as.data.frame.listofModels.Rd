@@ -4,8 +4,7 @@
 \alias{as.data.frame.listofModels}
 \title{Convert a List of Models to a data.frame}
 \usage{
-\method{as.data.frame}{listofModels}(x, row.names = NULL,
-  optional = FALSE, ...)
+\method{as.data.frame}{listofModels}(x, row.names = NULL, optional = FALSE, ...)
 }
 \arguments{
 \item{x}{list}

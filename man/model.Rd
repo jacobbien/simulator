@@ -34,7 +34,7 @@ which the models are stored in the simulation object.  This order can be
 ascertained by printing the simulation object.) or as a set of a character
 vector of the model names desired.
 
-While approach (1) is very convenient, it requires loading all models from
+ While approach (1) is very convenient, it requires loading all models from
  file. This may be slow in situations in which there are a lot of models
  and/or the models are large and thus slow to load.
 }

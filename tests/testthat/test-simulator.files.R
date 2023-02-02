@@ -40,7 +40,7 @@ test_that("simulator.files is managed properly", {
   # now change to sf2
   options(simulator.files = sf2)
   model2 <- load(mref)
-  expect_equal(model, model2) # not identical b/c function enivronments differ
+  expect_equal(model, model2) # not identical b/c function environments differ
   expect_output(show(mref), sf) # show(mref) should show simulator.files
   expect_error(simulate_from_model(mref, nsim = 1), "match getOption")
   options(simulator.files = sf)
@@ -59,4 +59,5 @@ test_that("simulator.files is managed properly", {
   options(simulator.files = sf)
   eref <- evaluate(oref, squared_error)
   unlink(dir, recursive = TRUE)
+  options(simulator.files = "files") # restore default
 })

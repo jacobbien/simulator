@@ -6,7 +6,7 @@
 #' @keywords internal
 NULL
 
-#' @importFrom methods setClass setGeneric setMethod as
+#' @importFrom methods setClass setGeneric setMethod as is
 #' callNextMethod new validObject
 #' @importFrom grDevices palette
 #' @importFrom graphics axis boxplot legend lines par plot points segments text

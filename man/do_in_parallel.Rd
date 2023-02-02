@@ -4,8 +4,15 @@
 \alias{do_in_parallel}
 \title{Do a function in parallel.}
 \usage{
-do_in_parallel(function_to_do, function_params, save_to_file, save_params,
-  socket_names, libraries, save_locally = TRUE)
+do_in_parallel(
+  function_to_do,
+  function_params,
+  save_to_file,
+  save_params,
+  socket_names,
+  libraries,
+  save_locally = TRUE
+)
 }
 \arguments{
 \item{function_to_do}{this is the function that will be done in parallel}

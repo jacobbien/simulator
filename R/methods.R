@@ -57,11 +57,11 @@ NULL
 #'  sim <- run_method(sim, my_example_method)
 #'  }
 run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
-  if (class(methods) == "list") {
+  if (is(methods, "list")) {
     classes <- unlist(lapply(methods, class))
     stopifnot(classes %in% c("Method", "ExtendedMethod"))
     if (length(unique(classes)) == 2) {
-      if (class(object) != "Simulation")
+      if (!is(object, "Simulation"))
         stop("When both Method and ExtendedMethod objects passed to \"methods\"",
              " object must be of class \"Simulation\" for now.")
         # run all the methods first followed by all the extended methods
@@ -76,23 +76,23 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
     stopifnot(class(methods) %in% c("Method", "ExtendedMethod"))
     methods <- list(methods)
   }
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     draws_ref <- draws(object, reference = TRUE)
   else
     draws_ref <- object
-  if (class(draws_ref) == "DrawsRef") draws_ref <- list(draws_ref)
-  if (class(draws_ref) == "list") {
-    if (all(lapply(draws_ref, class) == "list")) {
+  if (is(draws_ref, "DrawsRef")) draws_ref <- list(draws_ref)
+  if (is(draws_ref, "list")) {
+    if (all(unlist(lapply(draws_ref, is, "list")))) {
       # if this is a list of lists, simply apply this function to each list
       oref <- lapply(draws_ref, run_method, methods = methods,
                     out_loc = out_loc, parallel = parallel)
-      if (class(object) == "Simulation")
+      if (is(object, "Simulation"))
         return(invisible(add(object, oref)))
       else
         return(invisible(oref))
     }
   }
-  if (class(draws_ref) == "list" & length(draws_ref) > 1) {
+  if (is(draws_ref, "list") & length(draws_ref) > 1) {
     str <- "Use a list of nested lists for draws_ref from multiple %s."
     if (length(unique(lapply(draws_ref, function(dref) dref@model_name))) > 1)
       stop(sprintf(str, "models"))
@@ -125,7 +125,7 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
       draws_list <- load_draws(dir, model_name, index[i], more_info = TRUE)
       # get state of RNG after i-th simulation
       for (m in seq(nmethods)) {
-        if (class(methods[[m]]) == "Method") {
+        if (is(methods[[m]], "Method")) {
           out_list <- run_method_single(methods[[m]], model, draws_list)
         } else {
           # ExtendedMethod
@@ -151,13 +151,13 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
     # run in parallel
     check_parallel_list(parallel)
     if (is.null(parallel$save_locally)) parallel$save_locally <- FALSE
-    if (all(lapply(methods, class) == "Method"))
+    if (all(unlist(lapply(methods, is, "Method"))))
       orefs <- run_method_parallel(methods, dir, model_name,
                                    index, out_dir, out_loc,
                                    socket_names = parallel$socket_names,
                                    libraries = parallel$libraries,
                                    save_locally = parallel$save_locally)
-    else if (all(lapply(methods, class) == "ExtendedMethod")) {
+    else if (all(unlist(lapply(methods, is, "ExtendedMethod")))) {
       # extended methods
       orefs <- run_extmethod_parallel(methods, dir, model_name,
                                    index, out_dir, out_loc,
@@ -166,7 +166,7 @@ run_method <- function(object, methods, out_loc = "out", parallel = NULL) {
                                    save_locally = parallel$save_locally)
       } else stop("This should never happen!")
     }
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     return(invisible(add(object, orefs)))
   invisible(orefs)
 }

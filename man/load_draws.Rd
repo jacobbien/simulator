@@ -4,8 +4,7 @@
 \alias{load_draws}
 \title{Load one or more draws objects from file.}
 \usage{
-load_draws(dir, model_name, index, more_info = FALSE,
-  simulator.files = NULL)
+load_draws(dir, model_name, index, more_info = FALSE, simulator.files = NULL)
 }
 \arguments{
 \item{dir}{the directory passed to \code{\link{generate_model}})}

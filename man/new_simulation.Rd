@@ -4,8 +4,7 @@
 \alias{new_simulation}
 \title{Make a new simulation object}
 \usage{
-new_simulation(name, label, dir = ".", refs = list(),
-  save_to_file = TRUE)
+new_simulation(name, label, dir = ".", refs = list(), save_to_file = TRUE)
 }
 \arguments{
 \item{name}{a short name identifier.  Must be alphanumeric.}

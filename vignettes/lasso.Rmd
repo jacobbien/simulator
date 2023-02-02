@@ -1,7 +1,5 @@
 ---
 title: "The Lasso with the Simulator"
-author: "Jacob Bien"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{The Lasso with the Simulator}
@@ -25,11 +23,11 @@ sapply(code, read_chunk)
 
 # Overview
 
-In this vignette, we show how the simulator can be used to perform simulations related to the [lasso](http://statweb.stanford.edu/~tibs/lasso/lasso.pdf).
+In this vignette, we show how the simulator can be used to perform simulations related to the [lasso](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1996.tb02080.x).
 
 # Betting on Sparsity
 
-In [The Elements of Statistical Learning](http://statweb.stanford.edu/~tibs/ElemStatLearn/), the authors describe a "bet on sparsity" principle that suggests that one should,
+In [The Elements of Statistical Learning](https://hastie.su.domains/ElemStatLearn/), the authors describe a "bet on sparsity" principle that suggests that one should,
 
 > "Use a procedure that does well in sparse problems, since no procedure does well in dense problems."
 
@@ -119,7 +117,7 @@ It looks like the relaxed lasso does better only for small values of $k$.  We ca
 sim2 %>% 
   subset_simulation(methods = c("lasso", "lasso_refit"), subset = 1:3) %>%
   tabulate_eval(metric_name = "best_sqrerr",
-                format_args = list(nsmall = 3, digits = 0),
+                format_args = list(nsmall = 3, digits = 1),
                 output_type = "markdown")
 ```
 

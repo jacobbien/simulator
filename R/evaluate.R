@@ -23,10 +23,10 @@
 evaluate_internal <- function(metrics, dir = ".", model_name, index, method_names,
                        out_loc = "out") {
   # make sure metrics is a list of Metric objects
-  if (class(metrics) == "list") {
-    stopifnot(all(unlist(lapply(metrics, function(m) class(m) == "Metric"))))
+  if (is(metrics, "list")) {
+    stopifnot(all(unlist(lapply(metrics, function(m) is(m, "Metric")))))
   } else {
-    stopifnot(class(metrics) == "Metric")
+    stopifnot(is(metrics, "Metric"))
     metrics <- list(metrics)
   }
   md <- get_model_dir_and_file(dir, model_name)
@@ -93,10 +93,10 @@ evaluate_internal <- function(metrics, dir = ".", model_name, index, method_name
 #'  }
 evaluate <- function(object, metrics) {
   # make sure metrics is a list of Metric objects
-  if (class(metrics) == "list") {
-    stopifnot(all(lapply(metrics, class) == "Metric"))
+  if (is(metrics, "list")) {
+    stopifnot(all(unlist(lapply(metrics, is, "Metric"))))
   } else {
-    stopifnot(class(metrics) == "Metric")
+    stopifnot(is(metrics, "Metric"))
     metrics <- list(metrics)
   }
   computing_time <- new_metric(name = "time",
@@ -106,19 +106,19 @@ evaluate <- function(object, metrics) {
                                })
   if (!(computing_time@name %in% lapply(metrics, function(m) m@name)))
     metrics <- c(metrics, computing_time)
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     output_ref <- output(object, reference = TRUE)
   else
     output_ref <- object
-  if (class(output_ref) == "list") {
-    if (all(lapply(output_ref, class) == "list")) {
+  if (is(output_ref, "list")) {
+    if (all(unlist(lapply(output_ref, is, "list")))) {
       # if output_ref is a list of lists, recursively apply to each sub-list
       eref <- lapply(output_ref, evaluate, metrics = metrics)
-      if (class(object) == "Simulation")
+      if (is(object, "Simulation"))
         return(invisible(add(object, eref)))
       return(invisible(eref))
     }
-  } else if (class(output_ref) == "OutputRef") {
+  } else if (is(output_ref, "OutputRef")) {
     output_ref <- list(output_ref)
   } else stop("Invalid class for output_ref.")
   sf <- lapply(output_ref, function(oref) oref@simulator.files)
@@ -135,7 +135,7 @@ evaluate <- function(object, metrics) {
                                 method_names = output_ref[[o]]@method_name,
                                 out_loc = output_ref[[o]]@out_loc))
   }
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     return(invisible(add(object, eref)))
   invisible(eref)
 }
@@ -152,12 +152,12 @@ evaluate <- function(object, metrics) {
 #' @param output a \code{\linkS4class{Output}} object
 #' @param draws (optional) a \code{\linkS4class{Draws}} object or NULL
 evaluate_single <- function(metrics, model, output, draws = NULL) {
-  if (class(metrics) == "Metric") metrics <- list(metrics)
+  if (is(metrics, "Metric")) metrics <- list(metrics)
   else if (is.list(metrics)) {
-    stopifnot(all(unlist(lapply(metrics, class)) == "Metric"))
+    stopifnot(all(unlist(lapply(metrics, is, "Metric"))))
   }
-  stopifnot(class(model) == "Model")
-  stopifnot(class(output) == "Output")
+  stopifnot(is(model, "Model"))
+  stopifnot(is(output, "Output"))
   ev <- vector("list", length(output@out))
   names(ev) <- names(output@out)
   metric_names <- unlist(lapply(metrics, function(m) m@name))
@@ -279,7 +279,7 @@ save_evals_to_file <- function(out_dir, dir, out_loc, evals) {
 #' @param metric_names a character vector of metric names
 #' @export
 subset_evals <- function(evals, method_names = NULL, metric_names = NULL) {
-  if ("listofEvals" %in% class(evals)) {
+  if (is(evals, "listofEvals")) {
     ll <- lapply(evals, subset_evals, method_names = method_names,
                  metric_names = metric_names)
     class(ll) <- class(evals)

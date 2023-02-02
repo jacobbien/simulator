@@ -4,8 +4,7 @@
 \alias{generate_model}
 \title{Generate a model.}
 \usage{
-generate_model(object = ".", make_model, ..., seed = 123,
-  vary_along = NULL)
+generate_model(object = ".", make_model, ..., seed = 123, vary_along = NULL)
 }
 \arguments{
 \item{object}{the name of the directory where directory named "files" exists

@@ -52,14 +52,14 @@ NULL
 #'  }
 simulate_from_model <- function(object, nsim,
                                 index = 1, parallel = NULL) {
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     model_ref <- model(object, reference = TRUE)
   else
     model_ref <- object
-  if (class(model_ref) == "list") {
+  if (is(model_ref, "list")) {
     dref <- lapply(model_ref, simulate_from_model, nsim = nsim, index = index,
            parallel = parallel)
-    if (class(object) == "Simulation")
+    if (is(object, "Simulation"))
       return(invisible(add(object, dref)))
     return(invisible(dref))
   }
@@ -101,7 +101,7 @@ simulate_from_model <- function(object, nsim,
                                libraries = parallel$libraries,
                                save_locally = parallel$save_locally)
   }
-  if (class(object) == "Simulation")
+  if (is(object, "Simulation"))
     return(invisible(add(object, dref)))
   invisible(dref)
 }

@@ -4,8 +4,15 @@
 \alias{simulate_parallel}
 \title{Simulate from a model in parallel.}
 \usage{
-simulate_parallel(model_ref, nsim, index, seeds, socket_names, libraries,
-  save_locally = TRUE)
+simulate_parallel(
+  model_ref,
+  nsim,
+  index,
+  seeds,
+  socket_names,
+  libraries,
+  save_locally = TRUE
+)
 }
 \arguments{
 \item{model_ref}{object of class \code{\linkS4class{ModelRef}}}

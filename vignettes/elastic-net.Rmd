@@ -1,7 +1,5 @@
 ---
-title: "The Elastic Net with the `simulator`"
-author: "Jacob Bien"
-date: "`r Sys.Date()`"
+title: "The Elastic Net with the Simulator"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{The Elastic Net with the Simulator}
@@ -22,7 +20,7 @@ code_lastmodified <- max(file.info(code)$mtime)
 sapply(code, read_chunk)
 ```
 
-In this vignette, we perform a simulation with the [elastic net](link-to-Zou-Hastie-paper) to demonstrate the use of the `simulator` in the case where one is interested in a sequence of methods that are identical except for a parameter that varies.  The elastic net is the solution $\hat\beta_{\lambda,\alpha}$ to the following convex optimization problem:
+In this vignette, we perform a simulation with the [elastic net](https://hastie.su.domains/Papers/B67.2%20(2005)%20301-320%20Zou%20&%20Hastie.pdf) to demonstrate the use of the `simulator` in the case where one is interested in a sequence of methods that are identical except for a parameter that varies.  The elastic net is the solution $\hat\beta_{\lambda,\alpha}$ to the following convex optimization problem:
 $$
 \min_{\beta\in\mathbb R^p}\frac1{2}\|y-X\beta\|_2^2+\lambda(1-\alpha)\|\beta\|^2_2+\lambda\alpha\|\beta\|_1.
 $$

@@ -1,0 +1,124 @@
+url: ~
+template:
+  bootstrap: 5
+navbar:
+  structure:
+    left:  [intro, reference, articles, tutorials, news]
+    right: [search, github]
+  components:
+    articles:
+      text: Examples
+      menu:
+      - text: "The Lasso with the Simulator"
+        href: articles/lasso.html
+      - text: "James-Stein with the Simulator"
+        href: articles/james-stein.html
+      - text: "The Elastic Net with the Simulator"
+        href: articles/elastic-net.html
+      - text: "Benjamini-Hochberg with the Simulator"
+        href: articles/fdr.html
+reference:
+- title: Getting started
+  desc: A useful way to get started is to call this function from the console.
+  contents:
+  - create
+- title: Running a simulation
+  desc:  These are the most common functions you'll use when running a simulation.
+  contents:
+  - new_simulation
+  - generate_model
+  - simulate_from_model
+  - run_method
+  - evaluate
+- title: Defining simulation components
+  desc:  These are the functions you'll use when defining the components of a simulation.
+  contents:
+  - new_model
+  - new_method
+  - new_metric
+  - new_method_extension
+  - new_aggregator
+- title: Loading saved files from simulation
+  desc: These are functions for loading files that were created when you ran your simulation. These allow you to look at simulation outputs at various intermediate stages of the simulation process.
+  contents:
+  - load_simulation
+  - subset_simulation
+  - model
+  - draws
+  - output
+  - evals
+
+- title: Making plots and tables
+  desc: Functions for making the most common plots and tables in a simulation.  For more customized plots, you can instead export the simulation outputs to a data.frame and then make your own plots.
+  contents:
+  - plot_eval
+  - plot_eval_by
+  - plot_evals
+  - tabulate_eval
+  - aggregate_evals
+
+- title: Managing simulation files
+  desc: Functions for checking and manipulating the files that have been stored by the simulator.  This is for more advanced use.
+  contents:
+  - get_contents
+  - describe
+  - get_files_not_in_simulations
+  - get_simulation_with_all_files
+  - add
+  - save_simulation
+
+- title: internal
+  contents:
+  - Aggregator-class
+  - Component-class
+  - Draws-class
+  - DrawsRef-class
+  - Evals-class
+  - EvalsRef-class
+  - ExtendedMethod-class
+  - Method-class
+  - MethodExtension-class
+  - Metric-class
+  - Model-class
+  - ModelRef-class
+  - Output-class
+  - OutputRef-class
+  - Simulation-class
+  - add_bold
+  - as.data.frame.Evals
+  - as.data.frame.Model
+  - as.data.frame.listofEvals
+  - as.data.frame.listofModels
+  - $,Model-method
+  - catsim
+  - evaluate_internal
+  - evaluate_single
+  - get_model_indices
+  - get_relative_path
+  - load,DrawsRef-method
+  - load,EvalsRef-method
+  - load,ModelRef-method
+  - load,OutputRef-method
+  - load,list-method
+  - load_draws
+  - load_evals
+  - load_model
+  - make_my_example_model
+  - memory_as_string
+  - model_names
+  - models_as_data.frame
+  - my_example_loss
+  - my_example_method
+  - new_extended_method
+  - +,ExtendedMethod,MethodExtension-method
+  - +,Method,MethodExtension-method
+  - +,list,MethodExtension-method
+  - recycle
+  - relabel
+  - rename
+  - run_extendedmethod_single
+  - run_method_single
+  - simulate_from_model_single
+  - simulate_parallel
+  - subset_evals
+  - subset_models

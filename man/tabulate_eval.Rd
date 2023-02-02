@@ -4,11 +4,19 @@
 \alias{tabulate_eval}
 \title{Make a table of a metric for each pair of models and methods}
 \usage{
-tabulate_eval(object, metric_name, method_names = NULL, caption = NULL,
-  center_aggregator = NULL, spread_aggregator = NULL,
-  se_format = c("Paren", "PlusMinus", "None"), output_type = "latex",
+tabulate_eval(
+  object,
+  metric_name,
+  method_names = NULL,
+  caption = NULL,
+  center_aggregator = NULL,
+  spread_aggregator = NULL,
+  se_format = c("Paren", "PlusMinus", "None"),
+  output_type = "latex",
   format_args = list(nsmall = 0, digits = NULL, scientific = FALSE),
-  na_string = "--", bold = c("None", "Smallest", "Largest"))
+  na_string = "--",
+  bold = c("None", "Smallest", "Largest")
+)
 }
 \arguments{
 \item{object}{an object of class \code{\linkS4class{Simulation}},

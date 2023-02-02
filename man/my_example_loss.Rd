@@ -4,7 +4,9 @@
 \name{my_example_loss}
 \alias{my_example_loss}
 \title{My Example Loss}
-\format{An object of class \code{Metric} of length 1.}
+\format{
+An object of class \code{Metric} of length 1.
+}
 \usage{
 my_example_loss
 }

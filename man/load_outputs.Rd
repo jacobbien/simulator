@@ -5,8 +5,16 @@
 \alias{load_outputs_from_ref}
 \title{Load one or more output objects from file.}
 \usage{
-load_outputs(dir, model_name, index, method_name, out_names = NULL,
-  out_loc = "out", more_info = FALSE, simulator.files = NULL)
+load_outputs(
+  dir,
+  model_name,
+  index,
+  method_name,
+  out_names = NULL,
+  out_loc = "out",
+  more_info = FALSE,
+  simulator.files = NULL
+)
 
 load_outputs_from_ref(ref, out_names = NULL)
 }
