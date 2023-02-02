@@ -17,6 +17,9 @@ navbar:
         href: articles/elastic-net.html
       - text: "Benjamini-Hochberg with the Simulator"
         href: articles/fdr.html
+authors:
+  Jacob Bien:
+    href: http://faculty.marshall.usc.edu/jacob-bien/
 reference:
 - title: Getting started
   desc: A useful way to get started is to call this function from the console.

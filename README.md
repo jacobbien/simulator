@@ -27,7 +27,7 @@ in R. This installs `simulator` from github.
 ## Vignettes
 
 The [Getting
-Started](https://jacobbien.github.io/simulator/articles/getting-started.html)
+Started](https://jacobbien.github.io/simulator/articles/simulator.html)
 vignette walks you through setting up your first simulation with the
 simulator.
 

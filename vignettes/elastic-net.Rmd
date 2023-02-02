@@ -80,7 +80,7 @@ It is informative to look at how the height of the minimum of each of the above 
 plot_eval_by(sim, "best_sqr_err", varying = "rho", include_zero = TRUE)
 ```
 
-We see that when the correlation between features is low, the methods with some $\ell_1$ penalty do better than ridge regression.  However, as the features become increasingly correlated, a pure ridge penalty becomes better.  Of course, none of the methods are doing as well in the high correlation regime (which is reminiscent of the [bet on sparsity principle](lasso.pdf)).
+We see that when the correlation between features is low, the methods with some $\ell_1$ penalty do better than ridge regression.  However, as the features become increasingly correlated, a pure ridge penalty becomes better.  Of course, none of the methods are doing as well in the high correlation regime (which is reminiscent of the "bet on sparsity principle").
 
 A side note: the simulator automatically records the computing time of each method as an additional metric:
 
