@@ -25,7 +25,7 @@ $$
 \mathbb{P}_{H_i}(\hat p_i\le \alpha) = \alpha.
 $$
 
-[Benjamini and Hochberg (1995)](http://www.jstor.org/stable/2346101) design a procedure (for when these p-values are independent) that controls what they call the *false discovery rate* (FDR), which is the expected proportion of the rejected tests that should not have been rejected:
+[Benjamini and Hochberg (1995)](https://www.jstor.org/stable/2346101) design a procedure (for when these p-values are independent) that controls what they call the *false discovery rate* (FDR), which is the expected proportion of the rejected tests that should not have been rejected:
 
 $$
 \mathbb{E}_{\{H_i:i\in S\}}\left[\frac{\sum_{i\in S}1\{H_i\text{ rejected}\}}{\max[1,\sum_{i=1}^n1\{H_i\text{ rejected}\}]}\right].
