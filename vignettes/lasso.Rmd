@@ -240,3 +240,7 @@ We will typically put the code above in the file named `method_functions.R`, tho
 # Conclusion
 
 This vignette demonstrated some features of the `simulator` such as parallel computing, writing extensions to methods, and making basic plots and tables.  In other vignettes, additional features are demonstrated.  For example, the vignette on the elastic net demonstrates how one can work with a sequence of methods that are identical except for a particular setting (such as $\alpha$ for the elastic net).
+
+```{r, include=FALSE}
+unlink("files", recursive = TRUE)
+```

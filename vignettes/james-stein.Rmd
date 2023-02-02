@@ -229,3 +229,7 @@ This was relatively close to zero so that when we computed
 ```
 
 we get something quite large.  Of course, when $p=1$, the James-Stein estimator does not perform shrinkage but rather it inflates $Y$, something that no one would expect to be a good idea!  Now that we have investigated these outliers, we are confident that they do not reflect a coding error; rather, they are a "real" portrayal of the performance of the James-Stein estimator's performance in this situation.
+
+```{r, include=FALSE}
+unlink("files", recursive = TRUE)
+```

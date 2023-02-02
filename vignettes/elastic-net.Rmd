@@ -25,7 +25,7 @@ $$
 \min_{\beta\in\mathbb R^p}\frac1{2}\|y-X\beta\|_2^2+\lambda(1-\alpha)\|\beta\|^2_2+\lambda\alpha\|\beta\|_1.
 $$
 
-Here, $\lambda\ge0$ controls the overall amount of regularization whereas $\alpha\in[0,1]$ controls the tradeoff between the [lasso](link-to-Tibs1996) and ridge penalties.  While sometimes one performs a two-dimensional cross-validation over $(\lambda,\alpha)$ pairs, in some simulations one might wish instead to view each fixed $\alpha$ as corresponding to a separate version of the elastic net (each solved along a grid of $\lambda$ values).  Such a view is useful for understanding the effect $\alpha$.
+Here, $\lambda\ge0$ controls the overall amount of regularization whereas $\alpha\in[0,1]$ controls the tradeoff between the [lasso](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1996.tb02080.x) and ridge penalties.  While sometimes one performs a two-dimensional cross-validation over $(\lambda,\alpha)$ pairs, in some simulations one might wish instead to view each fixed $\alpha$ as corresponding to a separate version of the elastic net (each solved along a grid of $\lambda$ values).  Such a view is useful for understanding the effect $\alpha$.
 
 # Main simulation
 
@@ -140,4 +140,8 @@ To cite the `simulator`, please use
 
 ```{r, results='asis'}
 citation("simulator")
+```
+
+```{r, include=FALSE}
+unlink("files", recursive = TRUE)
 ```

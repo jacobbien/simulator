@@ -3,11 +3,12 @@
 
 # The Simulator <img src="man/figures/simulator-hex3.png" style="float:right; height:200px;"/>
 
-The simulator is an R package that streamlines the process of performing
-simulations by creating a common infrastructure that can be easily used
-and reused across projects. The paper [The Simulator: An Engine to
-Streamline Simulations](http://arxiv.org/abs/1607.00021) discusses the
-simulator in greater depth.
+The [simulator](https://jacobbien.github.io/simulator/) is an R package
+that streamlines the process of performing simulations by creating a
+common infrastructure that can be easily used and reused across
+projects. The paper [The Simulator: An Engine to Streamline
+Simulations](https://arxiv.org/abs/1607.00021) discusses the simulator
+in greater depth.
 
 ## Installation
 
@@ -26,7 +27,7 @@ in R. This installs `simulator` from github.
 ## Vignettes
 
 The [Getting
-Started](http://faculty.bscb.cornell.edu/~bien/simulator_vignettes/getting-started.html)
+Started](https://jacobbien.github.io/simulator/articles/getting-started.html)
 vignette walks you through setting up your first simulation with the
 simulator.
 
@@ -35,17 +36,20 @@ examples. There are several vignettes that demonstrate how the simulator
 can be used to conduct simulations for some of the most famous
 statistical methods.
 
-1)  [Lasso](articles/lasso.html) vignette: Explains basics, including
-    the magrittr pipe and making plots and tables. Also demonstrates
-    some more advanced features such as writing method extensions (such
-    as refitting the result of the lasso or performing
-    cross-validation).
-2)  [James-Stein](articles/js.html) vignette: Shows how to step into
-    specific parts of the simulation for troubleshooting your code.
-3)  [Elastic net](articles/en.html) vignette: Shows how we can work with
-    a sequence of methods that are identical except for a parameter that
-    varies
-4)  [Benjamini-Hochberg](articles/fdr.html) vignette: Shows how we can
-    load a preexisting simulation and add more random draws without
-    having to rerun anything. It also shows how one can have multiple
-    simulation objects that point to overlapping sets of results.
+1)  [Lasso](https://jacobbien.github.io/simulator/articles/lasso.html)
+    vignette: Explains basics, including the magrittr pipe and making
+    plots and tables. Also demonstrates some more advanced features such
+    as writing method extensions (such as refitting the result of the
+    lasso or performing cross-validation).
+2)  [James-Stein](https://jacobbien.github.io/simulator/articles/james-stein.html)
+    vignette: Shows how to step into specific parts of the simulation
+    for troubleshooting your code.
+3)  [Elastic
+    net](https://jacobbien.github.io/simulator/articles/elastic-net.html)
+    vignette: Shows how we can work with a sequence of methods that are
+    identical except for a parameter that varies
+4)  [Benjamini-Hochberg](https://jacobbien.github.io/simulator/articles/fdr.html)
+    vignette: Shows how we can load a preexisting simulation and add
+    more random draws without having to rerun anything. It also shows
+    how one can have multiple simulation objects that point to
+    overlapping sets of results.

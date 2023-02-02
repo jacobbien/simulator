@@ -56,8 +56,8 @@ The simplest way to look at results is by using the plot functions `plot_eval`, 
 The best way to get a sense of how to use the simulator is to look at examples.  There are several vignettes that demonstrate how the simulator can be used to conduct simulations for some of the most famous statistical methods.
 
 1) [Lasso](lasso.html) vignette: Explains basics, including the magrittr pipe and making plots and tables. Also demonstrates some more advanced features such as writing method extensions (such as refitting the result of the lasso or performing cross-validation).
-2) [James-Stein](js.html) vignette: Shows how to step into specific parts of the simulation for troubleshooting your code.
-3) [Elastic net](en.html) vignette: Shows how we can work with a sequence of methods that are identical except for a parameter that varies
+2) [James-Stein](james-stein.html) vignette: Shows how to step into specific parts of the simulation for troubleshooting your code.
+3) [Elastic net](elastic-net.html) vignette: Shows how we can work with a sequence of methods that are identical except for a parameter that varies
 4) [Benjamini-Hochberg](fdr.html) vignette: Shows how we can load a preexisting simulation and add more random draws without having to rerun anything.  It also shows how one can have multiple simulation objects that point to overlapping sets of results.
 
 ```{r, echo = FALSE}
