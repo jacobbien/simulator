@@ -1,4 +1,5 @@
-is_valid_rij_list <- function(out, index, errs) {
+is_valid_rij_list <- function(out, index) {
+  errs <- c()
   if (length(out) < 1) {
     errs <- c(errs, "out must be nonempty.")
   } else {
@@ -30,7 +31,7 @@ check_output <- function(object) {
       errors <- c(errors, "index must be an integer-valued numeric.")
     if (length(object@method_label) != 1)
       errors <- c(errors, "method_label must be of length 1.")
-    errors <- c(errors, is_valid_rij_list(object@out, object@index, errors))
+    errors <- c(errors, is_valid_rij_list(object@out, object@index))
     if (length(errors) == 0) TRUE else errors
 }
 
