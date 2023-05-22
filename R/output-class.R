@@ -1,21 +1,22 @@
 is_valid_rij_list <- function(out, index) {
+  errs <- c()
   if (length(out) < 1) {
-    errors <- c(errors, "out must be nonempty.")
+    errs <- c(errs, "out must be nonempty.")
   } else {
     str <- "incorrectly named elements of out. See documentation."
     # should be of format ri.j where i is in index and j starts at 1.
     pattern <- "^r([[:digit:]]+)[.]([[:digit:]]+)$"
     i <- as.numeric(gsub(pattern, "\\1", names(out)))
     j <- as.numeric(gsub(pattern, "\\2", names(out)))
-    if (any(is.na(i))) errors <- c(errors, str)
+    if (any(is.na(i))) errs <- c(errs, str)
     if (any(sort(unique(i)) != sort(index)))
-      errors <- c(errors, "index does not match elements in out list.")
+      errs <- c(errs, "index does not match elements in out list.")
   }
   if (!all(unlist(lapply(out, is.list))))
-    errors <- c(errors, "out$ri.j should be a list.")
+    errs <- c(errs, "out$ri.j should be a list.")
   nams <- lapply(out, function(r) names(r))
   if (!all(unlist(lapply(nams, function(nam) identical(nam, nams[[1]])))))
-    errors <- c(errors, "all out$ri.j must have same elements.")
+    errs <- c(errs, "all out$ri.j must have same elements.")
 }
 
 check_output <- function(object) {
